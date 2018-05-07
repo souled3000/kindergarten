@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	ns := beego.NewNamespace("/v1",
+	ns := beego.NewNamespace("/api/v2/kg",
 
 		beego.NSNamespace("/facilities_display",
 			beego.NSInclude(
