@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"kindergarten-service-go/models"
+	"log"
 	"strconv"
-	"strings"
+
+	"github.com/astaxie/beego/validation"
 
 	"github.com/astaxie/beego"
 )
@@ -15,139 +16,75 @@ type NoticeController struct {
 	beego.Controller
 }
 
+type JSONStruct struct {
+	Status string      `json:"status";`
+	Code   int         `json:"code";`
+	Result interface{} `json:"result";`
+	Msg    string      `json:"msg";`
+}
+
 // URLMapping ...
 func (c *NoticeController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
+	c.Mapping("Store", c.Store)
+	c.Mapping("GetNoticeList", c.GetNoticeList)
 	c.Mapping("Delete", c.Delete)
 }
 
-// Post ...
-// @Title Post
+// Store ...
+// @Title Store
 // @Description create Notice
-// @Param	body		body 	models.Notice	true		"body for Notice content"
+// @Param	body		body 	models.Notice	true		"array"
 // @Success 201 {int} models.Notice
 // @Failure 403 body is empty
 // @router / [post]
-func (c *NoticeController) Post() {
+func (c *NoticeController) Store() {
 	var v models.Notice
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddNotice(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
+		valid := validation.Validation{}
+		valid.Required(v.Title, "Title").Message("标题不能为空")
+		valid.Required(v.Content, "Content").Message("发布内容不能为空")
+		valid.Required(v.KindergartenId, "KindergartenId").Message("幼儿园编号不能为空")
+		if valid.HasErrors() {
+			log.Println(valid.Errors)
+			c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+			c.ServeJSON()
 		} else {
-			c.Data["json"] = err.Error()
+			v := models.AddNotice(&v)
+			if v == nil {
+				c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "保存失败"}
+			} else {
+				c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+			}
+			c.ServeJSON()
 		}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "字段必须为json格式"}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
 }
 
-// GetOne ...
-// @Title Get One
-// @Description get Notice by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Notice
-// @Failure 403 :id is empty
-// @router /:id [get]
-func (c *NoticeController) GetOne() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetNoticeById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
-	} else {
-		c.Data["json"] = v
-	}
-	c.ServeJSON()
-}
-
-// GetAll ...
-// @Title Get All
+// GetNoticeList ...
+// @Title Get Notice List
 // @Description get Notice
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// @Param	page     query	int	 false		"页数"
+// @Param	per_page query	int	 false		"每页显示条数"
 // @Success 200 {object} models.Notice
 // @Failure 403
 // @router / [get]
-func (c *NoticeController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
+func (c *NoticeController) GetNoticeList() {
+	var prepage int = 20
+	var page int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
-		limit = v
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
 	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
-	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
-	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-
-	l, err := models.GetAllNotice(query, fields, sortby, order, offset, limit)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	v := models.GetNoticeList(page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
 	} else {
-		c.Data["json"] = l
-	}
-	c.ServeJSON()
-}
-
-// Put ...
-// @Title Put
-// @Description update the Notice
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Notice	true		"body for Notice content"
-// @Success 200 {object} models.Notice
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *NoticeController) Put() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.Notice{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateNoticeById(&v); err == nil {
-			c.Data["json"] = "OK"
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
@@ -155,17 +92,18 @@ func (c *NoticeController) Put() {
 // Delete ...
 // @Title Delete
 // @Description delete the Notice
-// @Param	id		path 	string	true		"The id you want to delete"
+// @Param	id		path 	string	true		"用户编号"
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty
 // @router /:id [delete]
 func (c *NoticeController) Delete() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteNotice(id); err == nil {
-		c.Data["json"] = "OK"
+	v := models.DeleteNotice(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	}
 	c.ServeJSON()
 }
