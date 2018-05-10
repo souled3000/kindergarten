@@ -8,8 +8,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var host = beego.AppConfig.String("DB_HOST")
+var port = beego.AppConfig.String("DB_PORT")
+var username = beego.AppConfig.String("DB_USERNAME")
+var password = beego.AppConfig.String("DB_PASSWORD")
+var database = beego.AppConfig.String("DB_DATABASE")
+var connection = beego.AppConfig.String("DB_CONNECTION")
+
 func init() {
-	orm.RegisterDataBase("default", "mysql", "root:123456@tcp(192.168.1.22:32306)/kindergartendb")
+	orm.RegisterDataBase("default", connection, username+":"+password+"@tcp("+host+":"+port+")/"+database+"")
 }
 
 func main() {
