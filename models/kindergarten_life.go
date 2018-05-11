@@ -1,22 +1,19 @@
 package models
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
-	"strings"
+	"math"
 	"time"
 
 	"github.com/astaxie/beego/orm"
 )
 
 type KindergartenLife struct {
-	Id             int       `orm:"column(id);auto"`
-	Content        string    `orm:"column(content);size(255)" description:"内容"`
-	KindergartenId int       `orm:"column(kindergarten_id)"`
-	Template       int8      `orm:"column(template)" description:"模板"`
-	CreatedAt      time.Time `orm:"column(created_at);type(datetime)"`
-	UpdatedAt      time.Time `orm:"column(updated_at);type(datetime)"`
+	Id             int       `json:"id" orm:"column(id);auto"`
+	Content        string    `json:"content" orm:"column(content);size(255)" description:"内容"`
+	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)"`
+	Template       int8      `json:"template" orm:"column(template)" description:"模板"`
+	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt      time.Time `json:"update_at" orm:"auto_now"`
 }
 
 func (t *KindergartenLife) TableName() string {
@@ -27,129 +24,83 @@ func init() {
 	orm.RegisterModel(new(KindergartenLife))
 }
 
-// AddKindergartenLife insert a new KindergartenLife into database and returns
-// last inserted Id on success.
-func AddKindergartenLife(m *KindergartenLife) (id int64, err error) {
+//web-添加园内生活
+func AddKindergartenLife(m *KindergartenLife) map[string]interface{} {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
+	id, err := o.Insert(m)
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = id //返回数据
+		return paginatorMap
+	}
+	return nil
 }
 
-// GetKindergartenLifeById retrieves KindergartenLife by Id. Returns error if
-// Id doesn't exist
-func GetKindergartenLifeById(id int) (v *KindergartenLife, err error) {
+//web-园内生活列表
+func GetKindergartenLifeList(page, prepage int) map[string]interface{} {
+	var v []KindergartenLife
 	o := orm.NewOrm()
-	v = &KindergartenLife{Id: id}
-	if err = o.Read(v); err == nil {
-		return v, nil
+	nums, err := o.QueryTable("kindergarten_life").All(&v)
+	if err == nil && nums > 0 {
+		//根据nums总数，和prepage每页数量 生成分页总数
+		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //page总数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		num, err := o.QueryTable("kindergarten_life").Limit(prepage, limit).All(&v)
+		if err == nil && num > 0 {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = nums          //总条数
+			paginatorMap["data"] = v              //分页数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
+		}
 	}
-	return nil, err
+	return nil
 }
 
-// GetAllKindergartenLife retrieves all KindergartenLife matches certain condition. Returns empty list if
-// no records exist
-func GetAllKindergartenLife(query map[string]string, fields []string, sortby []string, order []string,
-	offset int64, limit int64) (ml []interface{}, err error) {
+//Web -园内生活详情
+func GetKindergartenLifeInfo(id int, page, prepage int) map[string]interface{} {
+	var v []KindergartenLife
 	o := orm.NewOrm()
-	qs := o.QueryTable(new(KindergartenLife))
-	// query k=v
-	for k, v := range query {
-		// rewrite dot-notation to Object__Attribute
-		k = strings.Replace(k, ".", "__", -1)
-		if strings.Contains(k, "isnull") {
-			qs = qs.Filter(k, (v == "true" || v == "1"))
-		} else {
-			qs = qs.Filter(k, v)
+	nums, err := o.QueryTable("kindergarten_life").Filter("Id", id).Count()
+	if err == nil {
+		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //总页数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		err := o.QueryTable("kindergarten_life").Filter("Id", id).Limit(prepage, limit).One(&v)
+		if err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = nums          //总条数
+			paginatorMap["data"] = v              //返回数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
 		}
 	}
-	// order by:
-	var sortFields []string
-	if len(sortby) != 0 {
-		if len(sortby) == len(order) {
-			// 1) for each sort field, there is an associated order
-			for i, v := range sortby {
-				orderby := ""
-				if order[i] == "desc" {
-					orderby = "-" + v
-				} else if order[i] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-			qs = qs.OrderBy(sortFields...)
-		} else if len(sortby) != len(order) && len(order) == 1 {
-			// 2) there is exactly one order, all the sorted fields will be sorted by this order
-			for _, v := range sortby {
-				orderby := ""
-				if order[0] == "desc" {
-					orderby = "-" + v
-				} else if order[0] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
-		}
-	} else {
-		if len(order) != 0 {
-			return nil, errors.New("Error: unused 'order' fields")
-		}
-	}
-
-	var l []KindergartenLife
-	qs = qs.OrderBy(sortFields...)
-	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
-		if len(fields) == 0 {
-			for _, v := range l {
-				ml = append(ml, v)
-			}
-		} else {
-			// trim unused fields
-			for _, v := range l {
-				m := make(map[string]interface{})
-				val := reflect.ValueOf(v)
-				for _, fname := range fields {
-					m[fname] = val.FieldByName(fname).Interface()
-				}
-				ml = append(ml, m)
-			}
-		}
-		return ml, nil
-	}
-	return nil, err
+	return nil
 }
 
-// UpdateKindergartenLife updates KindergartenLife by Id and returns error if
-// the record to be updated doesn't exist
-func UpdateKindergartenLifeById(m *KindergartenLife) (err error) {
-	o := orm.NewOrm()
-	v := KindergartenLife{Id: m.Id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Update(m); err == nil {
-			fmt.Println("Number of records updated in database:", num)
-		}
-	}
-	return
-}
-
-// DeleteKindergartenLife deletes KindergartenLife by Id and returns error if
-// the record to be deleted doesn't exist
-func DeleteKindergartenLife(id int) (err error) {
+//web-删除园内生活
+func DeleteKindergartenLife(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := KindergartenLife{Id: id}
 	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
+	if err := o.Read(&v); err == nil {
 		var num int64
 		if num, err = o.Delete(&KindergartenLife{Id: id}); err == nil {
-			fmt.Println("Number of records deleted in database:", num)
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["data"] = num //返回数据
+			return paginatorMap
 		}
 	}
-	return
+	return nil
 }

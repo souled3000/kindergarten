@@ -1058,44 +1058,22 @@
                 "tags": [
                     "kindergarten_life"
                 ],
-                "description": "get KindergartenLife",
-                "operationId": "KindergartenLifeController.Get All",
+                "description": "Web-园内生活列表",
+                "operationId": "KindergartenLifeController.Web-园内生活列表",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "query",
-                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
-                        "type": "string"
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "fields",
-                        "description": "Fields returned. e.g. col1,col2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortby",
-                        "description": "Sorted-by fields. e.g. col1,col2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "order",
-                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "limit",
-                        "description": "Limit the size of result set. Must be an integer",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "offset",
-                        "description": "Start position of result set. Must be an integer",
-                        "type": "string"
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -1114,16 +1092,34 @@
                 "tags": [
                     "kindergarten_life"
                 ],
-                "description": "create KindergartenLife",
-                "operationId": "KindergartenLifeController.Post",
+                "description": "Web-保存园内生活",
+                "operationId": "KindergartenLifeController.保存园内生活",
                 "parameters": [
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for KindergartenLife content",
+                        "in": "string",
+                        "name": "content",
+                        "description": "标题",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.KindergartenLife"
+                            "$ref": "#/definitions/.boby"
+                        }
+                    },
+                    {
+                        "in": "int",
+                        "name": "template",
+                        "description": "公告内容",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/.boby"
+                        }
+                    },
+                    {
+                        "in": "int",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/.boby"
                         }
                     }
                 ],
@@ -1142,15 +1138,30 @@
                 "tags": [
                     "kindergarten_life"
                 ],
-                "description": "get KindergartenLife by id",
-                "operationId": "KindergartenLifeController.Get One",
+                "description": "Web-园内生活详情",
+                "operationId": "KindergartenLifeController.园内生活详情",
                 "parameters": [
                     {
-                        "in": "path",
+                        "in": "query",
                         "name": "id",
-                        "description": "The key for staticblock",
+                        "description": "主键ID",
                         "required": true,
-                        "type": "string"
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -1161,43 +1172,7 @@
                         }
                     },
                     "403": {
-                        "description": ":id is empty"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "kindergarten_life"
-                ],
-                "description": "update the KindergartenLife",
-                "operationId": "KindergartenLifeController.Put",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to update",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for KindergartenLife content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.KindergartenLife"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.KindergartenLife"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is not int"
+                        "description": ":编号为空"
                     }
                 }
             },
@@ -1205,13 +1180,13 @@
                 "tags": [
                     "kindergarten_life"
                 ],
-                "description": "delete the KindergartenLife",
-                "operationId": "KindergartenLifeController.Delete",
+                "description": "Web-删除园内生活",
+                "operationId": "KindergartenLifeController.Web-删除园内生活",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "id",
-                        "description": "The id you want to delete",
+                        "description": "自增id",
                         "required": true,
                         "type": "string"
                     }
@@ -1923,8 +1898,8 @@
                 "tags": [
                     "notice"
                 ],
-                "description": "get Notice",
-                "operationId": "NoticeController.Get Notice List",
+                "description": "Web-公告列表",
+                "operationId": "NoticeController.公告列表",
                 "parameters": [
                     {
                         "in": "query",
@@ -1957,16 +1932,34 @@
                 "tags": [
                     "notice"
                 ],
-                "description": "create Notice",
-                "operationId": "NoticeController.Store",
+                "description": "Web-保存公告",
+                "operationId": "NoticeController.保存公告",
                 "parameters": [
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "array",
+                        "in": "string",
+                        "name": "title",
+                        "description": "标题",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Notice"
+                            "$ref": "#/definitions/.boby"
+                        }
+                    },
+                    {
+                        "in": "string",
+                        "name": "content",
+                        "description": "公告内容",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/.boby"
+                        }
+                    },
+                    {
+                        "in": "int",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/.boby"
                         }
                     }
                 ],
@@ -1981,12 +1974,54 @@
             }
         },
         "/notice/{id}": {
+            "get": {
+                "tags": [
+                    "notice"
+                ],
+                "description": "Web-公告详情",
+                "operationId": "NoticeController.公告详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "主键ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Notice"
+                        }
+                    },
+                    "403": {
+                        "description": ":编号为空"
+                    }
+                }
+            },
             "delete": {
                 "tags": [
                     "notice"
                 ],
-                "description": "delete the Notice",
-                "operationId": "NoticeController.Delete",
+                "description": "Web-删除公告",
+                "operationId": "NoticeController.删除公告",
                 "parameters": [
                     {
                         "in": "path",
@@ -2694,6 +2729,26 @@
                     },
                     "403": {
                         "description": "id is empty"
+                    }
+                }
+            }
+        },
+        "/ping/": {
+            "get": {
+                "tags": [
+                    "ping"
+                ],
+                "description": "Ping",
+                "operationId": "PingController.Ping",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.OK"
+                        }
+                    },
+                    "403": {
+                        "description": ":没有该服务"
                     }
                 }
             }
@@ -4776,6 +4831,12 @@
         }
     },
     "definitions": {
+        ".OK": {
+            "type": "object"
+        },
+        ".boby": {
+            "type": "object"
+        },
         "models.FacilitiesDisplay": {
             "title": "FacilitiesDisplay",
             "type": "object",
@@ -5021,28 +5082,28 @@
             "title": "KindergartenLife",
             "type": "object",
             "properties": {
-                "Content": {
+                "content": {
                     "description": "内容",
                     "type": "string"
                 },
-                "CreatedAt": {
+                "created_at": {
                     "type": "string",
                     "format": "string"
                 },
-                "Id": {
+                "id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "KindergartenId": {
+                "kindergarten_id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "Template": {
+                "template": {
                     "description": "模板",
                     "type": "integer",
                     "format": "int32"
                 },
-                "UpdatedAt": {
+                "update_at": {
                     "type": "string",
                     "format": "string"
                 }
@@ -5227,6 +5288,7 @@
             "type": "object",
             "properties": {
                 "content": {
+                    "description": "公告内容",
                     "type": "string"
                 },
                 "created_at": {
@@ -5941,7 +6003,7 @@
         },
         {
             "name": "kindergarten_life",
-            "description": "KindergartenLifeController operations for KindergartenLife\n"
+            "description": "园内生活\n"
         },
         {
             "name": "kinship",
@@ -5961,7 +6023,7 @@
         },
         {
             "name": "notice",
-            "description": "NoticeController operations for Notice\n"
+            "description": "发布公告\n"
         },
         {
             "name": "organizational",

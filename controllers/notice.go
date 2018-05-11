@@ -11,7 +11,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-// NoticeController operations for Notice
+//发布公告
 type NoticeController struct {
 	beego.Controller
 }
@@ -31,9 +31,11 @@ func (c *NoticeController) URLMapping() {
 }
 
 // Store ...
-// @Title Store
-// @Description create Notice
-// @Param	body		body 	models.Notice	true		"array"
+// @Title 保存公告
+// @Description Web-保存公告
+// @Param	title		        string   	boby	true		"标题"
+// @Param	content		        string 	    boby	true		"公告内容"
+// @Param	kindergarten_id		int 	    boby	true		"幼儿园ID"
 // @Success 201 {int} models.Notice
 // @Failure 403 body is empty
 // @router / [post]
@@ -64,8 +66,8 @@ func (c *NoticeController) Store() {
 }
 
 // GetNoticeList ...
-// @Title Get Notice List
-// @Description get Notice
+// @Title 公告列表
+// @Description Web-公告列表
 // @Param	page     query	int	 false		"页数"
 // @Param	per_page query	int	 false		"每页显示条数"
 // @Success 200 {object} models.Notice
@@ -89,9 +91,38 @@ func (c *NoticeController) GetNoticeList() {
 	c.ServeJSON()
 }
 
+// GetNoticeInfo ...
+// @Title 公告详情
+// @Description Web-公告详情
+// @Param	id       query	int	 true		"主键ID"
+// @Param	page     query	int	 false		"页数"
+// @Param	per_page query	int	 false		"每页显示条数"
+// @Success 200 {object} models.Notice
+// @Failure 403 :编号为空
+// @router /:id [get]
+func (c *NoticeController) GetNoticeInfo() {
+	var prepage int = 20
+	var page int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
+	}
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
+	}
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := models.GetNoticeInfo(id, page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+	}
+	c.ServeJSON()
+}
+
 // Delete ...
-// @Title Delete
-// @Description delete the Notice
+// @Title 删除公告
+// @Description Web-删除公告
 // @Param	id		path 	string	true		"用户编号"
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty

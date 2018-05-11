@@ -2,170 +2,132 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"kindergarten-service-go/models"
+	"log"
 	"strconv"
-	"strings"
+
+	"github.com/astaxie/beego/validation"
 
 	"github.com/astaxie/beego"
 )
 
-// KindergartenLifeController operations for KindergartenLife
+//园内生活
 type KindergartenLifeController struct {
 	beego.Controller
 }
 
 // URLMapping ...
 func (c *KindergartenLifeController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
+	c.Mapping("Store", c.Store)
+	c.Mapping("GetKindergartenLifeList", c.GetKindergartenLifeList)
 	c.Mapping("Delete", c.Delete)
 }
 
-// Post ...
-// @Title Post
-// @Description create KindergartenLife
-// @Param	body		body 	models.KindergartenLife	true		"body for KindergartenLife content"
+// Store ...
+// @Title 保存园内生活
+// @Description Web-保存园内生活
+// @Param	content		            string   	boby	true		"标题"
+// @Param	template		        int 	    boby	true		"公告内容"
+// @Param	kindergarten_id		    int 	    boby	true		"幼儿园ID"
 // @Success 201 {int} models.KindergartenLife
 // @Failure 403 body is empty
 // @router / [post]
-func (c *KindergartenLifeController) Post() {
+func (c *KindergartenLifeController) Store() {
 	var v models.KindergartenLife
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddKindergartenLife(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
+		valid := validation.Validation{}
+		valid.Required(v.Content, "Content").Message("内容不能为空")
+		valid.Required(v.KindergartenId, "KindergartenId").Message("幼儿园编号不能为空")
+		valid.Required(v.Template, "Template").Message("模板不能为空")
+		if valid.HasErrors() {
+			log.Println(valid.Errors)
+			c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+			c.ServeJSON()
 		} else {
-			c.Data["json"] = err.Error()
+			v := models.AddKindergartenLife(&v)
+			if v == nil {
+				c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "保存失败"}
+			} else {
+				c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+			}
+			c.ServeJSON()
 		}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "字段必须为json格式"}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
 }
 
-// GetOne ...
-// @Title Get One
-// @Description get KindergartenLife by id
-// @Param	id		path 	string	true		"The key for staticblock"
+// GetKindergartenLifeInfo ...
+// @Title 园内生活详情
+// @Description Web-园内生活详情
+// @Param	id       query	int	 true		"主键ID"
+// @Param	page     query	int	 false		"页数"
+// @Param	per_page query	int	 false		"每页显示条数"
 // @Success 200 {object} models.KindergartenLife
-// @Failure 403 :id is empty
+// @Failure 403 :编号为空
 // @router /:id [get]
-func (c *KindergartenLifeController) GetOne() {
+func (c *KindergartenLifeController) GetKindergartenLifeInfo() {
+	var prepage int = 20
+	var page int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
+	}
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
+	}
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetKindergartenLifeById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	v := models.GetKindergartenLifeInfo(id, page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
 	} else {
-		c.Data["json"] = v
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
-// GetAll ...
-// @Title Get All
-// @Description get KindergartenLife
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// GetKindergartenLifeList ...
+// @Title Web-园内生活列表
+// @Description Web-园内生活列表
+// @Param	page     query	int	 false		"页数"
+// @Param	per_page query	int	 false		"每页显示条数"
 // @Success 200 {object} models.KindergartenLife
 // @Failure 403
 // @router / [get]
-func (c *KindergartenLifeController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
+func (c *KindergartenLifeController) GetKindergartenLifeList() {
+	var prepage int = 20
+	var page int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
-		limit = v
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
 	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
-	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
-	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-
-	l, err := models.GetAllKindergartenLife(query, fields, sortby, order, offset, limit)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	v := models.GetKindergartenLifeList(page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
 	} else {
-		c.Data["json"] = l
-	}
-	c.ServeJSON()
-}
-
-// Put ...
-// @Title Put
-// @Description update the KindergartenLife
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.KindergartenLife	true		"body for KindergartenLife content"
-// @Success 200 {object} models.KindergartenLife
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *KindergartenLifeController) Put() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.KindergartenLife{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateKindergartenLifeById(&v); err == nil {
-			c.Data["json"] = "OK"
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
 // Delete ...
-// @Title Delete
-// @Description delete the KindergartenLife
-// @Param	id		path 	string	true		"The id you want to delete"
+// @Title Web-删除园内生活
+// @Description Web-删除园内生活
+// @Param	id		path 	string	true		"自增id"
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty
 // @router /:id [delete]
 func (c *KindergartenLifeController) Delete() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteKindergartenLife(id); err == nil {
-		c.Data["json"] = "OK"
+	v := models.DeleteKindergartenLife(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	}
 	c.ServeJSON()
 }
