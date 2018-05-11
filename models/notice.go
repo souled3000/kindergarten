@@ -8,12 +8,12 @@ import (
 )
 
 type Notice struct {
-	Id             int       `json:"id";orm:"column(id);auto;json:"id";"`
-	Title          string    `json:"title";orm:"column(title);size(50)"; description:"标题"`
-	Content        string    `json:"content";orm:"column(content);json:"content";size(255)" description:"公告内容"`
-	KindergartenId int       `json:"kindergarten_id";orm:"column(kindergarten_id)";json:"kindergarten_id"; description:"幼儿园ID"`
-	CreatedAt      time.Time `json:"created_at";orm:"column(created_at);auto_now_add;json:"created_at";type(datetime)"`
-	UpdatedAt      time.Time `json:"updated_at";orm:"column(updated_at);auto_now;type(datetime)";`
+	Id             int       `json:"id" orm:"column(id);auto;"`
+	Title          string    `json:"title" orm:"column(title);size(50)"; description:"标题"`
+	Content        string    `json:"content" orm:"column(content);size(255)" description:"公告内容"`
+	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)";description:"幼儿园ID"`
+	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt      time.Time `json:"updated_at" orm:"auto_now"`
 }
 
 func (t *Notice) TableName() string {
@@ -62,6 +62,32 @@ func GetNoticeList(page, prepage int) map[string]interface{} {
 	}
 	return nil
 
+}
+
+//Web -园内生活详情
+func GetNoticeInfo(id int, page, prepage int) map[string]interface{} {
+	var v []Notice
+	o := orm.NewOrm()
+	nums, err := o.QueryTable("notice").Filter("Id", id).Count()
+	if err == nil {
+		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //总页数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		err := o.QueryTable("notice").Filter("Id", id).Limit(prepage, limit).One(&v)
+		if err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = nums          //总条数
+			paginatorMap["data"] = v              //返回数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
+		}
+	}
+	return nil
 }
 
 //删除公告

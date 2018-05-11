@@ -183,6 +183,11 @@ func init() {
 				&controllers.UserRoleController{},
 			),
 		),
+		beego.NSNamespace("/ping",
+			beego.NSInclude(
+				&controllers.PingController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
