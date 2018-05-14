@@ -4052,6 +4052,43 @@
                     }
                 }
             },
+            "put": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "编辑教师",
+                "operationId": "TeacherController.编辑教师",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "教师编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "param(json)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/.Animation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.Animation"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
             "delete": {
                 "tags": [
                     "teacher"
@@ -4771,6 +4808,9 @@
         }
     },
     "definitions": {
+        ".Animation": {
+            "type": "object"
+        },
         ".OK": {
             "type": "object"
         },

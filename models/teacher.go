@@ -166,3 +166,21 @@ func GetTeacherInfo(id int, page, prepage int) map[string]interface{} {
 	}
 	return nil
 }
+
+//教师--编辑
+func UpdateTeacher(m *Teacher) map[string]interface{} {
+	o := orm.NewOrm()
+	v := Teacher{Id: m.Id}
+	if m.Post == "" {
+		m.Post = "普通教师"
+	}
+	if err := o.Read(&v); err == nil {
+		var num int64
+		if num, err = o.Update(m); err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["data"] = num //返回数据
+			return paginatorMap
+		}
+	}
+	return nil
+}

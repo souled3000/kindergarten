@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"kindergarten-service-go/models"
 	"strconv"
 
@@ -136,4 +137,30 @@ func (c *TeacherController) GetTeacherInfo() {
 		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
+}
+
+// Put ...
+// @Title 编辑教师
+// @Description 编辑教师
+// @Param	id		    path 	int	               true		    "教师编号"
+// @Param	body		body 	models.Animation	true		"param(json)"
+// @Success 200 {object} models.Animation
+// @Failure 403 :id is not int
+// @router /:id [put]
+func (c *TeacherController) Put() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := models.Teacher{Id: id}
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		v := models.UpdateTeacher(&v)
+		if v == nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "编辑失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
+		}
+		c.ServeJSON()
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "字段必须为json格式"}
+		c.ServeJSON()
+	}
 }
