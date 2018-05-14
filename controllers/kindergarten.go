@@ -17,57 +17,41 @@ type KindergartenController struct {
 
 // URLMapping ...
 func (c *KindergartenController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
+	c.Mapping("GetIntroduceInfo", c.GetIntroduceInfo)
+	c.Mapping("GetIntroduce", c.GetIntroduce)
 	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
 }
 
-// Post ...
-// @Title Post
-// @Description create Kindergarten
-// @Param	body		body 	models.Kindergarten	true		"body for Kindergarten content"
-// @Success 201 {int} models.Kindergarten
-// @Failure 403 body is empty
-// @router / [post]
-func (c *KindergartenController) Post() {
-	var v models.Kindergarten
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddKindergarten(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
-	}
-	c.ServeJSON()
-}
-
-// GetOne ...
-// @Title Get One
-// @Description get Kindergarten by id
-// @Param	id		path 	string	true		"The key for staticblock"
+// GetIntroduceInfo ...
+// @Title 幼儿园介绍详情
+// @Description 幼儿园介绍详情
+// @Param	id		path 	string	true		"幼儿园ID"
 // @Success 200 {object} models.Kindergarten
 // @Failure 403 :id is empty
 // @router /:id [get]
-func (c *KindergartenController) GetOne() {
+func (c *KindergartenController) GetIntroduceInfo() {
+	var prepage int = 20
+	var page int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
+	}
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
+	}
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetKindergartenById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	v := models.GetKindergartenById(id, page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
 	} else {
-		c.Data["json"] = v
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
-// GetAll ...
-// @Title Get All
-// @Description get Kindergarten
+// GetIntroduce ...
+// @Title 幼儿园介绍列表
+// @Description 幼儿园介绍列表
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
 // @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
@@ -77,7 +61,7 @@ func (c *KindergartenController) GetOne() {
 // @Success 200 {object} models.Kindergarten
 // @Failure 403
 // @router / [get]
-func (c *KindergartenController) GetAll() {
+func (c *KindergartenController) GetIntroduce() {
 	var fields []string
 	var sortby []string
 	var order []string
@@ -146,24 +130,6 @@ func (c *KindergartenController) Put() {
 		} else {
 			c.Data["json"] = err.Error()
 		}
-	} else {
-		c.Data["json"] = err.Error()
-	}
-	c.ServeJSON()
-}
-
-// Delete ...
-// @Title Delete
-// @Description delete the Kindergarten
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *KindergartenController) Delete() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteKindergarten(id); err == nil {
-		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
 	}

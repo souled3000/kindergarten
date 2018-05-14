@@ -9,6 +9,6 @@ type ErrorController struct {
 }
 
 func (c *ErrorController) Error404() {
-	c.Data["json"] = JSONStruct{"error", 404, nil, "获取失败"}
+	c.Data["json"] = JSONStruct{"error", 404, nil, "接口不存在"}
 	c.ServeJSON()
 }

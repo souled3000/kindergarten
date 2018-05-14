@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 	"time"
@@ -11,19 +12,19 @@ import (
 )
 
 type Kindergarten struct {
-	Id               int       `orm:"column(kindergarten_id);auto" description:"编号"`
-	Name             string    `orm:"column(name);size(50)" description:"幼儿园名称"`
-	LicenseNo        int       `orm:"column(license_no)" description:"执照号"`
-	KinderGrade      string    `orm:"column(kinder_grade);size(45)" description:"幼儿园级别"`
-	KinderChildNo    int       `orm:"column(kinder_child_no)" description:"分校数"`
-	Address          string    `orm:"column(address);size(50)" description:"地址"`
-	TenantId         int       `orm:"column(tenant_id)" description:"租户，企业编号"`
-	Status           int8      `orm:"column(status)" description:"状态：0:正常，1:删除"`
-	Introduce        string    `orm:"column(introduce);size(255)" description:"幼儿园介绍"`
-	IntroducePicture string    `orm:"column(introduce_picture);size(255)" description:"幼儿园介绍图"`
-	CreatedAt        time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt        time.Time `orm:"column(updated_at);type(timestamp)"`
-	DeletedAt        time.Time `orm:"column(deleted_at);type(datetime);null"`
+	Id               int       `json:"kindergarten_id" orm:"column(kindergarten_id);auto" description:"编号"`
+	Name             string    `json:"name" orm:"column(name);size(50)" description:"幼儿园名称"`
+	LicenseNo        int       `json:"license_no" orm:"column(license_no)" description:"执照号"`
+	KinderGrade      string    `json:"kinder_grade" orm:"column(kinder_grade);size(45)" description:"幼儿园级别"`
+	KinderChildNo    int       `json:"kinder_child_no" orm:"column(kinder_child_no)" description:"分校数"`
+	Address          string    `json:"address" orm:"column(address);size(50)" description:"地址"`
+	TenantId         int       `json:"tenant_id" orm:"column(tenant_id)" description:"租户，企业编号"`
+	Status           int8      `json:"status" orm:"column(status)" description:"状态：0:正常，1:删除"`
+	Introduce        string    `json:"introduce" orm:"column(introduce);size(255)" description:"幼儿园介绍"`
+	IntroducePicture string    `json:"introduce_picture" orm:"column(introduce_picture);size(255)" description:"幼儿园介绍图"`
+	CreatedAt        time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt        time.Time `json:"updated_at" orm:"auto_now"`
+	DeletedAt        time.Time `json:"deleted_at" orm:"column(deleted_at);type(datetime);null"`
 }
 
 func (t *Kindergarten) TableName() string {
@@ -34,23 +35,30 @@ func init() {
 	orm.RegisterModel(new(Kindergarten))
 }
 
-// AddKindergarten insert a new Kindergarten into database and returns
-// last inserted Id on success.
-func AddKindergarten(m *Kindergarten) (id int64, err error) {
+//web-幼儿园介绍详情
+func GetKindergartenById(id int, page, prepage int) map[string]interface{} {
+	var v []Kindergarten
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
-}
-
-// GetKindergartenById retrieves Kindergarten by Id. Returns error if
-// Id doesn't exist
-func GetKindergartenById(id int) (v *Kindergarten, err error) {
-	o := orm.NewOrm()
-	v = &Kindergarten{Id: id}
-	if err = o.Read(v); err == nil {
-		return v, nil
+	nums, err := o.QueryTable("kindergarten").Filter("Id", id).Count()
+	if err == nil {
+		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //总页数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		err := o.QueryTable("kindergarten").Filter("Id", id).Limit(prepage, limit).One(&v)
+		if err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = nums          //总条数
+			paginatorMap["data"] = v              //返回数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
+		}
 	}
-	return nil, err
+	return nil
 }
 
 // GetAllKindergarten retrieves all Kindergarten matches certain condition. Returns empty list if

@@ -539,8 +539,8 @@
                 "tags": [
                     "kindergarten"
                 ],
-                "description": "get Kindergarten",
-                "operationId": "KindergartenController.Get All",
+                "description": "幼儿园介绍列表",
+                "operationId": "KindergartenController.幼儿园介绍列表",
                 "parameters": [
                     {
                         "in": "query",
@@ -590,32 +590,6 @@
                         "description": ""
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "kindergarten"
-                ],
-                "description": "create Kindergarten",
-                "operationId": "KindergartenController.Post",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Kindergarten content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Kindergarten"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "{int} models.Kindergarten"
-                    },
-                    "403": {
-                        "description": "body is empty"
-                    }
-                }
             }
         },
         "/kindergarten/{id}": {
@@ -623,13 +597,13 @@
                 "tags": [
                     "kindergarten"
                 ],
-                "description": "get Kindergarten by id",
-                "operationId": "KindergartenController.Get One",
+                "description": "幼儿园介绍详情",
+                "operationId": "KindergartenController.幼儿园介绍详情",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "id",
-                        "description": "The key for staticblock",
+                        "description": "幼儿园ID",
                         "required": true,
                         "type": "string"
                     }
@@ -679,30 +653,6 @@
                     },
                     "403": {
                         "description": ":id is not int"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "kindergarten"
-                ],
-                "description": "delete the Kindergarten",
-                "operationId": "KindergartenController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to delete",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} delete success!"
-                    },
-                    "403": {
-                        "description": "id is empty"
                     }
                 }
             }
@@ -3969,44 +3919,52 @@
                 "tags": [
                     "teacher"
                 ],
-                "description": "get Teacher",
-                "operationId": "TeacherController.Get All",
+                "description": "全部教师列表",
+                "operationId": "TeacherController.全部教师列表",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "query",
-                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
-                        "type": "string"
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "fields",
-                        "description": "Fields returned. e.g. col1,col2 ...",
-                        "type": "string"
+                        "name": "class_type",
+                        "description": "班级类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "sortby",
-                        "description": "Sorted-by fields. e.g. col1,col2 ...",
-                        "type": "string"
+                        "name": "status",
+                        "description": "状态",
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "order",
-                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
-                        "type": "string"
+                        "name": "search",
+                        "description": "搜索条件",
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "limit",
-                        "description": "Limit the size of result set. Must be an integer",
-                        "type": "string"
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "offset",
-                        "description": "Start position of result set. Must be an integer",
-                        "type": "string"
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -4020,46 +3978,20 @@
                         "description": ""
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "teacher"
-                ],
-                "description": "create Teacher",
-                "operationId": "TeacherController.Post",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Teacher content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Teacher"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "{int} models.Teacher"
-                    },
-                    "403": {
-                        "description": "body is empty"
-                    }
-                }
             }
         },
-        "/teacher/{id}": {
+        "/teacher/teacher_down/{id}": {
             "get": {
                 "tags": [
                     "teacher"
                 ],
-                "description": "get Teacher by id",
-                "operationId": "TeacherController.Get One",
+                "description": "教师下拉菜单",
+                "operationId": "TeacherController.教师下拉菜单",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "id",
-                        "description": "The key for staticblock",
+                        "description": "幼儿园ID",
                         "required": true,
                         "type": "string"
                     }
@@ -4075,29 +4007,37 @@
                         "description": ":id is empty"
                     }
                 }
-            },
-            "put": {
+            }
+        },
+        "/teacher/{id}": {
+            "get": {
                 "tags": [
                     "teacher"
                 ],
-                "description": "update the Teacher",
-                "operationId": "TeacherController.Put",
+                "description": "教师详情",
+                "operationId": "TeacherController.Get Teacher Info",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to update",
+                        "in": "query",
+                        "name": "teacher_id",
+                        "description": "教师编号",
                         "required": true,
-                        "type": "string"
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Teacher content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Teacher"
-                        }
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -4108,7 +4048,7 @@
                         }
                     },
                     "403": {
-                        "description": ":id is not int"
+                        "description": ":教师编号为空"
                     }
                 }
             },
@@ -4116,13 +4056,13 @@
                 "tags": [
                     "teacher"
                 ],
-                "description": "delete the Teacher",
+                "description": "删除教师",
                 "operationId": "TeacherController.Delete",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "id",
-                        "description": "The id you want to delete",
+                        "name": "teacher_id",
+                        "description": "教师ID",
                         "required": true,
                         "type": "string"
                     }
@@ -4933,60 +4873,60 @@
             "title": "Kindergarten",
             "type": "object",
             "properties": {
-                "Address": {
+                "address": {
                     "description": "地址",
                     "type": "string"
                 },
-                "CreatedAt": {
+                "created_at": {
                     "type": "string",
                     "format": "string"
                 },
-                "DeletedAt": {
+                "deleted_at": {
                     "type": "string",
                     "format": "string"
                 },
-                "Id": {
-                    "description": "编号",
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "Introduce": {
+                "introduce": {
                     "description": "幼儿园介绍",
                     "type": "string"
                 },
-                "IntroducePicture": {
+                "introduce_picture": {
                     "description": "幼儿园介绍图",
                     "type": "string"
                 },
-                "KinderChildNo": {
+                "kinder_child_no": {
                     "description": "分校数",
                     "type": "integer",
                     "format": "int64"
                 },
-                "KinderGrade": {
+                "kinder_grade": {
                     "description": "幼儿园级别",
                     "type": "string"
                 },
-                "LicenseNo": {
+                "kindergarten_id": {
+                    "description": "编号",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "license_no": {
                     "description": "执照号",
                     "type": "integer",
                     "format": "int64"
                 },
-                "Name": {
+                "name": {
                     "description": "幼儿园名称",
                     "type": "string"
                 },
-                "Status": {
+                "status": {
                     "description": "状态：0:正常，1:删除",
                     "type": "integer",
                     "format": "int32"
                 },
-                "TenantId": {
+                "tenant_id": {
                     "description": "租户，企业编号",
                     "type": "integer",
                     "format": "int64"
                 },
-                "UpdatedAt": {
+                "updated_at": {
                     "type": "string",
                     "format": "string"
                 }
@@ -5765,115 +5705,111 @@
             "title": "Teacher",
             "type": "object",
             "properties": {
-                "Address": {
-                    "description": "住址",
-                    "type": "string"
-                },
-                "Age": {
+                "age": {
                     "description": "年龄",
                     "type": "integer",
                     "format": "int32"
                 },
-                "Avatar": {
+                "avatar": {
                     "description": "头像",
                     "type": "string"
                 },
-                "ClassInfo": {
+                "class_info": {
                     "description": "班级信息",
                     "type": "string"
                 },
-                "CreatedAt": {
+                "created_at": {
                     "type": "string",
                     "format": "string"
                 },
-                "DeletedAt": {
+                "deleted_at": {
                     "type": "string",
                     "format": "string"
                 },
-                "EmergencyContact": {
+                "emergency_contact": {
                     "description": "紧急联系人",
                     "type": "string"
                 },
-                "EmergencyContactPhone": {
+                "emergency_contact_phone": {
                     "description": "紧急联系人电话",
                     "type": "string"
                 },
-                "EnterGardenTime": {
+                "enter_garden_time": {
                     "description": "进入本园时间",
                     "type": "string",
                     "format": "string"
                 },
-                "EnterJobTime": {
+                "enter_job_time": {
                     "description": "参加工作时间",
                     "type": "string",
                     "format": "string"
                 },
-                "Id": {
-                    "description": "自增id",
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "IdNumber": {
+                "id_number": {
                     "description": "身份证号",
                     "type": "string"
                 },
-                "KindergartenId": {
+                "kindergarten_id": {
                     "description": "幼儿园id",
                     "type": "integer",
                     "format": "int64"
                 },
-                "Name": {
+                "name": {
                     "description": "姓名",
                     "type": "string"
                 },
-                "NationOrReligion": {
+                "nation_or_religion": {
                     "description": "民族或宗教",
                     "type": "string"
                 },
-                "NativePlace": {
+                "native_place": {
                     "description": "籍贯",
                     "type": "string"
                 },
-                "Number": {
+                "number": {
                     "description": "教职工编号",
                     "type": "string"
                 },
-                "Phone": {
+                "phone": {
                     "description": "联系电话",
                     "type": "string"
                 },
-                "Post": {
+                "post": {
                     "description": "职务",
                     "type": "string"
                 },
-                "Sex": {
+                "sex": {
                     "description": "性别 0男  1女",
                     "type": "integer",
                     "format": "int32"
                 },
-                "Source": {
+                "source": {
                     "description": "来源",
                     "type": "string"
                 },
-                "Status": {
+                "status": {
                     "description": "状态：0未分班，1已分班，2离职",
                     "type": "integer",
                     "format": "int32"
                 },
-                "TeacherCertificationNumber": {
+                "teacher_certification_number": {
                     "description": "教师资格认证编号",
                     "type": "string"
                 },
-                "TeacherCertificationStatus": {
+                "teacher_certification_status": {
                     "description": "教师资格证书状态，是否认证",
                     "type": "integer",
                     "format": "int32"
                 },
-                "UpdatedAt": {
+                "teacher_id": {
+                    "description": "自增id",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "updated_at": {
                     "type": "string",
                     "format": "string"
                 },
-                "UserId": {
+                "user_id": {
                     "description": "用户id",
                     "type": "integer",
                     "format": "int64"
@@ -6071,7 +6007,7 @@
         },
         {
             "name": "teacher",
-            "description": "TeacherController operations for Teacher\n"
+            "description": "教师\n"
         },
         {
             "name": "teacher_title",
