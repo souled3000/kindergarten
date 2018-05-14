@@ -15,6 +15,7 @@ type PingController struct {
 // @Failure 403 :没有该服务
 // @router / [get]
 func (c *PingController) Ping() {
-	c.Data["json"] = JSONStruct{"success", 0, nil, "获取成功"}
+	var appname = beego.AppConfig.String("appname")
+	c.Data["json"] = JSONStruct{"success", 0, appname, "获取成功"}
 	c.ServeJSON()
 }
