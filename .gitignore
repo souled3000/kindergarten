@@ -3,3 +3,4 @@ lastupdate.tmp
 .idea/
 routers/commentsRouter_controllers*.go
 kindergarten-service-go
+conf/app.conf

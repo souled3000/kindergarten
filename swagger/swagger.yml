@@ -1799,6 +1799,32 @@ paths:
             $ref: '#/definitions/.OK'
         "403":
           description: :没有该服务
+  /ping/ping_onemore:
+    get:
+      tags:
+      - ping
+      description: onemore服务是否调通
+      operationId: PingController.onemore服务是否调通
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
+  /ping/ping_user:
+    get:
+      tags:
+      - ping
+      description: user服务是否调通
+      operationId: PingController.user服务是否调通
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
   /role/:
     get:
       tags:
@@ -2263,34 +2289,35 @@ paths:
     get:
       tags:
       - student
-      description: get Student
-      operationId: StudentController.Get All
+      description: 学生列表
+      operationId: StudentController.学生列表
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
+        name: status
+        description: 状态
+        type: integer
+        format: int64
       - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
+        name: search
+        description: 搜索条件
+        type: integer
+        format: int64
       - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
+        name: page
+        description: 页数
+        type: integer
+        format: int64
       - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -2298,82 +2325,6 @@ paths:
             $ref: '#/definitions/models.Student'
         "403":
           description: ""
-    post:
-      tags:
-      - student
-      description: create Student
-      operationId: StudentController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for Student content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Student'
-      responses:
-        "201":
-          description: '{int} models.Student'
-        "403":
-          description: body is empty
-  /student/{id}:
-    get:
-      tags:
-      - student
-      description: get Student by id
-      operationId: StudentController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Student'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - student
-      description: update the Student
-      operationId: StudentController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for Student content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Student'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Student'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - student
-      description: delete the Student
-      operationId: StudentController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
   /student_ examination/:
     get:
       tags:
@@ -2618,12 +2569,6 @@ paths:
         type: integer
         format: int64
       - in: query
-        name: class_type
-        description: 班级类型
-        required: true
-        type: integer
-        format: int64
-      - in: query
         name: status
         description: 状态
         type: integer
@@ -2650,6 +2595,23 @@ paths:
             $ref: '#/definitions/models.Teacher'
         "403":
           description: ""
+    post:
+      tags:
+      - teacher
+      description: 教师-录入信息
+      operationId: TeacherController.教师-录入信息
+      parameters:
+      - in: body
+        name: body
+        description: json
+        required: true
+        schema:
+          $ref: '#/definitions/.Animation'
+      responses:
+        "201":
+          description: '{int} models.Animation'
+        "403":
+          description: body is empty
   /teacher/{id}:
     get:
       tags:
@@ -2715,12 +2677,96 @@ paths:
         name: teacher_id
         description: 教师ID
         required: true
-        type: string
+        type: integer
+        format: int64
+      - in: path
+        name: status
+        description: 状态(status 0:未分班 2:离职)
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: type
+        description: 删除类型（type 0:教师离职 1:删除档案）
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: '{string} delete success!'
         "403":
           description: id is empty
+  /teacher/class:
+    get:
+      tags:
+      - teacher
+      description: 班级列表
+      operationId: TeacherController.班级列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: ""
+  /teacher/invite:
+    post:
+      tags:
+      - teacher
+      description: 邀请教师
+      operationId: TeacherController.邀请教师
+      parameters:
+      - in: body
+        name: phone
+        description: 手机号
+        required: true
+        type: string
+      - in: body
+        name: name
+        description: 姓名
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: role
+        description: 身份
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Animation'
+        "403":
+          description: body is empty
   /teacher/teacher_down/{id}:
     get:
       tags:
@@ -3908,6 +3954,9 @@ definitions:
     title: Teacher
     type: object
     properties:
+      address:
+        description: 住址
+        type: string
       age:
         description: 年龄
         type: integer
@@ -4125,7 +4174,7 @@ tags:
     SlideShowController operations for SlideShow
 - name: student
   description: |
-    StudentController operations for Student
+    学生
 - name: student_ examination
   description: |
     StudentExaminationController operations for StudentExamination

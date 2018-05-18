@@ -1,16 +1,12 @@
 package controllers
 
 import (
-	"encoding/json"
-	"errors"
 	"kindergarten-service-go/models"
-	"strconv"
-	"strings"
 
 	"github.com/astaxie/beego"
 )
 
-// StudentController operations for Student
+//学生
 type StudentController struct {
 	beego.Controller
 }
@@ -18,154 +14,81 @@ type StudentController struct {
 // URLMapping ...
 func (c *StudentController) URLMapping() {
 	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
 }
 
-// Post ...
-// @Title Post
-// @Description create Student
-// @Param	body		body 	models.Student	true		"body for Student content"
-// @Success 201 {int} models.Student
-// @Failure 403 body is empty
-// @router / [post]
-func (c *StudentController) Post() {
-	var v models.Student
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddStudent(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
-	}
-	c.ServeJSON()
-}
-
-// GetOne ...
-// @Title Get One
-// @Description get Student by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Student
-// @Failure 403 :id is empty
-// @router /:id [get]
-func (c *StudentController) GetOne() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetStudentById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
-	} else {
-		c.Data["json"] = v
-	}
-	c.ServeJSON()
-}
-
-// GetAll ...
-// @Title Get All
-// @Description get Student
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// GetStudent ...
+// @Title 学生列表
+// @Description 学生列表
+// @Param	kindergarten_id       query	int	     true		"幼儿园ID"
+// @Param	status                query	int	     false		"状态"
+// @Param	search                query	int	     false		"搜索条件"
+// @Param	page                  query	int	     false		"页数"
+// @Param	per_page              query	int	     false		"每页显示条数"
 // @Success 200 {object} models.Student
 // @Failure 403
 // @router / [get]
-func (c *StudentController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
+func (c *StudentController) GetStudent() {
+	var prepage int = 20
+	var page int
+	var kindergarten_id int
+	var status int
+	var search string
+	search = c.GetString("search")
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
-		limit = v
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
 	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
+	if v, err := c.GetInt("kindergarten_id"); err == nil {
+		kindergarten_id = v
 	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
+	if v, err := c.GetInt("status", -1); err == nil {
+		status = v
 	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-
-	l, err := models.GetAllStudent(query, fields, sortby, order, offset, limit)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	v := models.GetStudent(kindergarten_id, status, search, page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
-		c.Data["json"] = l
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
-// Put ...
-// @Title Put
-// @Description update the Student
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Student	true		"body for Student content"
+// GetStudentClass ...
+// @Title 学生班级搜索
+// @Description 学生班级搜索
+// @Param	kindergarten_id       query	int	     true		"幼儿园ID"
+// @Param	class_type            query	int	     true		"班级类型"
+// @Param	page                  query	int	     false		"页数"
+// @Param	per_page              query	int	     false		"每页显示条数"
 // @Success 200 {object} models.Student
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *StudentController) Put() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.Student{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateStudentById(&v); err == nil {
-			c.Data["json"] = "OK"
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
+// @Failure 403
+// @router /class [get]
+func (c *TeacherController) GetStudentClass() {
+	var prepage int = 20
+	var page int
+	var kindergarten_id int
+	var class_type int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	c.ServeJSON()
-}
-
-// Delete ...
-// @Title Delete
-// @Description delete the Student
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *StudentController) Delete() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteStudent(id); err == nil {
-		c.Data["json"] = "OK"
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
+	}
+	if v, err := c.GetInt("kindergarten_id"); err == nil {
+		kindergarten_id = v
+	}
+	if v, err := c.GetInt("class_type"); err == nil {
+		class_type = v
+	}
+	v := models.GetStudentClass(kindergarten_id, class_type, page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
