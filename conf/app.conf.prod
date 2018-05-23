@@ -12,3 +12,7 @@ DB_PORT = 3306
 DB_DATABASE = kindergartendb
 DB_USERNAME = onemore
 DB_PASSWORD = Dea*7wjdha
+
+#rpc-client
+ONE_MORE_USER_SERVER = "http://user-go-prod:8080/rpc/user"
+ONE_MORE_SMS_SERVER = "http://onemore-go-prod:8080/rpc/sms"

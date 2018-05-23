@@ -1799,6 +1799,32 @@ paths:
             $ref: '#/definitions/.OK'
         "403":
           description: :没有该服务
+  /ping/rpc/onemore:
+    get:
+      tags:
+      - ping
+      description: onemore服务是否调通
+      operationId: PingController.onemore服务是否调通
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
+  /ping/rpc/user:
+    get:
+      tags:
+      - ping
+      description: user服务是否调通
+      operationId: PingController.user服务是否调通
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
   /role/:
     get:
       tags:
@@ -2263,34 +2289,35 @@ paths:
     get:
       tags:
       - student
-      description: get Student
-      operationId: StudentController.Get All
+      description: 学生列表
+      operationId: StudentController.学生列表
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
+        name: status
+        description: 状态
+        type: integer
+        format: int64
       - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
+        name: search
+        description: 搜索条件
+        type: integer
+        format: int64
       - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
+        name: page
+        description: 页数
+        type: integer
+        format: int64
       - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -2301,15 +2328,15 @@ paths:
     post:
       tags:
       - student
-      description: create Student
-      operationId: StudentController.Post
+      description: 学生-录入信息
+      operationId: StudentController.学生-录入信息
       parameters:
       - in: body
         name: body
-        description: body for Student content
+        description: json
         required: true
         schema:
-          $ref: '#/definitions/models.Student'
+          $ref: '#/definitions/.Animation'
       responses:
         "201":
           description: '{int} models.Student'
@@ -2319,35 +2346,37 @@ paths:
     get:
       tags:
       - student
-      description: get Student by id
-      operationId: StudentController.Get One
+      description: 学生详情
+      operationId: StudentController.Get Student Info
       parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
+      - in: query
+        name: student_id
+        description: 学生编号
         required: true
-        type: string
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
           schema:
             $ref: '#/definitions/models.Student'
         "403":
-          description: :id is empty
+          description: :学生编号为空
     put:
       tags:
       - student
-      description: update the Student
-      operationId: StudentController.Put
+      description: 编辑学生
+      operationId: StudentController.编辑学生
       parameters:
       - in: path
         name: id
-        description: The id you want to update
+        description: 学生编号
         required: true
-        type: string
+        type: integer
+        format: int64
       - in: body
         name: body
-        description: body for Student content
+        description: param(json)
         required: true
         schema:
           $ref: '#/definitions/models.Student'
@@ -2361,19 +2390,103 @@ paths:
     delete:
       tags:
       - student
-      description: delete the Student
+      description: 删除教师
       operationId: StudentController.Delete
       parameters:
       - in: path
-        name: id
-        description: The id you want to delete
+        name: teacher_id
+        description: 教师ID
         required: true
-        type: string
+        type: integer
+        format: int64
+      - in: path
+        name: status
+        description: 状态(status 0:未分班 2:离职)
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: type
+        description: 删除类型（type 0:教师离职 1:删除档案）
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: '{string} delete success!'
         "403":
           description: id is empty
+  /student/class:
+    get:
+      tags:
+      - student
+      description: 学生班级搜索
+      operationId: StudentController.学生班级搜索
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Student'
+        "403":
+          description: ""
+  /student/invite:
+    post:
+      tags:
+      - student
+      description: 邀请学生
+      operationId: StudentController.邀请学生
+      parameters:
+      - in: body
+        name: phone
+        description: 手机号
+        required: true
+        type: string
+      - in: body
+        name: name
+        description: 学生姓名
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: role
+        description: 身份
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Student'
+        "403":
+          description: body is empty
   /student_ examination/:
     get:
       tags:
@@ -2618,12 +2731,6 @@ paths:
         type: integer
         format: int64
       - in: query
-        name: class_type
-        description: 班级类型
-        required: true
-        type: integer
-        format: int64
-      - in: query
         name: status
         description: 状态
         type: integer
@@ -2650,6 +2757,23 @@ paths:
             $ref: '#/definitions/models.Teacher'
         "403":
           description: ""
+    post:
+      tags:
+      - teacher
+      description: 教师-录入信息
+      operationId: TeacherController.教师-录入信息
+      parameters:
+      - in: body
+        name: body
+        description: json
+        required: true
+        schema:
+          $ref: '#/definitions/.Animation'
+      responses:
+        "201":
+          description: '{int} models.Animation'
+        "403":
+          description: body is empty
   /teacher/{id}:
     get:
       tags:
@@ -2705,22 +2829,77 @@ paths:
             $ref: '#/definitions/.Animation'
         "403":
           description: :id is not int
-    delete:
+  /teacher/class:
+    get:
       tags:
       - teacher
-      description: 删除教师
-      operationId: TeacherController.Delete
+      description: 班级列表
+      operationId: TeacherController.班级列表
       parameters:
-      - in: path
-        name: teacher_id
-        description: 教师ID
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
         required: true
-        type: string
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
       responses:
         "200":
-          description: '{string} delete success!'
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
         "403":
-          description: id is empty
+          description: ""
+  /teacher/invite:
+    post:
+      tags:
+      - teacher
+      description: 邀请教师
+      operationId: TeacherController.邀请教师
+      parameters:
+      - in: body
+        name: phone
+        description: 手机号
+        required: true
+        type: string
+      - in: body
+        name: name
+        description: 姓名
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: role
+        description: 身份
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Animation'
+        "403":
+          description: body is empty
   /teacher/teacher_down/{id}:
     get:
       tags:
@@ -3417,37 +3596,33 @@ definitions:
     title: Kinship
     type: object
     properties:
-      ContactInformation:
+      contact_information:
         description: 联系方式
         type: string
-      CreatedAt:
+      created_at:
         type: string
         format: string
-      Id:
+      kinship_id:
         description: 编号
         type: integer
         format: int64
-      Name:
+      name:
         description: 名字
         type: string
-      Relation:
+      relation:
         description: 关系
         type: string
-      StudentId:
-        description: 学生序号
-        type: integer
-        format: int64
-      Type:
+      type:
         description: 类型，1紧急联系人，2监护人
         type: integer
         format: int32
-      UnitName:
+      unit_name:
         description: 单位名称
         type: string
-      UpdatedAt:
+      updated_at:
         type: string
         format: string
-      UserId:
+      user_id:
         description: 用户ID
         type: integer
         format: int64
@@ -3750,65 +3925,69 @@ definitions:
     title: Student
     type: object
     properties:
-      Address:
+      Created_at:
+        type: string
+        format: string
+      address:
         description: 住址
         type: string
-      Age:
+      age:
         description: 年龄
         type: integer
         format: int32
-      Avatar:
+      avatar:
         description: 头像
         type: string
-      ClassInfo:
+      class_info:
         description: 所在班级
         type: string
-      CreatedAt:
+      deleted_at:
         type: string
         format: string
-      DeletedAt:
-        type: string
-        format: string
-      HealthStatus:
+      health_status:
         description: 健康状况，多个以逗号隔开
         type: string
-      Hobby:
+      hobby:
         description: 兴趣爱好，多个以逗号隔开
         type: string
-      Id:
-        type: integer
-        format: int64
-      KindergartenId:
+      kindergarten_id:
         description: 幼儿园ID
         type: integer
         format: int64
-      Name:
+      kinship:
+        type: array
+        items:
+          $ref: '#/definitions/models.Kinship'
+      name:
         description: 姓名
         type: string
-      NationOrReligion:
+      nation_or_religion:
         description: 民族或宗教
         type: string
-      NativePlace:
+      native_place:
         description: 籍贯
         type: string
-      Number:
+      number:
         description: 学号
         type: string
-      Phone:
+      phone:
         description: 手机号
         type: string
-      Sex:
+      sex:
         description: 性别 0男 1女
         type: integer
         format: int32
-      Status:
+      status:
         description: 状态 0未分班 1已分班 2离园
         type: integer
         format: int32
-      UpdatedAt:
+      student_id:
+        type: integer
+        format: int64
+      updated_at:
         type: string
         format: string
-      UserId:
+      user_id:
         description: 用户ID
         type: integer
         format: int64
@@ -3908,6 +4087,9 @@ definitions:
     title: Teacher
     type: object
     properties:
+      address:
+        description: 住址
+        type: string
       age:
         description: 年龄
         type: integer
@@ -4125,7 +4307,7 @@ tags:
     SlideShowController operations for SlideShow
 - name: student
   description: |
-    StudentController operations for Student
+    学生
 - name: student_ examination
   description: |
     StudentExaminationController operations for StudentExamination
