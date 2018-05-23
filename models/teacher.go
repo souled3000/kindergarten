@@ -23,7 +23,7 @@ type Teacher struct {
 	EnterGardenTime            time.Time `json:"enter_garden_time" orm:"column(enter_garden_time);type(date)" description:"进入本园时间"`
 	EnterJobTime               time.Time `json:"enter_job_time" orm:"column(enter_job_time);type(date)" description:"参加工作时间"`
 	KindergartenId             int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园id"`
-	Address                    string    `json:"id_number" orm:"column(address);size(191)" description:"住址"`
+	Address                    string    `json:"address" orm:"column(address);size(191)" description:"住址"`
 	IdNumber                   string    `json:"id_number" orm:"column(id_number);size(18)" description:"身份证号"`
 	EmergencyContact           string    `json:"emergency_contact" orm:"column(emergency_contact);size(20)" description:"紧急联系人"`
 	EmergencyContactPhone      string    `json:"emergency_contact_phone" orm:"column(emergency_contact_phone);size(11)" description:"紧急联系人电话"`
@@ -32,9 +32,9 @@ type Teacher struct {
 	TeacherCertificationNumber string    `json:"teacher_certification_number" orm:"column(teacher_certification_number);size(20)" description:"教师资格认证编号"`
 	TeacherCertificationStatus int8      `json:"teacher_certification_status" orm:"column(teacher_certification_status)" description:"教师资格证书状态，是否认证"`
 	Status                     int8      `json:"status" orm:"column(status)" description:"状态：0未分班，1已分班，2离职"`
-	CreatedAt                  time.Time `json:"created_at" orm:"column(created_at);type(datetime)"`
-	UpdatedAt                  time.Time `json:"updated_at" orm:"column(updated_at);type(datetime)"`
-	DeletedAt                  time.Time `json:"deleted_at" orm:"column(deleted_at);type(datetime);null"`
+	CreatedAt                  time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt                  time.Time `json:"updated_at" orm:"auto_now"`
+	DeletedAt                  time.Time `json:"deleted_at" orm:"auto_now_add"`
 }
 
 func (t *Teacher) TableName() string {
@@ -65,19 +65,14 @@ func GetTeacherById(id int, page, prepage int) map[string]interface{} {
 }
 
 //教师列表
-func GetTeacher(id int, class_type int, status int, search string, page int, prepage int) map[string]interface{} {
+func GetTeacher(id int, status int, search string, page int, prepage int) map[string]interface{} {
 	var condition []interface{}
 	where := "1=1 "
 	if id == 0 {
 		where += " AND t.kindergarten_id = ?"
-		condition = append(condition, 0)
 	} else {
 		where += " AND t.kindergarten_id = ?"
 		condition = append(condition, id)
-	}
-	if class_type != 0 {
-		where += " AND o.class_type = ?"
-		condition = append(condition, class_type)
 	}
 	if status != -1 {
 		where += " AND t.status = ?"
@@ -94,11 +89,8 @@ func GetTeacher(id int, class_type int, status int, search string, page int, pre
 	sql := qb.Select("count(*)").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").String()
-	fmt.Println(sql)
 	var total int64
 	err := o.Raw(sql, condition).QueryRow(&total)
-	fmt.Println(err)
-
 	if err == nil {
 		var v []orm.Params
 		//根据nums总数，和prepage每页数量 生成分页总数
@@ -126,13 +118,82 @@ func GetTeacher(id int, class_type int, status int, search string, page int, pre
 	return nil
 }
 
+//班级列表
+func GetClass(id int, class_type int, page int, prepage int) map[string]interface{} {
+	var condition []interface{}
+	where := "1=1 "
+	if id == 0 {
+		where += " AND t.kindergarten_id = ?"
+	} else {
+		where += " AND t.kindergarten_id = ?"
+		condition = append(condition, id)
+	}
+	if class_type != 0 {
+		where += " AND o.class_type = ?"
+		condition = append(condition, class_type)
+	}
+	o := orm.NewOrm()
+	qb, _ := orm.NewQueryBuilder("mysql")
+
+	// 构建查询对象
+	sql := qb.Select("count(*)").From("teacher as t").LeftJoin("organizational_member as om").
+		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").String()
+	var total int64
+	err := o.Raw(sql, condition).QueryRow(&total)
+	if err == nil {
+		var v []orm.Params
+		//根据nums总数，和prepage每页数量 生成分页总数
+		totalpages := int(math.Ceil(float64(total) / float64(prepage))) //page总数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "o.name as class").From("teacher as t").LeftJoin("organizational_member as om").
+			On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
+			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").Limit(prepage).Offset(limit).String()
+		num, err := o.Raw(sql, condition).Values(&v)
+		fmt.Println(v)
+		if err == nil && num > 0 {
+			paginatorMap := make(map[string]interface{})
+			data := make(map[string][]interface{})
+			paginatorMap["total"] = total //总条数
+			for _, val := range v {
+				if strc, ok := val["class"].(string); ok {
+					data[strc] = append(data[strc], val)
+				}
+			}
+			//分页数据
+			paginatorMap["data"] = data
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
+		}
+	}
+	return nil
+}
+
 //删除教师
-func DeleteTeacher(id int) map[string]interface{} {
+func DeleteTeacher(id int, status int, ty int, class_type int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Teacher{Id: id}
-	// ascertain id exists in the database
+	timeLayout := "2006-01-02 15:04:05" //转化所需模板
+	loc, _ := time.LoadLocation("")
+	timenow := time.Now().Format("2006-01-02 15:04:05")
 	if err := o.Read(&v); err == nil {
-		if _, err = o.Delete(&Teacher{Id: id}); err == nil {
+		if status == 0 && ty == 0 {
+			v.Status = 2
+		} else if status == 0 && ty == 1 || status == 2 {
+			v.DeletedAt, _ = time.ParseInLocation(timeLayout, timenow, loc)
+		} else if class_type == 3 && ty == 0 || class_type == 2 && ty == 0 || class_type == 1 && ty == 0 {
+			v.Status = 2
+		} else if class_type == 3 && ty == 1 || class_type == 2 && ty == 1 || class_type == 1 && ty == 1 {
+			v.DeletedAt, _ = time.ParseInLocation(timeLayout, timenow, loc)
+		}
+		if _, err = o.Update(&v); err == nil {
 			paginatorMap := make(map[string]interface{})
 			paginatorMap["data"] = nil //返回数据
 			return paginatorMap
@@ -181,6 +242,22 @@ func UpdateTeacher(m *Teacher) map[string]interface{} {
 			paginatorMap["data"] = num //返回数据
 			return paginatorMap
 		}
+	}
+	return nil
+}
+
+//教师-录入信息
+//Admin - 动画--添加
+func AddTeacher(m *Teacher) map[string]interface{} {
+	o := orm.NewOrm()
+	if m.Post == "" {
+		m.Post = "普通教师"
+	}
+	id, err := o.Insert(m)
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = id //返回数据
+		return paginatorMap
 	}
 	return nil
 }
