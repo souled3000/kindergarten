@@ -151,7 +151,7 @@ func (c *TeacherController) GetClass() {
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty
 // @router /:id [delete]
-func (c *TeacherController) Delete() {
+func (c *StudentController) Delete() {
 	class_type, _ := c.GetInt("class_type")
 	status, _ := c.GetInt("status")
 	ty, _ := c.GetInt("type")
@@ -319,10 +319,15 @@ func (c *TeacherController) Invite() {
 				//密码加密
 				password = User.Encrypt(vcode)
 				User.Create(phone, name, password, kindergartenId, role)
-				sms, _ := Onemore.Send(phone, text)
-				if sms != nil {
-					c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
-					c.ServeJSON()
+				if err == nil {
+					_, err := Onemore.Send(phone, text)
+					if err == nil {
+						c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
+						c.ServeJSON()
+					} else {
+						c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
+						c.ServeJSON()
+					}
 				}
 			}
 		}

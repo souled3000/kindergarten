@@ -15,4 +15,4 @@ DB_PASSWORD = 123456
 
 #rpc-client
 ONE_MORE_USER_SERVER = "http://user-go-dev:8080/rpc/user"
-ONE_MORE_SMS_SERVER = "http://onemore-go-dev:8081/rpc/sms"
+ONE_MORE_SMS_SERVER = "http://onemore-go-dev:8080/rpc/sms"

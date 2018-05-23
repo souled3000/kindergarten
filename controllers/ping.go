@@ -26,7 +26,7 @@ func (c *PingController) Ping() {
 // @Description user服务是否调通
 // @Success 200 {object} OK
 // @Failure 403 :没有该服务
-// @router rpc/user [get]
+// @router /rpc/user [get]
 func (c *PingController) PingUserRpc() {
 	var User *UserService
 	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
@@ -45,7 +45,7 @@ func (c *PingController) PingUserRpc() {
 // @Description onemore服务是否调通
 // @Success 200 {object} OK
 // @Failure 403 :没有该服务
-// @router rpc/onemore [get]
+// @router /rpc/onemore [get]
 func (c *PingController) PingOnemoreRpc() {
 	var Onemore *OnemoreService
 	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_SMS_SERVER"))
