@@ -1,16 +1,14 @@
 package controllers
 
 import (
-	"encoding/json"
-	"errors"
 	"kindergarten-service-go/models"
-	"strconv"
-	"strings"
+
+	"github.com/astaxie/beego/validation"
 
 	"github.com/astaxie/beego"
 )
 
-// OrganizationalController operations for Organizational
+//组织架构
 type OrganizationalController struct {
 	beego.Controller
 }
@@ -18,154 +16,111 @@ type OrganizationalController struct {
 // URLMapping ...
 func (c *OrganizationalController) URLMapping() {
 	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
 }
 
-// Post ...
-// @Title Post
-// @Description create Organizational
-// @Param	body		body 	models.Organizational	true		"body for Organizational content"
-// @Success 201 {int} models.Organizational
-// @Failure 403 body is empty
-// @router / [post]
-func (c *OrganizationalController) Post() {
-	var v models.Organizational
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddOrganizational(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
-	} else {
-		c.Data["json"] = err.Error()
-	}
-	c.ServeJSON()
-}
-
-// GetOne ...
-// @Title Get One
-// @Description get Organizational by id
-// @Param	id		path 	string	true		"The key for staticblock"
-// @Success 200 {object} models.Organizational
-// @Failure 403 :id is empty
-// @router /:id [get]
-func (c *OrganizationalController) GetOne() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetOrganizationalById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
-	} else {
-		c.Data["json"] = v
-	}
-	c.ServeJSON()
-}
-
-// GetAll ...
-// @Title Get All
-// @Description get Organizational
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// GetClass ...
+// @Title 班级
+// @Description 班级列表
+// @Param	kindergarten_id           query	int	     true		"幼儿园ID"
+// @Param	class_type                query	int	     false		"班级类型"
+// @Param	page                      query	int	     false		"页数"
+// @Param	per_page                  query	int	     false		"每页显示条数"
 // @Success 200 {object} models.Organizational
 // @Failure 403
-// @router / [get]
-func (c *OrganizationalController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
+// @router /class [get]
+func (o *OrganizationalController) GetClass() {
+	var prepage int = 20
+	var page int
+	if v, err := o.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
-		limit = v
+	if v, err := o.GetInt("page"); err == nil {
+		page = v
 	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
-	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
-	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-
-	l, err := models.GetAllOrganizational(query, fields, sortby, order, offset, limit)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	kindergarten_id, _ := o.GetInt("kindergarten_id")
+	class_type, _ := o.GetInt("class_type")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
+	valid.Required(class_type, "class_type").Message("班级类型不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
 	} else {
-		c.Data["json"] = l
-	}
-	c.ServeJSON()
-}
-
-// Put ...
-// @Title Put
-// @Description update the Organizational
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Organizational	true		"body for Organizational content"
-// @Success 200 {object} models.Organizational
-// @Failure 403 :id is not int
-// @router /:id [put]
-func (c *OrganizationalController) Put() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.Organizational{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateOrganizationalById(&v); err == nil {
-			c.Data["json"] = "OK"
+		v := models.GetClassAll(kindergarten_id, class_type, page, prepage)
+		if v == nil {
+			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 		} else {
-			c.Data["json"] = err.Error()
+			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 		}
-	} else {
-		c.Data["json"] = err.Error()
+		o.ServeJSON()
 	}
-	c.ServeJSON()
+
 }
 
-// Delete ...
-// @Title Delete
-// @Description delete the Organizational
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *OrganizationalController) Delete() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteOrganizational(id); err == nil {
-		c.Data["json"] = "OK"
-	} else {
-		c.Data["json"] = err.Error()
+// Member ...
+// @Title 班级成员
+// @Description 班级成员
+// @Param	kindergarten_id           query	int	     true		"幼儿园ID"
+// @Param	class_type                query	int	     false		"班级类型"
+// @Param	class_id                  query	int	     false		"班级id"
+// @Param	page                      query	int	     false		"页数"
+// @Param	per_page                  query	int	     false		"每页显示条数"
+// @Success 200 {object} models.Organizational
+// @Failure 403
+// @router /member [get]
+func (o *OrganizationalController) Member() {
+	var prepage int = 20
+	var page int
+	if v, err := o.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	c.ServeJSON()
+	if v, err := o.GetInt("page"); err == nil {
+		page = v
+	}
+	kindergarten_id, _ := o.GetInt("kindergarten_id")
+	class_type, _ := o.GetInt("class_type")
+	class_id, _ := o.GetInt("class_id")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
+	valid.Required(class_type, "class_type").Message("班级类型不能为空")
+	valid.Required(class_id, "class_id").Message("班级id不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
+	} else {
+		v := models.ClassMember(kindergarten_id, class_type, class_id, page, prepage)
+		if v == nil {
+			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		o.ServeJSON()
+	}
+}
+
+// Destroy ...
+// @Title 删除班级
+// @Description 删除班级
+// @Param	class_id                  query	int	     false		"班级id"
+// @Success 200 {object} models.Organizational
+// @Failure 403
+// @router / [delete]
+func (o *OrganizationalController) Destroy() {
+	class_id, _ := o.GetInt("class_id")
+	valid := validation.Validation{}
+	valid.Required(class_id, "class_id").Message("班级id不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
+	} else {
+		v := models.Destroy(class_id)
+		if v == nil {
+			o.Data["json"] = JSONStruct{"error", 1003, nil, "删除失败"}
+		} else {
+			o.Data["json"] = JSONStruct{"success", 0, v, "删除成功"}
+		}
+		o.ServeJSON()
+	}
 }
