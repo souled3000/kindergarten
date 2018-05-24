@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"kindergarten-service-go/models"
 	"math/rand"
@@ -164,13 +165,10 @@ func (c *StudentController) UpdateStudent() {
 		c.ServeJSON()
 	} else {
 		v := models.UpdateStudent(id, student, kinship)
-		fmt.Println(v)
 		if v == nil {
-			fmt.Println(111)
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "编辑失败"}
 		} else {
 			c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
-			fmt.Println(222)
 		}
 		c.ServeJSON()
 	}
@@ -204,12 +202,12 @@ func (c *StudentController) Post() {
 }
 
 // Invite ...
-// @Title 邀请学生
-// @Description 邀请学生
-// @Param	phone		        body 	string	true		"手机号"
-// @Param	name		        body 	int   	true		"学生姓名"
-// @Param	role  		        body 	int  	true		"身份"
-// @Param	kindergarten_id		 body 	int   	true		"幼儿园ID"
+// @Title 邀请学生/批量邀请
+// @Description 邀请学生/批量邀请
+// @Param	phone		        body 	string	true		"手机号(json)"
+// @Param	name		            body 	int   	true		"学生姓名(json)"
+// @Param	role  		        body 	int  	true		"身份(json)"
+// @Param	kindergarten_id		body 	int   	true		"幼儿园ID(json)"
 // @Success 201 {int} models.Student
 // @Failure 403 body is empty
 // @router /invite [post]
@@ -218,15 +216,11 @@ func (c *StudentController) Invite() {
 	var Onemore *OnemoreService
 	var password string
 	var text string
-	phone := c.GetString("phone")
-	name := c.GetString("name")
-	role, _ := c.GetInt("role")
-	kindergartenId, _ := c.GetInt("kindergarten_id")
+	student := c.GetString("student")
+	var s []inviteTeacher
+	json.Unmarshal([]byte(student), &s)
 	valid := validation.Validation{}
-	valid.Required(phone, "phone").Message("手机号不能为空")
-	valid.Required(name, "name").Message("姓名不能为空")
-	valid.Required(role, "role").Message("身份不能为空")
-	valid.Required(kindergartenId, "kindergartenId").Message("幼儿园ID不能为空")
+	valid.Required(student, "student").Message("学生信息不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
@@ -237,32 +231,34 @@ func (c *StudentController) Invite() {
 		client = rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_SMS_SERVER"))
 		client.UseService(&Onemore)
 		//获取用户关联表
-		err := User.GetUK(phone)
-		if err == nil {
-			c.Data["json"] = JSONStruct{"error", 1009, nil, "" + phone + "已被邀请过"}
-			c.ServeJSON()
-		} else {
-			//获取用户信息
-			userId, _ := User.GetOne(phone)
-			if userId != 0 {
-				User.CreateUK(userId, kindergartenId, role)
+		for _, value := range s {
+			err := User.GetUK(value.Phone)
+			if err == nil {
+				c.Data["json"] = JSONStruct{"error", 1009, nil, "" + value.Phone + "已被邀请过"}
+				c.ServeJSON()
 			} else {
-				//生成六位验证码
-				rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-				vcode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
-				//发送短信
-				text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
-				//密码加密
-				password = User.Encrypt(vcode)
-				_, err := User.Create(phone, name, password, kindergartenId, role)
-				if err == nil {
-					_, err := Onemore.Send(phone, text)
+				//获取用户信息
+				userId, _ := User.GetOne(value.Phone)
+				if userId != 0 {
+					User.CreateUK(userId, value.KindergartenId, value.Role)
+				} else {
+					//生成六位验证码
+					rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+					vcode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
+					//发送短信
+					text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + value.Phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
+					//密码加密
+					password = User.Encrypt(vcode)
+					_, err := User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
 					if err == nil {
-						c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
-						c.ServeJSON()
-					} else {
-						c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
-						c.ServeJSON()
+						_, err := Onemore.Send(value.Phone, text)
+						if err == nil {
+							c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
+							c.ServeJSON()
+						} else {
+							c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
+							c.ServeJSON()
+						}
 					}
 				}
 			}

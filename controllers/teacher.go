@@ -35,6 +35,13 @@ type UserService struct {
 	Create   func(phone string, name string, password string, kindergartenId int, role int) (interface{}, error)
 }
 
+type inviteTeacher struct {
+	Name           string `json:"name"`
+	Phone          string `json:"phone"`
+	Role           int    `json:"role"`
+	KindergartenId int    `json:"kindergarten_id"`
+}
+
 type OnemoreService struct {
 	Test func() string
 	Send func(phone string, text string) (interface{}, error)
@@ -170,23 +177,13 @@ func (c *StudentController) Delete() {
 // @Title Get Teacher Info
 // @Description 教师详情
 // @Param	teacher_id       query	int	 true		"教师编号"
-// @Param	page             query	int	 false		"页数"
-// @Param	per_page         query	int	 false		"每页显示条数"
 // @Success 200 {object} models.Teacher
 // @Failure 403 :教师编号为空
 // @router /:id [get]
 func (c *TeacherController) GetTeacherInfo() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.GetTeacherInfo(id, page, prepage)
+	v := models.GetTeacherInfo(id)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
@@ -268,8 +265,8 @@ func (c *TeacherController) Post() {
 }
 
 // Invite ...
-// @Title 邀请教师
-// @Description 邀请教师
+// @Title 邀请教师/批量邀请
+// @Description 邀请教师/批量邀请
 // @Param	phone		        body 	string	true		"手机号"
 // @Param	name		            body 	int   	true		"姓名"
 // @Param	role  		        body 	int  	true		"身份"
@@ -282,15 +279,11 @@ func (c *TeacherController) Invite() {
 	var Onemore *OnemoreService
 	var password string
 	var text string
-	phone := c.GetString("phone")
-	name := c.GetString("name")
-	role, _ := c.GetInt("role")
-	kindergartenId, _ := c.GetInt("kindergarten_id")
+	teacher := c.GetString("teacher")
+	var t []inviteTeacher
+	json.Unmarshal([]byte(teacher), &t)
 	valid := validation.Validation{}
-	valid.Required(phone, "phone").Message("手机号不能为空")
-	valid.Required(name, "name").Message("姓名不能为空")
-	valid.Required(role, "role").Message("身份不能为空")
-	valid.Required(kindergartenId, "kindergartenId").Message("幼儿园ID不能为空")
+	valid.Required(teacher, "teacher").Message("教师信息不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
@@ -301,32 +294,34 @@ func (c *TeacherController) Invite() {
 		client = rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_SMS_SERVER"))
 		client.UseService(&Onemore)
 		//获取用户关联表
-		err := User.GetUK(phone)
-		if err == nil {
-			c.Data["json"] = JSONStruct{"error", 1009, nil, "" + phone + "已被邀请过"}
-			c.ServeJSON()
-		} else {
-			//获取用户信息
-			userId, _ := User.GetOne(phone)
-			if userId != 0 {
-				User.CreateUK(userId, kindergartenId, role)
+		for _, value := range t {
+			err := User.GetUK(value.Phone)
+			if err == nil {
+				c.Data["json"] = JSONStruct{"error", 1009, nil, "" + value.Phone + "已被邀请过"}
+				c.ServeJSON()
 			} else {
-				//生成六位验证码
-				rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-				vcode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
-				//发送短信
-				text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
-				//密码加密
-				password = User.Encrypt(vcode)
-				User.Create(phone, name, password, kindergartenId, role)
-				if err == nil {
-					_, err := Onemore.Send(phone, text)
+				//获取用户信息
+				userId, _ := User.GetOne(value.Phone)
+				if userId != 0 {
+					User.CreateUK(userId, value.KindergartenId, value.Role)
+				} else {
+					//生成六位验证码
+					rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+					vcode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
+					//发送短信
+					text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + value.Phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
+					//密码加密
+					password = User.Encrypt(vcode)
+					_, err = User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
 					if err == nil {
-						c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
-						c.ServeJSON()
-					} else {
-						c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
-						c.ServeJSON()
+						_, err := Onemore.Send(value.Phone, text)
+						if err == nil {
+							c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
+							c.ServeJSON()
+						} else {
+							c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
+							c.ServeJSON()
+						}
 					}
 				}
 			}
