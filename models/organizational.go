@@ -1,10 +1,8 @@
 package models
 
 import (
-	"errors"
 	"fmt"
-	"reflect"
-	"strings"
+	"math"
 	"time"
 
 	"github.com/astaxie/beego/orm"
@@ -32,129 +30,159 @@ func init() {
 	orm.RegisterModel(new(Organizational))
 }
 
-// AddOrganizational insert a new Organizational into database and returns
-// last inserted Id on success.
-func AddOrganizational(m *Organizational) (id int64, err error) {
+//班级搜索
+func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
-}
-
-// GetOrganizationalById retrieves Organizational by Id. Returns error if
-// Id doesn't exist
-func GetOrganizationalById(id int) (v *Organizational, err error) {
-	o := orm.NewOrm()
-	v = &Organizational{Id: id}
-	if err = o.Read(v); err == nil {
-		return v, nil
-	}
-	return nil, err
-}
-
-// GetAllOrganizational retrieves all Organizational matches certain condition. Returns empty list if
-// no records exist
-func GetAllOrganizational(query map[string]string, fields []string, sortby []string, order []string,
-	offset int64, limit int64) (ml []interface{}, err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable(new(Organizational))
-	// query k=v
-	for k, v := range query {
-		// rewrite dot-notation to Object__Attribute
-		k = strings.Replace(k, ".", "__", -1)
-		if strings.Contains(k, "isnull") {
-			qs = qs.Filter(k, (v == "true" || v == "1"))
-		} else {
-			qs = qs.Filter(k, v)
-		}
-	}
-	// order by:
-	var sortFields []string
-	if len(sortby) != 0 {
-		if len(sortby) == len(order) {
-			// 1) for each sort field, there is an associated order
-			for i, v := range sortby {
-				orderby := ""
-				if order[i] == "desc" {
-					orderby = "-" + v
-				} else if order[i] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-			qs = qs.OrderBy(sortFields...)
-		} else if len(sortby) != len(order) && len(order) == 1 {
-			// 2) there is exactly one order, all the sorted fields will be sorted by this order
-			for _, v := range sortby {
-				orderby := ""
-				if order[0] == "desc" {
-					orderby = "-" + v
-				} else if order[0] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
-		}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	var condition []interface{}
+	where := "1=1 "
+	if kindergarten_id == 0 {
+		where += " AND kindergarten_id = ?"
 	} else {
-		if len(order) != 0 {
-			return nil, errors.New("Error: unused 'order' fields")
+		where += " AND kindergarten_id = ?"
+		condition = append(condition, kindergarten_id)
+	}
+	if class_type > 0 {
+		where += " AND class_type = ?"
+		condition = append(condition, class_type)
+	}
+	where += " AND type = ?"
+	condition = append(condition, 2)
+	where += " AND level = ?"
+	condition = append(condition, 3)
+	// 构建查询对象
+	sql := qb.Select("count(*)").From("organizational").Where(where).String()
+	var total int64
+	err := o.Raw(sql, condition).QueryRow(&total)
+	if err == nil {
+		var v []orm.Params
+		//根据nums总数，和prepage每页数量 生成分页总数
+		totalpages := int(math.Ceil(float64(total) / float64(prepage))) //page总数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("*").From("organizational").Where(where).Limit(prepage).Offset(limit).String()
+		num, err := o.Raw(sql, condition).Values(&v)
+		if err == nil && num > 0 {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = total         //总条数
+			paginatorMap["data"] = v              //分页数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
 		}
 	}
-
-	var l []Organizational
-	qs = qs.OrderBy(sortFields...)
-	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
-		if len(fields) == 0 {
-			for _, v := range l {
-				ml = append(ml, v)
-			}
-		} else {
-			// trim unused fields
-			for _, v := range l {
-				m := make(map[string]interface{})
-				val := reflect.ValueOf(v)
-				for _, fname := range fields {
-					m[fname] = val.FieldByName(fname).Interface()
-				}
-				ml = append(ml, m)
-			}
-		}
-		return ml, nil
-	}
-	return nil, err
+	return nil
 }
 
-// UpdateOrganizational updates Organizational by Id and returns error if
-// the record to be updated doesn't exist
-func UpdateOrganizationalById(m *Organizational) (err error) {
+//班级成员
+func ClassMember(kindergarten_id int, class_type int, class_id int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
-	v := Organizational{Id: m.Id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Update(m); err == nil {
-			fmt.Println("Number of records updated in database:", num)
-		}
+	var student []orm.Params
+	var teacher []orm.Params
+	var condition []interface{}
+	where := "1=1 "
+	if kindergarten_id == 0 {
+		where += " AND o.kindergarten_id = ?"
+	} else {
+		where += " AND o.kindergarten_id = ?"
+		condition = append(condition, kindergarten_id)
 	}
-	return
+	if class_type > 0 {
+		where += " AND o.class_type = ?"
+		condition = append(condition, class_type)
+	}
+	if class_id > 0 {
+		where += " AND o.id = ?"
+		condition = append(condition, class_id)
+	}
+	where += " AND o.type = ?"
+	condition = append(condition, 2)
+	where += " AND o.level = ?"
+	condition = append(condition, 3)
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("s.student_id", "s.name", "s.avatar", "s.number", "s.phone",
+		"o.name as class_name", "o.class_type", "om.id").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where(where).And("om.type = 1").String()
+	_, err := o.Raw(sql, condition).Values(&student)
+
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("t.teacher_id", "t.name", "t.avatar", "t.number", "t.phone",
+		"o.name as class_name", "om.id").From("teacher as t").LeftJoin("organizational_member as om").
+		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where(where).And("om.type = 0").String()
+	_, err = o.Raw(sql, condition).Values(&teacher)
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["student"] = student
+		paginatorMap["teacher"] = teacher
+		return paginatorMap
+	}
+	return nil
 }
 
-// DeleteOrganizational deletes Organizational by Id and returns error if
-// the record to be deleted doesn't exist
-func DeleteOrganizational(id int) (err error) {
+//删除班级
+func Destroy(class_id int) map[string]interface{} {
 	o := orm.NewOrm()
-	v := Organizational{Id: id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&Organizational{Id: id}); err == nil {
-			fmt.Println("Number of records deleted in database:", num)
+	err := o.Begin()
+	var t []orm.Params
+	var s []orm.Params
+	var condition []interface{}
+	where := "1=1 "
+	if class_id > 0 {
+		where += " AND organizational_id = ?"
+		condition = append(condition, class_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("member_id").From("organizational_member").Where(where).And("type = 0").String()
+	_, err = o.Raw(sql, condition).Values(&t)
+	//修改teacher
+	for key, _ := range t {
+		_, err = o.QueryTable("teacher").Filter("teacher_id", t[key]["member_id"]).Update(orm.Params{
+			"status": 0,
+		})
+		if err != nil {
+			err = o.Rollback()
 		}
 	}
-	return
+	//修改学生
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("member_id").From("organizational_member").Where(where).And("type = 1").String()
+	_, err = o.Raw(sql, condition).Values(&s)
+
+	for key, _ := range s {
+		fmt.Println(s[key]["member_id"])
+		_, err = o.QueryTable("student").Filter("student_id", s[key]["member_id"]).Update(orm.Params{
+			"status": 0,
+		})
+		if err != nil {
+			err = o.Rollback()
+		}
+	}
+	//删除班级
+	_, err = o.QueryTable("organizational").Filter("id", class_id).Delete()
+	if err != nil {
+		err = o.Rollback()
+	}
+	//删除班级成员
+	num, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Delete()
+
+	if err != nil {
+		err = o.Rollback()
+	} else {
+		err = o.Commit()
+	}
+
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = num
+		return paginatorMap
+	}
+	return nil
 }

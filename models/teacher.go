@@ -203,27 +203,16 @@ func DeleteTeacher(id int, status int, ty int, class_type int) map[string]interf
 }
 
 //教师详情
-func GetTeacherInfo(id int, page, prepage int) map[string]interface{} {
-	var v []Teacher
+func GetTeacherInfo(id int) map[string]interface{} {
 	o := orm.NewOrm()
-	nums, err := o.QueryTable("teacher").Filter("Id", id).Count()
-	if err == nil {
-		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //总页数
-		if page > totalpages {
-			page = totalpages
-		}
-		if page <= 0 {
-			page = 1
-		}
-		limit := (page - 1) * prepage
-		err := o.QueryTable("teacher").Filter("Id", id).Limit(prepage, limit).One(&v)
-		if err == nil {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["total"] = nums          //总条数
-			paginatorMap["data"] = v              //返回数据
-			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap
-		}
+	var v []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("t.*").From("teacher as t").Where("teacher_id = ?").String()
+	num, err := o.Raw(sql, id).Values(&v)
+	if err == nil && num > 0 {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = v
+		return paginatorMap
 	}
 	return nil
 }
