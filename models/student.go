@@ -158,14 +158,14 @@ func DeleteStudent(id int, status int, ty int, class_type int) map[string]interf
 	loc, _ := time.LoadLocation("")
 	timenow := time.Now().Format("2006-01-02 15:04:05")
 	if err := o.Read(&v); err == nil {
-		if status == 0 && ty == 0 {
+		if status == 0 {
 			v.Status = 2
-		} else if status == 0 && ty == 1 || status == 2 {
+		} else if status == 2 {
 			v.DeletedAt, _ = time.ParseInLocation(timeLayout, timenow, loc)
-		} else if class_type == 3 && ty == 0 || class_type == 2 && ty == 0 || class_type == 1 && ty == 0 {
-			v.Status = 2
-		} else if class_type == 3 && ty == 1 || class_type == 2 && ty == 1 || class_type == 1 && ty == 1 {
-			v.DeletedAt, _ = time.ParseInLocation(timeLayout, timenow, loc)
+		}
+
+		if class_type == 3 || class_type == 2 || class_type == 1 {
+			v.Status = 0
 		}
 		if _, err = o.Update(&v); err == nil {
 			paginatorMap := make(map[string]interface{})
@@ -250,6 +250,20 @@ func AddStudent(student string, kinship string) map[string]interface{} {
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = id //返回数据
+		return paginatorMap
+	}
+	return nil
+}
+
+//移除学生
+func RemoveStudent(id int) map[string]interface{} {
+	o := orm.NewOrm()
+	num, err := o.QueryTable("student").Filter("student_id", id).Update(orm.Params{
+		"status": 0,
+	})
+	if err == nil && num > 0 {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = num //返回数据
 		return paginatorMap
 	}
 	return nil

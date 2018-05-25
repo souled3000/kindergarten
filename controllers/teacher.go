@@ -154,17 +154,15 @@ func (c *TeacherController) GetClass() {
 // @Description 删除教师
 // @Param	teacher_id		path 	int	true		"教师ID"
 // @Param	status		    path 	int	true		"状态(status 0:未分班 2:离职)"
-// @Param	type		        path 	int	true		"删除类型（type 0:教师离职 1:删除档案）"
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty
 // @router /:id [delete]
-func (c *StudentController) Delete() {
+func (c *TeacherController) Delete() {
 	class_type, _ := c.GetInt("class_type")
 	status, _ := c.GetInt("status")
-	ty, _ := c.GetInt("type")
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.DeleteTeacher(id, status, ty, class_type)
+	v := models.DeleteTeacher(id, status, class_type)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
@@ -264,11 +262,30 @@ func (c *TeacherController) Post() {
 	}
 }
 
+// RemoveTeacher ...
+// @Title RemoveTeacher
+// @Description 移除教师
+// @Param	teacher_id		path 	int	true		"教师ID"
+// @Success 200 {string} delete success!
+// @Failure 403 teacher_id is empty
+// @router /remove/:id [delete]
+func (c *TeacherController) RemoveTeacher() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := models.RemoveTeacher(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+	}
+	c.ServeJSON()
+}
+
 // Invite ...
 // @Title 邀请教师/批量邀请
 // @Description 邀请教师/批量邀请
 // @Param	phone		        body 	string	true		"手机号"
-// @Param	name		            body 	int   	true		"姓名"
+// @Param	name		            body 	string   	true		"姓名"
 // @Param	role  		        body 	int  	true		"身份"
 // @Param	kindergarten_id		body 	int   	true		"幼儿园ID"
 // @Success 201 {int} models.Animation

@@ -171,14 +171,13 @@ func Destroy(class_id int) map[string]interface{} {
 		err = o.Rollback()
 	}
 	//删除班级成员
-	num, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Delete()
+	num, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("is_fixed = 0").Delete()
 
 	if err != nil {
 		err = o.Rollback()
 	} else {
 		err = o.Commit()
 	}
-
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = num

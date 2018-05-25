@@ -2,19 +2,17 @@ package models
 
 import (
 	"errors"
-	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/astaxie/beego/orm"
 )
 
 type OrganizationalMember struct {
-	Id               int  `orm:"column(id);auto"`
-	OrganizationalId int  `orm:"column(organizational_id)"`
-	MemberId         int  `orm:"column(member_id)"`
-	IsPrincipal      int8 `orm:"column(is_principal)" description:"是不是负责人：0不是，1是"`
-	Type             int  `orm:"column(type)" description:"类型：0教师，1学生"`
+	Id               int  `json:"id" orm:"column(id);auto"`
+	OrganizationalId int  `json:"organizational_id" orm:"column(organizational_id)"`
+	MemberId         int  `json:"member_id" orm:"column(member_id)"`
+	IsPrincipal      int8 `json:"is_principal" orm:"column(is_principal)" description:"是不是负责人：0不是，1是"`
+	Type             int  `json:"type" orm:"column(type)" description:"类型：0教师，1学生"`
 }
 
 func (t *OrganizationalMember) TableName() string {
@@ -25,129 +23,54 @@ func init() {
 	orm.RegisterModel(new(OrganizationalMember))
 }
 
-// AddOrganizationalMember insert a new OrganizationalMember into database and returns
-// last inserted Id on success.
-func AddOrganizationalMember(m *OrganizationalMember) (id int64, err error) {
+//添加成员
+func AddMembers(ty int, member_ids string, organizational_id int, is_principal int) (paginatorMap map[string]interface{}, err error) {
+	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
-}
-
-// GetOrganizationalMemberById retrieves OrganizationalMember by Id. Returns error if
-// Id doesn't exist
-func GetOrganizationalMemberById(id int) (v *OrganizationalMember, err error) {
-	o := orm.NewOrm()
-	v = &OrganizationalMember{Id: id}
-	if err = o.Read(v); err == nil {
-		return v, nil
+	var v []orm.Params
+	err = o.Begin()
+	s := strings.Split(member_ids, ",")
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("o.*").From("organizational as o").Where("id = ?").String()
+	_, err = o.Raw(sql, organizational_id).Values(&v)
+	//组织架构为园长不能添加
+	if v[0]["type"] == "1" && v[0]["is_fixed"] == "1" {
+		err = errors.New("不能添加")
+		return nil, err
 	}
-	return nil, err
-}
-
-// GetAllOrganizationalMember retrieves all OrganizationalMember matches certain condition. Returns empty list if
-// no records exist
-func GetAllOrganizationalMember(query map[string]string, fields []string, sortby []string, order []string,
-	offset int64, limit int64) (ml []interface{}, err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable(new(OrganizationalMember))
-	// query k=v
-	for k, v := range query {
-		// rewrite dot-notation to Object__Attribute
-		k = strings.Replace(k, ".", "__", -1)
-		if strings.Contains(k, "isnull") {
-			qs = qs.Filter(k, (v == "true" || v == "1"))
-		} else {
-			qs = qs.Filter(k, v)
+	for _, value := range s {
+		sql := "insert into organizational_member set organizational_id = ?,type = ?,member_id = ?,is_principal = ?"
+		_, err = o.Raw(sql, organizational_id, ty, value, is_principal).Exec()
+		if err == nil {
+			if v[0]["type"] == "2" && v[0]["level"] == "3" {
+				//0教师 1学生
+				if ty == 0 {
+					_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
+						"status": 1,
+					})
+					if err != nil {
+						err = o.Rollback()
+					}
+				} else {
+					_, err := o.QueryTable("student").Filter("student_id", value).Update(orm.Params{
+						"status": 1,
+					})
+					if err != nil {
+						err = o.Rollback()
+					}
+				}
+			}
 		}
 	}
-	// order by:
-	var sortFields []string
-	if len(sortby) != 0 {
-		if len(sortby) == len(order) {
-			// 1) for each sort field, there is an associated order
-			for i, v := range sortby {
-				orderby := ""
-				if order[i] == "desc" {
-					orderby = "-" + v
-				} else if order[i] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-			qs = qs.OrderBy(sortFields...)
-		} else if len(sortby) != len(order) && len(order) == 1 {
-			// 2) there is exactly one order, all the sorted fields will be sorted by this order
-			for _, v := range sortby {
-				orderby := ""
-				if order[0] == "desc" {
-					orderby = "-" + v
-				} else if order[0] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
-		}
+	if err == nil {
+		err = o.Commit()
 	} else {
-		if len(order) != 0 {
-			return nil, errors.New("Error: unused 'order' fields")
-		}
+		err = o.Rollback()
 	}
-
-	var l []OrganizationalMember
-	qs = qs.OrderBy(sortFields...)
-	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
-		if len(fields) == 0 {
-			for _, v := range l {
-				ml = append(ml, v)
-			}
-		} else {
-			// trim unused fields
-			for _, v := range l {
-				m := make(map[string]interface{})
-				val := reflect.ValueOf(v)
-				for _, fname := range fields {
-					m[fname] = val.FieldByName(fname).Interface()
-				}
-				ml = append(ml, m)
-			}
-		}
-		return ml, nil
+	if err == nil {
+		paginatorMap["data"] = nil //返回数据
+		return paginatorMap, nil
 	}
+	err = errors.New("保存失败")
 	return nil, err
-}
-
-// UpdateOrganizationalMember updates OrganizationalMember by Id and returns error if
-// the record to be updated doesn't exist
-func UpdateOrganizationalMemberById(m *OrganizationalMember) (err error) {
-	o := orm.NewOrm()
-	v := OrganizationalMember{Id: m.Id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Update(m); err == nil {
-			fmt.Println("Number of records updated in database:", num)
-		}
-	}
-	return
-}
-
-// DeleteOrganizationalMember deletes OrganizationalMember by Id and returns error if
-// the record to be deleted doesn't exist
-func DeleteOrganizationalMember(id int) (err error) {
-	o := orm.NewOrm()
-	v := OrganizationalMember{Id: id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&OrganizationalMember{Id: id}); err == nil {
-			fmt.Println("Number of records deleted in database:", num)
-		}
-	}
-	return
 }

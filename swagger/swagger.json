@@ -2130,77 +2130,43 @@
             }
         },
         "/organizational_member/": {
-            "get": {
-                "tags": [
-                    "organizational_member"
-                ],
-                "description": "get OrganizationalMember",
-                "operationId": "OrganizationalMemberController.Get All",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "query",
-                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "fields",
-                        "description": "Fields returned. e.g. col1,col2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortby",
-                        "description": "Sorted-by fields. e.g. col1,col2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "order",
-                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "limit",
-                        "description": "Limit the size of result set. Must be an integer",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "offset",
-                        "description": "Start position of result set. Must be an integer",
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.OrganizationalMember"
-                        }
-                    },
-                    "403": {
-                        "description": ""
-                    }
-                }
-            },
             "post": {
                 "tags": [
                     "organizational_member"
                 ],
-                "description": "create OrganizationalMember",
-                "operationId": "OrganizationalMemberController.Post",
+                "description": "班级添加成员",
+                "operationId": "OrganizationalMemberController.班级添加成员",
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "body",
-                        "description": "body for OrganizationalMember content",
+                        "name": "organizational_id",
+                        "description": "班级ID",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.OrganizationalMember"
-                        }
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "member_ids",
+                        "description": "教师ID(,分割)",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "is_principal",
+                        "description": "是不是负责人（0不是，1是）",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "type",
+                        "description": "身份（0教师，1学生）",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -2209,95 +2175,6 @@
                     },
                     "403": {
                         "description": "body is empty"
-                    }
-                }
-            }
-        },
-        "/organizational_member/{id}": {
-            "get": {
-                "tags": [
-                    "organizational_member"
-                ],
-                "description": "get OrganizationalMember by id",
-                "operationId": "OrganizationalMemberController.Get One",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The key for staticblock",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.OrganizationalMember"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is empty"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "organizational_member"
-                ],
-                "description": "update the OrganizationalMember",
-                "operationId": "OrganizationalMemberController.Put",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to update",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for OrganizationalMember content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.OrganizationalMember"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.OrganizationalMember"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is not int"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "organizational_member"
-                ],
-                "description": "delete the OrganizationalMember",
-                "operationId": "OrganizationalMemberController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to delete",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} delete success!"
-                    },
-                    "403": {
-                        "description": "id is empty"
                     }
                 }
             }
@@ -3586,6 +3463,33 @@
                 }
             }
         },
+        "/student/remove/{id}": {
+            "delete": {
+                "tags": [
+                    "student"
+                ],
+                "description": "移除学生",
+                "operationId": "StudentController.RemoveStudent",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "student_id",
+                        "description": "学生ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "student_id is empty"
+                    }
+                }
+            }
+        },
         "/student/{id}": {
             "get": {
                 "tags": [
@@ -3656,13 +3560,13 @@
                 "tags": [
                     "student"
                 ],
-                "description": "删除教师",
-                "operationId": "StudentController.Delete",
+                "description": "删除学生",
+                "operationId": "StudentController.DeleteStudent",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "teacher_id",
-                        "description": "教师ID",
+                        "name": "student_id",
+                        "description": "学生ID",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -3670,7 +3574,7 @@
                     {
                         "in": "path",
                         "name": "status",
-                        "description": "状态(status 0:未分班 2:离职)",
+                        "description": "状态(status 0:未分班 2:离园)",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -3678,7 +3582,7 @@
                     {
                         "in": "path",
                         "name": "type",
-                        "description": "删除类型（type 0:教师离职 1:删除档案）",
+                        "description": "删除类型（type 0:学生离园 1:删除档案）",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -4196,8 +4100,7 @@
                         "name": "name",
                         "description": "姓名",
                         "required": true,
-                        "type": "integer",
-                        "format": "int64"
+                        "type": "string"
                     },
                     {
                         "in": "body",
@@ -4222,6 +4125,33 @@
                     },
                     "403": {
                         "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/teacher/remove/{id}": {
+            "delete": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "移除教师",
+                "operationId": "TeacherController.RemoveTeacher",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacher_id",
+                        "description": "教师ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "teacher_id is empty"
                     }
                 }
             }
@@ -4318,6 +4248,39 @@
                     },
                     "403": {
                         "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "删除教师",
+                "operationId": "TeacherController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacher_id",
+                        "description": "教师ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "status",
+                        "description": "状态(status 0:未分班 2:离职)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -5550,34 +5513,6 @@
                     "description": "修改时间",
                     "type": "string",
                     "format": "string"
-                }
-            }
-        },
-        "models.OrganizationalMember": {
-            "title": "OrganizationalMember",
-            "type": "object",
-            "properties": {
-                "Id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "IsPrincipal": {
-                    "description": "是不是负责人：0不是，1是",
-                    "type": "integer",
-                    "format": "int32"
-                },
-                "MemberId": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "OrganizationalId": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "Type": {
-                    "description": "类型：0教师，1学生",
-                    "type": "integer",
-                    "format": "int64"
                 }
             }
         },
