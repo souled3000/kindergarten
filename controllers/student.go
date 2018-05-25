@@ -101,22 +101,17 @@ func (c *StudentController) GetStudentClass() {
 	c.ServeJSON()
 }
 
-// DeleteStudent ...
-// @Title DeleteStudent
-// @Description 删除学生
+// RemoveStudent ...
+// @Title RemoveStudent
+// @Description 移除学生
 // @Param	student_id		path 	int	true		"学生ID"
-// @Param	status		    path 	int	true		"状态(status 0:未分班 2:离园)"
-// @Param	type		        path 	int	true		"删除类型（type 0:学生离园 1:删除档案）"
 // @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *StudentController) DeleteStudent() {
-	class_type, _ := c.GetInt("class_type")
-	status, _ := c.GetInt("status")
-	ty, _ := c.GetInt("type")
+// @Failure 403 student_id is empty
+// @router /remove/:id [delete]
+func (c *StudentController) RemoveStudent() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.DeleteStudent(id, status, ty, class_type)
+	v := models.RemoveStudent(id)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
@@ -264,4 +259,28 @@ func (c *StudentController) Invite() {
 			}
 		}
 	}
+}
+
+// DeleteStudent ...
+// @Title DeleteStudent
+// @Description 删除学生
+// @Param	student_id		path 	int	true		"学生ID"
+// @Param	status		    path 	int	true		"状态(status 0:未分班 2:离园)"
+// @Param	type		        path 	int	true		"删除类型（type 0:学生离园 1:删除档案）"
+// @Success 200 {string} delete success!
+// @Failure 403 id is empty
+// @router /:id [delete]
+func (c *StudentController) DeleteStudent() {
+	class_type, _ := c.GetInt("class_type")
+	status, _ := c.GetInt("status")
+	ty, _ := c.GetInt("type")
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := models.DeleteStudent(id, status, ty, class_type)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+	}
+	c.ServeJSON()
 }

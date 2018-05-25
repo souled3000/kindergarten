@@ -138,7 +138,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 	// 构建查询对象
 	sql := qb.Select("count(*)").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").String()
+		On("om.organizational_id = o.id").Where(where).And("status = 1").And("isnull(deleted_at)").String()
 	var total int64
 	err := o.Raw(sql, condition).QueryRow(&total)
 	if err == nil {
@@ -155,7 +155,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "o.name as class").From("teacher as t").LeftJoin("organizational_member as om").
 			On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").Limit(prepage).Offset(limit).String()
+			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").And("status = 1").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
 		fmt.Println(v)
 		if err == nil && num > 0 {
@@ -177,21 +177,20 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 }
 
 //删除教师
-func DeleteTeacher(id int, status int, ty int, class_type int) map[string]interface{} {
+func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Teacher{Id: id}
 	timeLayout := "2006-01-02 15:04:05" //转化所需模板
 	loc, _ := time.LoadLocation("")
 	timenow := time.Now().Format("2006-01-02 15:04:05")
 	if err := o.Read(&v); err == nil {
-		if status == 0 && ty == 0 {
+		if status == 0 {
 			v.Status = 2
-		} else if status == 0 && ty == 1 || status == 2 {
+		} else if status == 2 {
 			v.DeletedAt, _ = time.ParseInLocation(timeLayout, timenow, loc)
-		} else if class_type == 3 && ty == 0 || class_type == 2 && ty == 0 || class_type == 1 && ty == 0 {
-			v.Status = 2
-		} else if class_type == 3 && ty == 1 || class_type == 2 && ty == 1 || class_type == 1 && ty == 1 {
-			v.DeletedAt, _ = time.ParseInLocation(timeLayout, timenow, loc)
+		}
+		if class_type == 3 || class_type == 2 || class_type == 1 {
+			v.Status = 0
 		}
 		if _, err = o.Update(&v); err == nil {
 			paginatorMap := make(map[string]interface{})
@@ -246,6 +245,20 @@ func AddTeacher(m *Teacher) map[string]interface{} {
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = id //返回数据
+		return paginatorMap
+	}
+	return nil
+}
+
+//移除教师
+func RemoveTeacher(id int) map[string]interface{} {
+	o := orm.NewOrm()
+	num, err := o.QueryTable("teacher").Filter("teacher_id", id).Update(orm.Params{
+		"status": 0,
+	})
+	if err == nil && num > 0 {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = num //返回数据
 		return paginatorMap
 	}
 	return nil
