@@ -104,18 +104,19 @@ func (c *StudentController) GetStudentClass() {
 // RemoveStudent ...
 // @Title RemoveStudent
 // @Description 移除学生
-// @Param	student_id		path 	int	true		"学生ID"
+// @Param	student_id		path 	    int	true		"学生ID"
+// @Param	class_id		    path 	    int	true		"班级ID"
 // @Success 200 {string} delete success!
 // @Failure 403 student_id is empty
-// @router /remove/:id [delete]
+// @router /remove [delete]
 func (c *StudentController) RemoveStudent() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.RemoveStudent(id)
+	student_id, _ := c.GetInt("student_id")
+	class_id, _ := c.GetInt("class_id")
+	v := models.RemoveStudent(class_id, student_id)
 	if v == nil {
-		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "移除失败"}
 	} else {
-		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+		c.Data["json"] = JSONStruct{"success", 0, nil, "移除成功"}
 	}
 	c.ServeJSON()
 }
@@ -251,7 +252,7 @@ func (c *StudentController) Invite() {
 							c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
 							c.ServeJSON()
 						} else {
-							c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
+							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送失败"}
 							c.ServeJSON()
 						}
 					}
