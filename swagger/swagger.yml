@@ -1327,6 +1327,85 @@ paths:
         "403":
           description: id is empty
   /organizational/:
+    get:
+      tags:
+      - organizational
+      description: 组织架构列表
+      operationId: OrganizationalController.组织架构列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: id
+        description: 主键ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+    put:
+      tags:
+      - organizational
+      description: 编辑组织架构
+      operationId: OrganizationalController.编辑组织架构
+      parameters:
+      - in: query
+        name: organization_id
+        description: 组织架构ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+    post:
+      tags:
+      - organizational
+      description: 创建班级
+      operationId: OrganizationalController.创建班级
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
     delete:
       tags:
       - organizational
@@ -1336,6 +1415,43 @@ paths:
       - in: query
         name: class_id
         description: 班级id
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /organizational/addorgan:
+    post:
+      tags:
+      - organizational
+      description: 添加组织架构
+      operationId: OrganizationalController.添加组织架构
+      parameters:
+      - in: query
+        name: parent_id
+        description: 父级ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: name
+        description: 组织架构名字
+        required: true
+        type: string
+      - in: query
+        name: type
+        description: 类型
+        required: true
         type: integer
         format: int64
       responses:
@@ -1371,6 +1487,26 @@ paths:
       - in: query
         name: per_page
         description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /organizational/delorgan:
+    delete:
+      tags:
+      - organizational
+      description: 删除组织架构
+      operationId: OrganizationalController.删除组织架构
+      parameters:
+      - in: query
+        name: organization_id
+        description: 组织架构ID
+        required: true
         type: integer
         format: int64
       responses:
@@ -1420,7 +1556,59 @@ paths:
             $ref: '#/definitions/models.Organizational'
         "403":
           description: ""
+  /organizational/principal:
+    get:
+      tags:
+      - organizational
+      description: 组织架构成员和负责人
+      operationId: OrganizationalController.组织架构成员和负责人
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级id
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
   /organizational_member/:
+    get:
+      tags:
+      - organizational_member
+      description: 组织架构成员
+      operationId: OrganizationalMemberController.组织架构成员
+      parameters:
+      - in: body
+        name: organizational_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
     post:
       tags:
       - organizational_member
@@ -1459,34 +1647,24 @@ paths:
     get:
       tags:
       - permission
-      description: get Permission
-      operationId: PermissionController.Get All
+      description: 权限列表
+      operationId: PermissionController.权限列表
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
+        name: id
+        description: 自增ID
+        type: integer
+        format: int64
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
+        name: page
+        description: 页数
+        type: integer
+        format: int64
       - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -1497,8 +1675,8 @@ paths:
     post:
       tags:
       - permission
-      description: create Permission
-      operationId: PermissionController.Post
+      description: 保存权限
+      operationId: PermissionController.保存权限
       parameters:
       - in: body
         name: body
@@ -1728,34 +1906,19 @@ paths:
     get:
       tags:
       - role
-      description: get Role
+      description: 角色列表
       operationId: RoleController.Get All
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
+        name: page
+        description: 页数
+        type: integer
+        format: int64
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -1766,15 +1929,14 @@ paths:
     post:
       tags:
       - role
-      description: create Role
+      description: 添加角色
       operationId: RoleController.Post
       parameters:
       - in: body
         name: body
-        description: body for Role content
+        description: 角色名称
         required: true
-        schema:
-          $ref: '#/definitions/models.Role'
+        type: string
       responses:
         "201":
           description: '{int} models.Role'
@@ -1784,12 +1946,12 @@ paths:
     get:
       tags:
       - role
-      description: get Role by id
-      operationId: RoleController.Get One
+      description: 角色详情
+      operationId: RoleController.角色详情
       parameters:
       - in: path
         name: id
-        description: The key for staticblock
+        description: 角色id
         required: true
         type: string
       responses:
@@ -1802,20 +1964,19 @@ paths:
     put:
       tags:
       - role
-      description: update the Role
+      description: 编辑角色
       operationId: RoleController.Put
       parameters:
       - in: path
         name: id
-        description: The id you want to update
+        description: 角色ID
         required: true
         type: string
-      - in: body
-        name: body
-        description: body for Role content
+      - in: path
+        name: name
+        description: 角色名称
         required: true
-        schema:
-          $ref: '#/definitions/models.Role'
+        type: string
       responses:
         "200":
           description: ""
@@ -1823,22 +1984,6 @@ paths:
             $ref: '#/definitions/models.Role'
         "403":
           description: :id is not int
-    delete:
-      tags:
-      - role
-      description: delete the Role
-      operationId: RoleController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
   /role_permission/:
     get:
       tags:
@@ -1958,34 +2103,19 @@ paths:
     get:
       tags:
       - route
-      description: get Route
-      operationId: RouteController.Get All
+      description: 路由列表
+      operationId: RouteController.路由列表
       parameters:
       - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
+        name: page
+        description: 页数
+        type: integer
+        format: int64
       - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -1996,15 +2126,17 @@ paths:
     post:
       tags:
       - route
-      description: create Route
-      operationId: RouteController.Post
+      description: 保存路由
+      operationId: RouteController.保存路由
       parameters:
       - in: body
-        name: body
-        description: body for Route content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Route'
+        name: name
+        description: 路由名称
+        type: string
+      - in: body
+        name: route
+        description: 路由
+        type: string
       responses:
         "201":
           description: '{int} models.Route'
@@ -2014,12 +2146,12 @@ paths:
     get:
       tags:
       - route
-      description: get Route by id
-      operationId: RouteController.Get One
+      description: 路由详情
+      operationId: RouteController.路由详情
       parameters:
       - in: path
         name: id
-        description: The key for staticblock
+        description: 路由ID
         required: true
         type: string
       responses:
@@ -2032,20 +2164,23 @@ paths:
     put:
       tags:
       - route
-      description: update the Route
+      description: 编辑路由
       operationId: RouteController.Put
       parameters:
       - in: path
         name: id
-        description: The id you want to update
+        description: 路由ID
         required: true
+        type: integer
+        format: int64
+      - in: body
+        name: name
+        description: 路由名称
         type: string
       - in: body
-        name: body
-        description: body for Route content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Route'
+        name: route
+        description: 路由
+        type: string
       responses:
         "200":
           description: ""
@@ -2056,12 +2191,12 @@ paths:
     delete:
       tags:
       - route
-      description: delete the Route
-      operationId: RouteController.Delete
+      description: 删除路由
+      operationId: RouteController.删除路由
       parameters:
       - in: path
         name: id
-        description: The id you want to delete
+        description: 路由ID
         required: true
         type: string
       responses:
@@ -2386,7 +2521,7 @@ paths:
           description: '{int} models.Student'
         "403":
           description: body is empty
-  /student/remove/{id}:
+  /student/remove:
     delete:
       tags:
       - student
@@ -2396,6 +2531,12 @@ paths:
       - in: path
         name: student_id
         description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: class_id
+        description: 班级ID
         required: true
         type: integer
         format: int64
@@ -2829,7 +2970,7 @@ paths:
           description: '{int} models.Animation'
         "403":
           description: body is empty
-  /teacher/remove/{id}:
+  /teacher/remove:
     delete:
       tags:
       - teacher
@@ -2839,6 +2980,12 @@ paths:
       - in: path
         name: teacher_id
         description: 教师ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: class_id
+        description: 班级ID
         required: true
         type: integer
         format: int64
@@ -3778,16 +3925,16 @@ definitions:
     title: Role
     type: object
     properties:
-      CreatedAt:
+      created_at:
         type: string
         format: string
-      Id:
+      id:
         type: integer
         format: int64
-      Name:
+      name:
         description: 名称
         type: string
-      UpdatedAt:
+      updated_at:
         type: string
         format: string
   models.RolePermission:
@@ -3807,19 +3954,19 @@ definitions:
     title: Route
     type: object
     properties:
-      CreatedAt:
+      created_at:
         type: string
         format: string
-      Id:
+      id:
         type: integer
         format: int64
-      Name:
+      name:
         description: 名称
         type: string
-      Route:
+      route:
         description: 路由
         type: string
-      UpdatedAt:
+      updated_at:
         type: string
         format: string
   models.SlideShow:
@@ -4215,19 +4362,19 @@ tags:
     OrganizationalMemberController operations for OrganizationalMember
 - name: permission
   description: |
-    PermissionController operations for Permission
+    权限
 - name: permission_route
   description: |
     PermissionRouteController operations for PermissionRoute
 - name: role
   description: |
-    RoleController operations for Role
+    角色
 - name: role_permission
   description: |
     RolePermissionController operations for RolePermission
 - name: route
   description: |
-    RouteController operations for Route
+    路由
 - name: slide_show
   description: |
     SlideShowController operations for SlideShow

@@ -206,17 +206,17 @@ func UpdateStudent(id int, student string, kinship string) map[string]interface{
 			}
 		}
 	}
-	//编辑亲属信息
-	var k []Kinship
-	json.Unmarshal([]byte(kinship), &k)
-	for key, value := range k {
-		_, err := o.QueryTable("kinship").Filter("kinship_id", k[key].Id).Update(orm.Params{
-			"name": value.Name, "relation": value.Relation, "unit_name": value.UnitName, "contact_information": value.ContactInformation,
-		})
-		if err == nil {
-			err = o.Commit()
-		} else {
+
+	//写入亲属表
+	_, err = o.QueryTable("organizational").Filter("student_id", id).Delete()
+	if err == nil {
+		var k []Kinship
+		json.Unmarshal([]byte(kinship), &k)
+		_, err = o.InsertMulti(100, &k)
+		if err != nil {
 			err = o.Rollback()
+		} else {
+			err = o.Commit()
 		}
 	}
 	if err == nil {
@@ -256,11 +256,21 @@ func AddStudent(student string, kinship string) map[string]interface{} {
 }
 
 //移除学生
-func RemoveStudent(id int) map[string]interface{} {
+func RemoveStudent(class_id int, student_id int) map[string]interface{} {
 	o := orm.NewOrm()
-	num, err := o.QueryTable("student").Filter("student_id", id).Update(orm.Params{
+	err := o.Begin()
+	_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", student_id).Delete()
+	if err != nil {
+		err = o.Rollback()
+	}
+	num, err := o.QueryTable("student").Filter("student_id", student_id).Update(orm.Params{
 		"status": 0,
 	})
+	if err != nil {
+		err = o.Rollback()
+	} else {
+		err = o.Commit()
+	}
 	if err == nil && num > 0 {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = num //返回数据
