@@ -34,7 +34,7 @@ type Teacher struct {
 	Status                     int8      `json:"status" orm:"column(status)" description:"状态：0未分班，1已分班，2离职"`
 	CreatedAt                  time.Time `json:"created_at" orm:"auto_now_add"`
 	UpdatedAt                  time.Time `json:"updated_at" orm:"auto_now"`
-	DeletedAt                  time.Time `json:"deleted_at" orm:"auto_now_add"`
+	DeletedAt                  time.Time `json:"deleted_at" orm:""`
 }
 
 func (t *Teacher) TableName() string {
@@ -193,9 +193,12 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 			v.Status = 0
 		}
 		if _, err = o.Update(&v); err == nil {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["data"] = nil //返回数据
-			return paginatorMap
+			_, err = o.QueryTable("teachers_show").Filter("teacher_id", id).Delete()
+			if err == nil {
+				paginatorMap := make(map[string]interface{})
+				paginatorMap["data"] = nil //返回数据
+				return paginatorMap
+			}
 		}
 	}
 	return nil
@@ -204,15 +207,13 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 //教师详情
 func GetTeacherInfo(id int) map[string]interface{} {
 	o := orm.NewOrm()
-	var v []orm.Params
-	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("t.*").From("teacher as t").Where("teacher_id = ?").String()
-	num, err := o.Raw(sql, id).Values(&v)
-	if err == nil && num > 0 {
+	v := &Teacher{Id: id}
+	if err := o.Read(v); err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = v
 		return paginatorMap
 	}
+
 	return nil
 }
 
@@ -250,12 +251,26 @@ func AddTeacher(m *Teacher) map[string]interface{} {
 	return nil
 }
 
-//移除教师
-func RemoveTeacher(id int) map[string]interface{} {
+//组织框架移除教师
+func RemoveTeacher(teacher_id int, class_id int) map[string]interface{} {
 	o := orm.NewOrm()
-	num, err := o.QueryTable("teacher").Filter("teacher_id", id).Update(orm.Params{
+	err := o.Begin()
+	_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
+	if err != nil {
+		err = o.Rollback()
+	}
+	num, err := o.QueryTable("teacher").Filter("teacher_id", teacher_id).Update(orm.Params{
 		"status": 0,
 	})
+	if err != nil {
+		err = o.Rollback()
+	}
+	_, err = o.QueryTable("teachers_show").Filter("teacher_id", teacher_id).Delete()
+	if err != nil {
+		err = o.Rollback()
+	} else {
+		err = o.Commit()
+	}
 	if err == nil && num > 0 {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = num //返回数据

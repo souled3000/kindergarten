@@ -1,171 +1,130 @@
 package controllers
 
 import (
-	"encoding/json"
-	"errors"
 	"kindergarten-service-go/models"
 	"strconv"
-	"strings"
+
+	"github.com/astaxie/beego/validation"
 
 	"github.com/astaxie/beego"
 )
 
-// RouteController operations for Route
+//路由
 type RouteController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *RouteController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
-}
-
 // Post ...
-// @Title Post
-// @Description create Route
-// @Param	body		body 	models.Route	true		"body for Route content"
+// @Title 保存路由
+// @Description 保存路由
+// @Param	name		    body 	string		"路由名称"
+// @Param	route		body 	string	    "路由"
 // @Success 201 {int} models.Route
 // @Failure 403 body is empty
 // @router / [post]
 func (c *RouteController) Post() {
-	var v models.Route
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddRoute(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
+	name := c.GetString("name")
+	route := c.GetString("route")
+	valid := validation.Validation{}
+	valid.Required(name, "name").Message("路由名称不能为空")
+	valid.Required(route, "route").Message("路由不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
 	} else {
-		c.Data["json"] = err.Error()
+		l := models.AddRoute(name, route)
+		if l == nil {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+		}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
 }
 
 // GetOne ...
-// @Title Get One
-// @Description get Route by id
-// @Param	id		path 	string	true		"The key for staticblock"
+// @Title 路由详情
+// @Description 路由详情
+// @Param	id		path 	string	true		"路由ID"
 // @Success 200 {object} models.Route
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *RouteController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetRouteById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	r := models.GetRouteById(id)
+	if r == nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "获取失败"}
 	} else {
-		c.Data["json"] = v
+		c.Data["json"] = JSONStruct{"success", 0, r, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
 // GetAll ...
-// @Title Get All
-// @Description get Route
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// @Title 路由列表
+// @Description 路由列表
+// @Param	page                  query	int	     false		"页数"
+// @Param	per_page              query	int	     false		"每页显示条数"
 // @Success 200 {object} models.Route
 // @Failure 403
 // @router / [get]
 func (c *RouteController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
+	var prepage int = 20
+	var page int
+	if v, err := c.GetInt("per_page"); err == nil {
+		prepage = v
 	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
-		limit = v
+	if v, err := c.GetInt("page"); err == nil {
+		page = v
 	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
-	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
-	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-
-	l, err := models.GetAllRoute(query, fields, sortby, order, offset, limit)
-	if err != nil {
-		c.Data["json"] = err.Error()
+	v := models.GetAllRoute(page, prepage)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
-		c.Data["json"] = l
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
 // Put ...
 // @Title Put
-// @Description update the Route
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.Route	true		"body for Route content"
+// @Description 编辑路由
+// @Param	id		    path 	int       	true		"路由ID"
+// @Param	name		    body 	string	    false	"路由名称"
+// @Param	route		body 	string	    false	"路由"
 // @Success 200 {object} models.Route
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *RouteController) Put() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.Route{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateRouteById(&v); err == nil {
-			c.Data["json"] = "OK"
-		} else {
-			c.Data["json"] = err.Error()
-		}
+	name := c.GetString("name")
+	route := c.GetString("route")
+	v := models.UpdateRouteById(id, name, route)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "编辑失败"}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
 	}
 	c.ServeJSON()
 }
 
 // Delete ...
-// @Title Delete
-// @Description delete the Route
-// @Param	id		path 	string	true		"The id you want to delete"
+// @Title 删除路由
+// @Description 删除路由
+// @Param	id		path 	string	true		"路由ID"
 // @Success 200 {string} delete success!
 // @Failure 403 id is empty
 // @router /:id [delete]
 func (c *RouteController) Delete() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteRoute(id); err == nil {
-		c.Data["json"] = "OK"
+	v := models.DeleteRoute(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "删除失败"}
 	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	}
 	c.ServeJSON()
 }

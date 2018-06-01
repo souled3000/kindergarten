@@ -265,29 +265,39 @@ func (c *TeacherController) Post() {
 // RemoveTeacher ...
 // @Title RemoveTeacher
 // @Description 移除教师
-// @Param	teacher_id		path 	int	true		"教师ID"
+// @Param	teacher_id		path 	    int	true		    "教师ID"
+// @Param	class_id		    path 	    int	true		    "班级ID"
 // @Success 200 {string} delete success!
 // @Failure 403 teacher_id is empty
-// @router /remove/:id [delete]
+// @router /remove [delete]
 func (c *TeacherController) RemoveTeacher() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.RemoveTeacher(id)
-	if v == nil {
-		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
+	teacher_id, _ := c.GetInt("teacher_id")
+	class_id, _ := c.GetInt("class_id")
+	valid := validation.Validation{}
+	valid.Required(teacher_id, "teacher_id").Message("教师ID不能为空")
+	valid.Required(class_id, "class_id").Message("班级ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
 	} else {
-		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+		v := models.RemoveTeacher(teacher_id, class_id)
+		if v == nil {
+			c.Data["json"] = JSONStruct{"error", 1004, nil, "移除失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "移除成功"}
+		}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
+
 }
 
 // Invite ...
 // @Title 邀请教师/批量邀请
 // @Description 邀请教师/批量邀请
-// @Param	phone		        body 	string	true		"手机号"
-// @Param	name		            body 	string   	true		"姓名"
-// @Param	role  		        body 	int  	true		"身份"
-// @Param	kindergarten_id		body 	int   	true		"幼儿园ID"
+// @Param	phone		        body 	string	 true		"手机号"
+// @Param	name		            body 	string   true		"姓名"
+// @Param	role  		        body 	int  	 true		"身份"
+// @Param	kindergarten_id		body 	int   	 true		"幼儿园ID"
 // @Success 201 {int} models.Animation
 // @Failure 403 body is empty
 // @router /invite [post]
@@ -336,7 +346,7 @@ func (c *TeacherController) Invite() {
 							c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
 							c.ServeJSON()
 						} else {
-							c.Data["json"] = JSONStruct{"error", 1001, nil, "发送失败"}
+							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送失败"}
 							c.ServeJSON()
 						}
 					}
