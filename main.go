@@ -3,6 +3,7 @@ package main
 import (
 	"kindergarten-service-go/controllers"
 	_ "kindergarten-service-go/routers"
+	"kindergarten-service-go/services"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -29,5 +30,7 @@ func main() {
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
 	}
 	beego.ErrorController(&controllers.ErrorController{})
+	kindergartenServer := services.KindergartenServer{}
+	kindergartenServer.Init()
 	beego.Run()
 }

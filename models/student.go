@@ -181,8 +181,8 @@ func GetStudentInfo(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	student := Student{Id: id}
 	o.Read(&student)
-	num, err := o.LoadRelated(&student, "kinship")
-	if err == nil && num > 0 {
+	_, err := o.LoadRelated(&student, "kinship")
+	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = student
 		return paginatorMap

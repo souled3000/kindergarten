@@ -2009,14 +2009,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "id",
-                        "description": "主键ID",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
                         "name": "page",
                         "description": "页数",
                         "type": "integer",
@@ -2462,13 +2454,6 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "id",
-                        "description": "自增ID",
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
                         "name": "page",
                         "description": "页数",
                         "type": "integer",
@@ -2503,12 +2488,32 @@
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "body",
-                        "description": "body for Permission content",
+                        "name": "name",
+                        "description": "权限名称",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Permission"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "identification",
+                        "description": "权限标识",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "parent_id",
+                        "description": "父级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "route",
+                        "description": "路由功能",
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -2521,18 +2526,47 @@
                 }
             }
         },
+        "/permission/option": {
+            "get": {
+                "tags": [
+                    "permission"
+                ],
+                "description": "权限选项",
+                "operationId": "PermissionController.权限选项",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Permission"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/permission/{id}": {
             "get": {
                 "tags": [
                     "permission"
                 ],
-                "description": "get Permission by id",
-                "operationId": "PermissionController.Get One",
+                "description": "权限详情",
+                "operationId": "PermissionController.权限详情",
                 "parameters": [
                     {
                         "in": "path",
                         "name": "id",
-                        "description": "The key for staticblock",
+                        "description": "权限ID",
                         "required": true,
                         "type": "string"
                     }
@@ -2546,66 +2580,6 @@
                     },
                     "403": {
                         "description": ":id is empty"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "permission"
-                ],
-                "description": "update the Permission",
-                "operationId": "PermissionController.Put",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to update",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Permission content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Permission"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Permission"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is not int"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "permission"
-                ],
-                "description": "delete the Permission",
-                "operationId": "PermissionController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to delete",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} delete success!"
-                    },
-                    "403": {
-                        "description": "id is empty"
                     }
                 }
             }
@@ -4841,77 +4815,44 @@
             }
         },
         "/user_permission/": {
-            "get": {
-                "tags": [
-                    "user_permission"
-                ],
-                "description": "get UserPermission",
-                "operationId": "UserPermissionController.Get All",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "query",
-                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "fields",
-                        "description": "Fields returned. e.g. col1,col2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "sortby",
-                        "description": "Sorted-by fields. e.g. col1,col2 ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "order",
-                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "limit",
-                        "description": "Limit the size of result set. Must be an integer",
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "offset",
-                        "description": "Start position of result set. Must be an integer",
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.UserPermission"
-                        }
-                    },
-                    "403": {
-                        "description": ""
-                    }
-                }
-            },
             "post": {
                 "tags": [
                     "user_permission"
                 ],
-                "description": "create UserPermission",
-                "operationId": "UserPermissionController.Post",
+                "description": "设置权限",
+                "operationId": "UserPermissionController.设置权限",
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "body",
-                        "description": "body for UserPermission content",
+                        "name": "user_id",
+                        "description": "用户ID",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.UserPermission"
-                        }
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "role",
+                        "description": "角色ID(json)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "permission",
+                        "description": "权限(json)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "group",
+                        "description": "圈子(班级类型)(json)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -4924,18 +4865,47 @@
                 }
             }
         },
+        "/user_permission/user/{id}": {
+            "get": {
+                "tags": [
+                    "user_permission"
+                ],
+                "description": "查看用户权限",
+                "operationId": "UserPermissionController.查看用户权限标识",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "user_id",
+                        "description": "用户ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserPermission"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
         "/user_permission/{id}": {
             "get": {
                 "tags": [
                     "user_permission"
                 ],
-                "description": "get UserPermission by id",
-                "operationId": "UserPermissionController.Get One",
+                "description": "查看用户权限",
+                "operationId": "UserPermissionController.查看用户权限",
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "id",
-                        "description": "The key for staticblock",
+                        "name": "user_id",
+                        "description": "用户ID",
                         "required": true,
                         "type": "string"
                     }
@@ -4956,24 +4926,37 @@
                 "tags": [
                     "user_permission"
                 ],
-                "description": "update the UserPermission",
-                "operationId": "UserPermissionController.Put",
+                "description": "更新用户权限",
+                "operationId": "UserPermissionController.更新用户权限",
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to update",
+                        "in": "formData",
+                        "name": "user_id",
+                        "description": "用户ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "role",
+                        "description": "角色ID(json)",
                         "required": true,
                         "type": "string"
                     },
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for UserPermission content",
+                        "in": "formData",
+                        "name": "permission",
+                        "description": "权限ID(json)",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.UserPermission"
-                        }
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "group",
+                        "description": "圈子ID(json)",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -4985,30 +4968,6 @@
                     },
                     "403": {
                         "description": ":id is not int"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "user_permission"
-                ],
-                "description": "delete the UserPermission",
-                "operationId": "UserPermissionController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "The id you want to delete",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} delete success!"
-                    },
-                    "403": {
-                        "description": "id is empty"
                     }
                 }
             }
@@ -5671,54 +5630,54 @@
             "title": "Organizational",
             "type": "object",
             "properties": {
-                "ClassType": {
+                "class_type": {
                     "description": "班级类型：1小班，2中班，3大班",
                     "type": "integer",
                     "format": "int32"
                 },
-                "CreatedAt": {
+                "created_at": {
                     "description": "添加时间",
                     "type": "string",
                     "format": "string"
                 },
-                "Id": {
+                "id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "IsFixed": {
+                "is_fixed": {
                     "description": "是否固定的：0不是，1是",
                     "type": "integer",
                     "format": "int32"
                 },
-                "KindergartenId": {
+                "kindergarten_id": {
                     "description": "幼儿园id",
                     "type": "integer",
                     "format": "int64"
                 },
-                "Level": {
+                "level": {
                     "description": "等级",
                     "type": "integer",
                     "format": "int32"
                 },
-                "Name": {
+                "name": {
                     "description": "组织架构名字",
                     "type": "string"
                 },
-                "ParentId": {
+                "parent_id": {
                     "description": "父级id",
                     "type": "integer",
                     "format": "int64"
                 },
-                "ParentIds": {
+                "parent_ids": {
                     "description": "父级所有id",
                     "type": "string"
                 },
-                "Type": {
+                "type": {
                     "description": "类型：0普通，1管理层，2年级组",
                     "type": "integer",
                     "format": "int32"
                 },
-                "UpdatedAt": {
+                "updated_at": {
                     "description": "修改时间",
                     "type": "string",
                     "format": "string"
@@ -5729,34 +5688,34 @@
             "title": "Permission",
             "type": "object",
             "properties": {
-                "CreatedAt": {
+                "created_at": {
                     "description": "创建时间",
                     "type": "string",
                     "format": "string"
                 },
-                "Id": {
+                "id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "Identification": {
+                "identification": {
                     "description": "标识",
                     "type": "string"
                 },
-                "Level": {
+                "level": {
                     "description": "等级",
                     "type": "integer",
                     "format": "int32"
                 },
-                "Name": {
+                "name": {
                     "description": "名称",
                     "type": "string"
                 },
-                "ParentId": {
+                "parent_id": {
                     "description": "上一级ID",
                     "type": "integer",
                     "format": "int64"
                 },
-                "UpdatedAt": {
+                "updated_at": {
                     "description": "修改时间",
                     "type": "string",
                     "format": "string"
@@ -5767,15 +5726,15 @@
             "title": "PermissionRoute",
             "type": "object",
             "properties": {
-                "Id": {
+                "id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "PermissionId": {
+                "permission_id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "RouteId": {
+                "route_id": {
                     "type": "integer",
                     "format": "int64"
                 }
@@ -5807,15 +5766,15 @@
             "title": "RolePermission",
             "type": "object",
             "properties": {
-                "Id": {
+                "id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "PermissionId": {
+                "permission_id": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "RoleId": {
+                "role_id": {
                     "type": "integer",
                     "format": "int64"
                 }
@@ -6416,7 +6375,7 @@
         },
         {
             "name": "user_permission",
-            "description": "UserPermissionController operations for UserPermission\n"
+            "description": "用户分配权限\n"
         },
         {
             "name": "user_role",

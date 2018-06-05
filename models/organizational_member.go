@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/astaxie/beego/orm"
@@ -85,9 +84,8 @@ func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err
 	sql := qb.Select("om.*", "t.name", "t.number", "t.teacher_id", "t.phone").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").Where("om.organizational_id = ?").And("om.type = 0").String()
 	_, err = o.Raw(sql, organizational_id).Values(&v)
-	fmt.Println(v)
 	if err == nil {
-		paginatorMap["data"] = v //返回数据
+		paginatorMap["data"] = v
 		return paginatorMap, nil
 	}
 	err = errors.New("获取失败")
