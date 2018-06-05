@@ -12,17 +12,32 @@ import (
 )
 
 type Organizational struct {
-	Id             int       `orm:"column(id);auto"`
-	KindergartenId int       `orm:"column(kindergarten_id)" description:"幼儿园id"`
-	ParentId       int       `orm:"column(parent_id)" description:"父级id"`
-	Name           string    `orm:"column(name);size(20)" description:"组织架构名字"`
-	IsFixed        int8      `orm:"column(is_fixed)" description:"是否固定的：0不是，1是"`
-	Level          int8      `orm:"column(level)" description:"等级"`
-	ParentIds      string    `orm:"column(parent_ids);size(50)" description:"父级所有id"`
-	Type           int8      `orm:"column(type)" description:"类型：0普通，1管理层，2年级组"`
-	ClassType      int8      `orm:"column(class_type)" description:"班级类型：1小班，2中班，3大班"`
-	CreatedAt      time.Time `orm:"column(created_at);type(datetime)" description:"添加时间"`
-	UpdatedAt      time.Time `orm:"column(updated_at);type(datetime)" description:"修改时间"`
+	Id             int       `json:"id" orm:"column(id);auto"`
+	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园id"`
+	ParentId       int       `json:"parent_id" orm:"column(parent_id)" description:"父级id"`
+	Name           string    `json:"name" orm:"column(name);size(20)" description:"组织架构名字"`
+	IsFixed        int8      `json:"is_fixed" orm:"column(is_fixed)" description:"是否固定的：0不是，1是"`
+	Level          int8      `json:"level" orm:"column(level)" description:"等级"`
+	ParentIds      string    `json:"parent_ids" orm:"column(parent_ids);size(50)" description:"父级所有id"`
+	Type           int8      `json:"type" orm:"column(type)" description:"类型：0普通，1管理层，2年级组"`
+	ClassType      int8      `json:"class_type" orm:"column(class_type)" description:"班级类型：1小班，2中班，3大班"`
+	CreatedAt      time.Time `json:"created_at" orm:"column(created_at);type(datetime)" description:"添加时间"`
+	UpdatedAt      time.Time `json:"updated_at" orm:"column(updated_at);type(datetime)" description:"修改时间"`
+}
+
+type OrganizationalTree struct {
+	Id             int                  `json:"id" orm:"column(id);auto"`
+	KindergartenId int                  `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园id"`
+	ParentId       int                  `json:"parent_id" orm:"column(parent_id)" description:"父级id"`
+	Name           string               `json:"name" orm:"column(name);size(20)" description:"组织架构名字"`
+	IsFixed        int8                 `json:"is_fixed" orm:"column(is_fixed)" description:"是否固定的：0不是，1是"`
+	Level          int8                 `json:"level" orm:"column(level)" description:"等级"`
+	ParentIds      string               `json:"parent_ids" orm:"column(parent_ids);size(50)" description:"父级所有id"`
+	Type           int8                 `json:"type" orm:"column(type)" description:"类型：0普通，1管理层，2年级组"`
+	ClassType      int8                 `json:"class_type" orm:"column(class_type)" description:"班级类型：1小班，2中班，3大班"`
+	CreatedAt      time.Time            `json:"created_at" orm:"column(created_at);type(datetime)" description:"添加时间"`
+	UpdatedAt      time.Time            `json:"updated_at" orm:"column(updated_at);type(datetime)" description:"修改时间"`
+	Child          []OrganizationalTree `json:"child" orm:"null"`
 }
 
 func (t *Organizational) TableName() string {
@@ -112,14 +127,14 @@ func ClassMember(kindergarten_id int, class_type int, class_id int, page int, pr
 	sql := qb.Select("s.student_id", "s.name", "s.avatar", "s.number", "s.phone",
 		"o.name as class_name", "o.class_type", "om.id").From("student as s").LeftJoin("organizational_member as om").
 		On("s.student_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("om.type = 1").String()
+		On("om.organizational_id = o.id").Where(where).And("om.type = 1").And("s.status = 1").String()
 	_, err := o.Raw(sql, condition).Values(&student)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("t.teacher_id", "t.name", "t.avatar", "t.number", "t.phone",
 		"o.name as class_name", "om.id").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("om.type = 0").String()
+		On("om.organizational_id = o.id").Where(where).And("t.status = 1").And("om.type = 0").String()
 	_, err = o.Raw(sql, condition).Values(&teacher)
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
@@ -250,46 +265,60 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 }
 
 //组织架构列表
-func GetOrganization(kindergarten_id int, id int, page int, prepage int) map[string]interface{} {
+func GetOrganization(kindergarten_id int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
-	qb, _ := orm.NewQueryBuilder("mysql")
-	var condition []interface{}
-	where := "1=1 "
-	if kindergarten_id == 0 {
-		where += " AND kindergarten_id = ?"
-	} else {
-		where += " AND kindergarten_id = ?"
-		condition = append(condition, kindergarten_id)
-	}
-	where += " AND parent_id = ?"
-	condition = append(condition, id)
-	// 构建查询对象
-	sql := qb.Select("count(*)").From("organizational").Where(where).String()
-	var total int64
-	err := o.Raw(sql, condition).QueryRow(&total)
-	if err == nil {
-		var v []orm.Params
-		//根据nums总数，和prepage每页数量 生成分页总数
-		totalpages := int(math.Ceil(float64(total) / float64(prepage))) //page总数
-		if page > totalpages {
-			page = totalpages
+	qs := o.QueryTable(new(Organizational))
+	var posts []Organizational
+	var Organizational []OrganizationalTree
+	if _, err := qs.Filter("kindergarten_id", kindergarten_id).All(&posts); err == nil {
+		ml := make(map[string]interface{})
+		for _, val := range posts {
+			if val.ParentId == 0 {
+				next := getNext(posts, val.Id)
+				var tree OrganizationalTree
+				tree.Id = val.Id
+				tree.KindergartenId = val.KindergartenId
+				tree.ClassType = val.ClassType
+				tree.CreatedAt = val.CreatedAt
+				tree.IsFixed = val.IsFixed
+				tree.Level = val.Level
+				tree.Name = val.Name
+				tree.ParentId = val.ParentId
+				tree.ParentIds = val.ParentIds
+				tree.UpdatedAt = val.UpdatedAt
+				tree.Child = next
+				Organizational = append(Organizational, tree)
+			}
 		}
-		if page <= 0 {
-			page = 1
-		}
-		limit := (page - 1) * prepage
-		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("*").From("organizational").Where(where).Limit(prepage).Offset(limit).String()
-		num, err := o.Raw(sql, condition).Values(&v)
-		if err == nil && num > 0 {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["total"] = total         //总条数
-			paginatorMap["data"] = v              //分页数据
-			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap
+		if err == nil {
+			ml["data"] = Organizational
+			return ml
 		}
 	}
 	return nil
+}
+
+func getNext(posts []Organizational, id int) (Organizational []OrganizationalTree) {
+	for _, val := range posts {
+		if val.ParentId == id {
+			next := getNext(posts, val.Id)
+			var tree OrganizationalTree
+			tree.Id = val.Id
+			tree.KindergartenId = val.KindergartenId
+			tree.ClassType = val.ClassType
+			tree.CreatedAt = val.CreatedAt
+			tree.IsFixed = val.IsFixed
+			tree.Level = val.Level
+			tree.Name = val.Name
+			tree.ParentId = val.ParentId
+			tree.ParentIds = val.ParentIds
+			tree.UpdatedAt = val.UpdatedAt
+			tree.Type = val.Type
+			tree.Child = next
+			Organizational = append(Organizational, tree)
+		}
+	}
+	return Organizational
 }
 
 //添加组织架构

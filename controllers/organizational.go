@@ -13,13 +13,6 @@ type OrganizationalController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *OrganizationalController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
-}
-
 // GetClass ...
 // @Title 班级
 // @Description 班级列表
@@ -157,7 +150,6 @@ func (o *OrganizationalController) Store() {
 // @Title 组织架构列表
 // @Description 组织架构列表
 // @Param	kindergarten_id           query	int	     true		"幼儿园ID"
-// @Param	id                        query	int	     true		"主键ID"
 // @Param	page                      query	int	     false		"页数"
 // @Param	per_page                  query	int	     false		"每页显示条数"
 // @Success 200 {object} models.Organizational
@@ -173,14 +165,13 @@ func (o *OrganizationalController) GetOrganization() {
 		page = v
 	}
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
-	id, _ := o.GetInt("id")
 	valid := validation.Validation{}
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
 	if valid.HasErrors() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		v := models.GetOrganization(kindergarten_id, id, page, prepage)
+		v := models.GetOrganization(kindergarten_id, page, prepage)
 		if v == nil {
 			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取组织架构失败"}
 		} else {

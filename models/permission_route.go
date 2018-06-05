@@ -10,9 +10,9 @@ import (
 )
 
 type PermissionRoute struct {
-	Id           int `orm:"column(id);auto"`
-	PermissionId int `orm:"column(permission_id)"`
-	RouteId      int `orm:"column(route_id)"`
+	Id           int `json:"id" orm:"column(id);auto"`
+	PermissionId int `json:"permission_id" orm:"column(permission_id)"`
+	RouteId      int `json:"route_id" orm:"column(route_id)"`
 }
 
 func (t *PermissionRoute) TableName() string {

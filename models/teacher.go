@@ -157,7 +157,6 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 			On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
 			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").And("status = 1").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
-		fmt.Println(v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
 			data := make(map[string][]interface{})
@@ -183,6 +182,7 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 	timeLayout := "2006-01-02 15:04:05" //转化所需模板
 	loc, _ := time.LoadLocation("")
 	timenow := time.Now().Format("2006-01-02 15:04:05")
+	fmt.Println(time.ParseInLocation(timeLayout, timenow, loc))
 	if err := o.Read(&v); err == nil {
 		if status == 0 {
 			v.Status = 2
@@ -193,7 +193,7 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 			v.Status = 0
 		}
 		if _, err = o.Update(&v); err == nil {
-			_, err = o.QueryTable("teachers_show").Filter("teacher_id", id).Delete()
+			//			_, err = o.QueryTable("teachers_show").Filter("teacher_id", id).Delete()
 			if err == nil {
 				paginatorMap := make(map[string]interface{})
 				paginatorMap["data"] = nil //返回数据
