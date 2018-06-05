@@ -10,9 +10,9 @@ import (
 )
 
 type RolePermission struct {
-	Id           int `orm:"column(id);auto"`
-	RoleId       int `orm:"column(role_id)"`
-	PermissionId int `orm:"column(permission_id)"`
+	Id           int `json:"id" orm:"column(id);auto"`
+	RoleId       int `json:"role_id" orm:"column(role_id)"`
+	PermissionId int `json:"permission_id" orm:"column(permission_id)"`
 }
 
 func (t *RolePermission) TableName() string {

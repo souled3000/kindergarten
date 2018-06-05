@@ -1,171 +1,109 @@
 package controllers
 
 import (
-	"encoding/json"
-	"errors"
 	"kindergarten-service-go/models"
 	"strconv"
-	"strings"
+
+	"github.com/astaxie/beego/validation"
 
 	"github.com/astaxie/beego"
 )
 
-// UserPermissionController operations for UserPermission
+//用户分配权限
 type UserPermissionController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *UserPermissionController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
-}
-
 // Post ...
-// @Title Post
-// @Description create UserPermission
-// @Param	body		body 	models.UserPermission	true		"body for UserPermission content"
+// @Title 设置权限
+// @Description 设置权限
+// @Param	user_id		    body 	int	  true		"用户ID"
+// @Param	role		    body 	int	  true		"角色ID(json)"
+// @Param	permission		body 	int	  true		"权限(json)"
+// @Param	group		    body 	int	  true		"圈子(班级类型)(json)"
 // @Success 201 {int} models.UserPermission
 // @Failure 403 body is empty
 // @router / [post]
 func (c *UserPermissionController) Post() {
-	var v models.UserPermission
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddUserPermission(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
+	user_id, _ := c.GetInt("user_id")
+	role := c.GetString("role")
+	permission := c.GetString("permission")
+	group := c.GetString("group")
+	valid := validation.Validation{}
+	valid.Required(user_id, "user_id").Message("用户ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
 	} else {
-		c.Data["json"] = err.Error()
+		_, err := models.AddUserPermission(user_id, role, permission, group)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+		}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
 }
 
 // GetOne ...
-// @Title Get One
-// @Description get UserPermission by id
-// @Param	id		path 	string	true		"The key for staticblock"
+// @Title 查看用户权限
+// @Description 查看用户权限
+// @Param	user_id		path 	string	true		"用户ID"
 // @Success 200 {object} models.UserPermission
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *UserPermissionController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetUserPermissionById(id)
+	user_id, _ := strconv.Atoi(idStr)
+	v, err := models.GetUserPermissionById(user_id)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 	} else {
-		c.Data["json"] = v
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
-// GetAll ...
-// @Title Get All
-// @Description get UserPermission
-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// GetUserPermission ...
+// @Title 查看用户权限标识
+// @Description 查看用户权限
+// @Param	user_id		path 	string	true		"用户ID"
 // @Success 200 {object} models.UserPermission
-// @Failure 403
-// @router / [get]
-func (c *UserPermissionController) GetAll() {
-	var fields []string
-	var sortby []string
-	var order []string
-	var query = make(map[string]string)
-	var limit int64 = 10
-	var offset int64
-
-	// fields: col1,col2,entity.col3
-	if v := c.GetString("fields"); v != "" {
-		fields = strings.Split(v, ",")
-	}
-	// limit: 10 (default is 10)
-	if v, err := c.GetInt64("limit"); err == nil {
-		limit = v
-	}
-	// offset: 0 (default is 0)
-	if v, err := c.GetInt64("offset"); err == nil {
-		offset = v
-	}
-	// sortby: col1,col2
-	if v := c.GetString("sortby"); v != "" {
-		sortby = strings.Split(v, ",")
-	}
-	// order: desc,asc
-	if v := c.GetString("order"); v != "" {
-		order = strings.Split(v, ",")
-	}
-	// query: k:v,k:v
-	if v := c.GetString("query"); v != "" {
-		for _, cond := range strings.Split(v, ",") {
-			kv := strings.SplitN(cond, ":", 2)
-			if len(kv) != 2 {
-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
-				c.ServeJSON()
-				return
-			}
-			k, v := kv[0], kv[1]
-			query[k] = v
-		}
-	}
-
-	l, err := models.GetAllUserPermission(query, fields, sortby, order, offset, limit)
+// @Failure 403 :id is empty
+// @router /user/:id [get]
+func (c *UserPermissionController) GetUserPermission() {
+	idStr := c.Ctx.Input.Param(":id")
+	user_id, _ := strconv.Atoi(idStr)
+	v, err := models.GetUserIdentificationById(user_id)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 	} else {
-		c.Data["json"] = l
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
 
 // Put ...
-// @Title Put
-// @Description update the UserPermission
-// @Param	id		path 	string	true		"The id you want to update"
-// @Param	body		body 	models.UserPermission	true		"body for UserPermission content"
+// @Title 更新用户权限
+// @Description 更新用户权限
+// @Param	user_id		    formData 	int	    true		"用户ID"
+// @Param	role		    formData 	string	true		"角色ID(json)"
+// @Param	permission		formData 	string	true		"权限ID(json)"
+// @Param	group		    formData 	string	true		"圈子ID(json)"
 // @Success 200 {object} models.UserPermission
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *UserPermissionController) Put() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.UserPermission{Id: id}
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if err := models.UpdateUserPermissionById(&v); err == nil {
-			c.Data["json"] = "OK"
-		} else {
-			c.Data["json"] = err.Error()
-		}
+	user_id, _ := strconv.Atoi(idStr)
+	role := c.GetString("role")
+	permission := c.GetString("permission")
+	group := c.GetString("group")
+	_, err := models.UpdateUserPermissionById(user_id, role, permission, group)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 	} else {
-		c.Data["json"] = err.Error()
-	}
-	c.ServeJSON()
-}
-
-// Delete ...
-// @Title Delete
-// @Description delete the UserPermission
-// @Param	id		path 	string	true		"The id you want to delete"
-// @Success 200 {string} delete success!
-// @Failure 403 id is empty
-// @router /:id [delete]
-func (c *UserPermissionController) Delete() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	if err := models.DeleteUserPermission(id); err == nil {
-		c.Data["json"] = "OK"
-	} else {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
 	}
 	c.ServeJSON()
 }

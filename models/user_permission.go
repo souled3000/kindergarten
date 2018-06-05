@@ -1,10 +1,9 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
-	"reflect"
-	"strings"
+	"time"
 
 	"github.com/astaxie/beego/orm"
 )
@@ -23,129 +22,152 @@ func init() {
 	orm.RegisterModel(new(UserPermission))
 }
 
-// AddUserPermission insert a new UserPermission into database and returns
-// last inserted Id on success.
-func AddUserPermission(m *UserPermission) (id int64, err error) {
+//设置权限
+func AddUserPermission(user_id int, role string, permission string, group string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
-	return
-}
-
-// GetUserPermissionById retrieves UserPermission by Id. Returns error if
-// Id doesn't exist
-func GetUserPermissionById(id int) (v *UserPermission, err error) {
-	o := orm.NewOrm()
-	v = &UserPermission{Id: id}
-	if err = o.Read(v); err == nil {
-		return v, nil
-	}
-	return nil, err
-}
-
-// GetAllUserPermission retrieves all UserPermission matches certain condition. Returns empty list if
-// no records exist
-func GetAllUserPermission(query map[string]string, fields []string, sortby []string, order []string,
-	offset int64, limit int64) (ml []interface{}, err error) {
-	o := orm.NewOrm()
-	qs := o.QueryTable(new(UserPermission))
-	// query k=v
-	for k, v := range query {
-		// rewrite dot-notation to Object__Attribute
-		k = strings.Replace(k, ".", "__", -1)
-		if strings.Contains(k, "isnull") {
-			qs = qs.Filter(k, (v == "true" || v == "1"))
-		} else {
-			qs = qs.Filter(k, v)
+	err = o.Begin()
+	var r map[string]interface{}
+	json.Unmarshal([]byte(role), &r)
+	var p map[string]interface{}
+	json.Unmarshal([]byte(permission), &p)
+	var g map[string]interface{}
+	json.Unmarshal([]byte(group), &g)
+	paginatorMap = make(map[string]interface{})
+	//角色权限
+	if r != nil {
+		for _, v := range r {
+			sql := "insert into user_role set user_id = ?,role_id = ?"
+			_, err = o.Raw(sql, user_id, v).Exec()
 		}
 	}
-	// order by:
-	var sortFields []string
-	if len(sortby) != 0 {
-		if len(sortby) == len(order) {
-			// 1) for each sort field, there is an associated order
-			for i, v := range sortby {
-				orderby := ""
-				if order[i] == "desc" {
-					orderby = "-" + v
-				} else if order[i] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-			qs = qs.OrderBy(sortFields...)
-		} else if len(sortby) != len(order) && len(order) == 1 {
-			// 2) there is exactly one order, all the sorted fields will be sorted by this order
-			for _, v := range sortby {
-				orderby := ""
-				if order[0] == "desc" {
-					orderby = "-" + v
-				} else if order[0] == "asc" {
-					orderby = v
-				} else {
-					return nil, errors.New("Error: Invalid order. Must be either [asc|desc]")
-				}
-				sortFields = append(sortFields, orderby)
-			}
-		} else if len(sortby) != len(order) && len(order) != 1 {
-			return nil, errors.New("Error: 'sortby', 'order' sizes mismatch or 'order' size is not 1")
+	//分配用户权限
+	if p != nil {
+		for _, v := range p {
+			sql := "insert into user_permission set user_id = ?,permission_id = ?"
+			_, err = o.Raw(sql, user_id, v).Exec()
 		}
+	}
+	//圈子权限
+	if g != nil {
+		timeLayout := "2006-01-02 15:04:05" //转化所需模板
+		loc, _ := time.LoadLocation("")
+		timenow := time.Now().Format("2006-01-02 15:04:05")
+		created_at, _ := time.ParseInLocation(timeLayout, timenow, loc)
+		for _, v := range g {
+			sql := "insert into group_view set user_id = ?,class_type = ?,created_at = ?"
+			_, err = o.Raw(sql, user_id, v, created_at).Exec()
+		}
+	}
+	if err == nil {
+		err = o.Commit()
+		return nil, nil
 	} else {
-		if len(order) != 0 {
-			return nil, errors.New("Error: unused 'order' fields")
-		}
+		err = o.Rollback()
+		err = errors.New("保存失败")
+		return nil, err
 	}
+}
 
-	var l []UserPermission
-	qs = qs.OrderBy(sortFields...)
-	if _, err = qs.Limit(limit, offset).All(&l, fields...); err == nil {
-		if len(fields) == 0 {
-			for _, v := range l {
-				ml = append(ml, v)
-			}
-		} else {
-			// trim unused fields
-			for _, v := range l {
-				m := make(map[string]interface{})
-				val := reflect.ValueOf(v)
-				for _, fname := range fields {
-					m[fname] = val.FieldByName(fname).Interface()
-				}
-				ml = append(ml, m)
-			}
-		}
-		return ml, nil
+//查看用户权限
+func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var r []orm.Params
+	var p []orm.Params
+	var g []orm.Params
+	var rol []orm.Params
+
+	paginatorMap = make(map[string]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("r.role_id").From("user_role as r").Where("user_id = ?").String()
+	_, err = o.Raw(sql, user_id).Values(&r)
+
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("r.route").From("user_permission as p").LeftJoin("permission_route as pr").
+		On("p.permission_id = pr.permission_id").LeftJoin("route as r").
+		On("pr.route_id = r.id").Where("user_id = ?").String()
+	_, err = o.Raw(sql, user_id).Values(&p)
+
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("g.class_type").From("group_view as g").Where("user_id = ?").String()
+	_, err = o.Raw(sql, user_id).Values(&g)
+
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("role.id", "role.name").From("role").String()
+	_, err = o.Raw(sql).Values(&rol)
+
+	if err == nil {
+		paginatorMap["user_role"] = r
+		paginatorMap["user_permission"] = p
+		paginatorMap["group_view"] = g
+		paginatorMap["roles"] = rol
+		paginatorMap["permissions"] = PermissionOption()
+		return paginatorMap, nil
 	}
 	return nil, err
 }
 
-// UpdateUserPermission updates UserPermission by Id and returns error if
-// the record to be updated doesn't exist
-func UpdateUserPermissionById(m *UserPermission) (err error) {
+//查看用户权限
+func GetUserIdentificationById(user_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	v := UserPermission{Id: m.Id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Update(m); err == nil {
-			fmt.Println("Number of records updated in database:", num)
-		}
+	var p []orm.Params
+	paginatorMap = make(map[string]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
+		On("up.permission_id = p.id").Where("up.user_id = ?").String()
+	num, err := o.Raw(sql, user_id).Values(&p)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = p
+		return paginatorMap, nil
 	}
-	return
+	err = errors.New("获取失败")
+	return nil, err
 }
 
-// DeleteUserPermission deletes UserPermission by Id and returns error if
-// the record to be deleted doesn't exist
-func DeleteUserPermission(id int) (err error) {
+//修改权限
+func UpdateUserPermissionById(user_id int, role string, permission string, group string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	v := UserPermission{Id: id}
-	// ascertain id exists in the database
-	if err = o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&UserPermission{Id: id}); err == nil {
-			fmt.Println("Number of records deleted in database:", num)
+	err = o.Begin()
+	var r map[string]interface{}
+	json.Unmarshal([]byte(role), &r)
+	var p map[string]interface{}
+	json.Unmarshal([]byte(permission), &p)
+	var g map[string]interface{}
+	json.Unmarshal([]byte(group), &g)
+	paginatorMap = make(map[string]interface{})
+	_, err = o.QueryTable("user_role").Filter("user_id", user_id).Delete()
+	_, err = o.QueryTable("user_permission").Filter("user_id", user_id).Delete()
+	_, err = o.QueryTable("group_view").Filter("user_id", user_id).Delete()
+	//角色权限
+	if r != nil {
+		for _, v := range r {
+			sql := "insert into user_role set user_id = ?,role_id = ?"
+			_, err = o.Raw(sql, user_id, v).Exec()
 		}
 	}
-	return
+	//分配用户权限
+	if p != nil {
+		for _, v := range p {
+			sql := "insert into user_permission set user_id = ?,permission_id = ?"
+			_, err = o.Raw(sql, user_id, v).Exec()
+		}
+	}
+	//圈子权限
+	if g != nil {
+		timeLayout := "2006-01-02 15:04:05" //转化所需模板
+		loc, _ := time.LoadLocation("")
+		timenow := time.Now().Format("2006-01-02 15:04:05")
+		created_at, _ := time.ParseInLocation(timeLayout, timenow, loc)
+		for _, v := range g {
+			sql := "insert into group_view set user_id = ?,class_type = ?,created_at = ?"
+			_, err = o.Raw(sql, user_id, v, created_at).Exec()
+		}
+	}
+	if err == nil {
+		err = o.Commit()
+		return nil, nil
+	} else {
+		err = o.Rollback()
+		err = errors.New("更新失败")
+		return nil, err
+	}
 }
