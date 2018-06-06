@@ -123,9 +123,9 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 	var condition []interface{}
 	where := "1=1 "
 	if id == 0 {
-		where += " AND t.kindergarten_id = ?"
+		where += " AND o.kindergarten_id = ?"
 	} else {
-		where += " AND t.kindergarten_id = ?"
+		where += " AND o.kindergarten_id = ?"
 		condition = append(condition, id)
 	}
 	if class_type != 0 {
@@ -193,7 +193,8 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 			v.Status = 0
 		}
 		if _, err = o.Update(&v); err == nil {
-			//			_, err = o.QueryTable("teachers_show").Filter("teacher_id", id).Delete()
+			_, err = o.QueryTable("teachers_show").Filter("teacher_id", id).Delete()
+			_, err = o.QueryTable("organizaional_member").Filter("member_id", id).Delete()
 			if err == nil {
 				paginatorMap := make(map[string]interface{})
 				paginatorMap["data"] = nil //返回数据

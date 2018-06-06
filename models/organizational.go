@@ -146,61 +146,62 @@ func ClassMember(kindergarten_id int, class_type int, class_id int, page int, pr
 }
 
 //删除班级
-func Destroy(class_id int) map[string]interface{} {
+func Destroy(class_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	err := o.Begin()
+	err = o.Begin()
 	var t []orm.Params
 	var s []orm.Params
-	var condition []interface{}
-	where := "1=1 "
-	if class_id > 0 {
-		where += " AND organizational_id = ?"
-		condition = append(condition, class_id)
+	var v Organizational
+	paginatorMap = make(map[string]interface{})
+	o.QueryTable("organizational").Filter("id", class_id).All(&v)
+	if v.IsFixed == 1 {
+		err = errors.New("不能删除")
+		return nil, err
+
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("member_id").From("organizational_member").Where(where).And("type = 0").String()
-	_, err = o.Raw(sql, condition).Values(&t)
-	//修改teacher
-	for key, _ := range t {
-		_, err = o.QueryTable("teacher").Filter("teacher_id", t[key]["member_id"]).Update(orm.Params{
-			"status": 0,
-		})
-		if err != nil {
-			err = o.Rollback()
+	sql := qb.Select("member_id").From("organizational_member").Where("organizational_id = ?").And("type = 0").String()
+	_, err = o.Raw(sql, class_id).Values(&t)
+	if err == nil {
+		//修改teacher
+		for key, _ := range t {
+			_, err = o.QueryTable("teacher").Filter("teacher_id", t[key]["member_id"]).Update(orm.Params{
+				"status": 0,
+			})
+			fmt.Println(err)
 		}
+
 	}
+
 	//修改学生
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("member_id").From("organizational_member").Where(where).And("type = 1").String()
-	_, err = o.Raw(sql, condition).Values(&s)
+	sql = qb.Select("member_id").From("organizational_member").Where("organizational_id = ?").And("type = 1").String()
+	_, err = o.Raw(sql, class_id).Values(&s)
+	if err == nil {
+		for key, _ := range s {
+			_, err = o.QueryTable("student").Filter("student_id", s[key]["member_id"]).Update(orm.Params{
+				"status": 0,
+			})
 
-	for key, _ := range s {
-		_, err = o.QueryTable("student").Filter("student_id", s[key]["member_id"]).Update(orm.Params{
-			"status": 0,
-		})
-		if err != nil {
-			err = o.Rollback()
 		}
 	}
+
 	//删除班级
 	_, err = o.QueryTable("organizational").Filter("id", class_id).Delete()
 	if err != nil {
 		err = o.Rollback()
 	}
 	//删除班级成员
-	num, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("is_fixed = 0").Delete()
-
+	_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Delete()
 	if err != nil {
 		err = o.Rollback()
-	} else {
-		err = o.Commit()
 	}
 	if err == nil {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = num
-		return paginatorMap
+		err = o.Commit()
+		return paginatorMap, nil
 	}
-	return nil
+	err = errors.New("删除失败")
+	return nil, err
 }
 
 //创建班级
@@ -223,16 +224,17 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("o.*").From("organizational as o").Where(where).And("type = 2").And("level = 2").String()
 	num, err := o.Raw(sql, condition).Values(&or)
-	fmt.Println(or)
 	//查出最大班级
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("max(o.name) as m").From("organizational as o").Where(where).And("type = 2").And("level = 3").String()
+	sql = qb.Select("max(CONVERT(o.name,SIGNED)) as m").From("organizational as o").Where(where).And("type = 2").And("level = 3").String()
 	_, err = o.Raw(sql, condition).Values(&max_name)
 	m := max_name[0]["m"].(string)
 	//班级号
 	ml := strings.Replace(m, "班", "", -1)
+	fmt.Println(ml)
 	new_name, _ := strconv.Atoi(ml)
 	name_number := new_name + 1
+	fmt.Println(name_number)
 	name := strconv.Itoa(name_number)
 	if num == 0 {
 		err = errors.New("班级不存在")
@@ -258,6 +260,7 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 	if err == nil {
 		paginatorMap["class_id"] = id
 		paginatorMap["name"] = "" + name + "班"
+		paginatorMap["class_type"] = class_type
 		return paginatorMap, nil
 	}
 	err = errors.New("创建失败")
@@ -437,7 +440,7 @@ func UpOrganization(organization_id int, name string) (paginatorMap map[string]i
 }
 
 //班级成员
-func Principal(principal int, class_id int, page int, prepage int) map[string]interface{} {
+func Principal(class_id int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	var teacher []orm.Params
 	var condition []interface{}
@@ -446,13 +449,11 @@ func Principal(principal int, class_id int, page int, prepage int) map[string]in
 		where += " AND om.organizational_id = ?"
 		condition = append(condition, class_id)
 	}
-	where += " AND om.is_principal = ?"
-	condition = append(condition, principal)
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("t.*", "om.id").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").Where(where).And("om.type = 0").String()
-	_, err := o.Raw(sql, condition).Values(&teacher)
-	if err == nil {
+	num, err := o.Raw(sql, condition).Values(&teacher)
+	if err == nil && num > 0 {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = teacher
 		return paginatorMap

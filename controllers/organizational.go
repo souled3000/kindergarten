@@ -108,11 +108,11 @@ func (o *OrganizationalController) Destroy() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		v := models.Destroy(class_id)
-		if v == nil {
-			o.Data["json"] = JSONStruct{"error", 1003, nil, "删除失败"}
+		_, err := models.Destroy(class_id)
+		if err != nil {
+			o.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {
-			o.Data["json"] = JSONStruct{"success", 0, v, "删除成功"}
+			o.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 		}
 		o.ServeJSON()
 	}
@@ -286,14 +286,13 @@ func (o *OrganizationalController) Principal() {
 		page = v
 	}
 	class_id, _ := o.GetInt("class_id")
-	principal, _ := o.GetInt("principal")
 	valid := validation.Validation{}
 	valid.Required(class_id, "class_id").Message("班级id不能为空")
 	if valid.HasErrors() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		v := models.Principal(principal, class_id, page, prepage)
+		v := models.Principal(class_id, page, prepage)
 		if v == nil {
 			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 		} else {
