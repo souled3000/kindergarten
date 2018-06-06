@@ -1589,7 +1589,7 @@ paths:
     get:
       tags:
       - organizational_member
-      description: 组织架构成员
+      description: 组织架构成员/admin
       operationId: OrganizationalMemberController.组织架构成员
       parameters:
       - in: body
@@ -1629,6 +1629,24 @@ paths:
       - in: body
         name: type
         description: 身份（0教师，1学生）
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+  /organizational_member/member:
+    get:
+      tags:
+      - organizational_member
+      description: 组织架构成员/web
+      operationId: OrganizationalMemberController.组织架构成员
+      parameters:
+      - in: body
+        name: organizational_id
+        description: 班级ID
         required: true
         type: integer
         format: int64
@@ -4335,7 +4353,7 @@ tags:
     组织架构
 - name: organizational_member
   description: |
-    OrganizationalMemberController operations for OrganizationalMember
+    组织架构成员
 - name: permission
   description: |
     权限
