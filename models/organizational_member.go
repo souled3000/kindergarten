@@ -75,7 +75,7 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 	return nil, err
 }
 
-//组织架构成员
+//组织架构成员/admin
 func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
@@ -83,8 +83,25 @@ func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("om.*", "t.name", "t.number", "t.teacher_id", "t.phone").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").Where("om.organizational_id = ?").And("om.type = 0").String()
-	_, err = o.Raw(sql, organizational_id).Values(&v)
-	if err == nil {
+	num, err := o.Raw(sql, organizational_id).Values(&v)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = v
+		return paginatorMap, nil
+	}
+	err = errors.New("获取失败")
+	return nil, err
+}
+
+//组织架构成员/web
+func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, err error) {
+	paginatorMap = make(map[string]interface{})
+	o := orm.NewOrm()
+	var v []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("om.*", "t.name", "t.number", "t.teacher_id", "t.phone").From("organizational_member as om").LeftJoin("teacher as t").
+		On("om.member_id = t.teacher_id").Where("om.organizational_id = ?").And("om.type = 0").String()
+	num, err := o.Raw(sql, organizational_id).Values(&v)
+	if err == nil && num > 0 {
 		paginatorMap["data"] = v
 		return paginatorMap, nil
 	}
