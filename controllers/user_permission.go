@@ -66,7 +66,7 @@ func (c *UserPermissionController) GetOne() {
 
 // GetUserPermission ...
 // @Title 查看用户权限标识
-// @Description 查看用户权限
+// @Description 查看用户权限标识
 // @Param	user_id		path 	string	true		"用户ID"
 // @Success 200 {object} models.UserPermission
 // @Failure 403 :id is empty

@@ -19,13 +19,6 @@ type StudentController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *StudentController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
-}
-
 // GetStudent ...
 // @Title 学生列表
 // @Description 学生列表
@@ -38,24 +31,11 @@ func (c *StudentController) URLMapping() {
 // @Failure 403
 // @router / [get]
 func (c *StudentController) GetStudent() {
-	var prepage int = 20
-	var page int
-	var kindergarten_id int
-	var status int
-	var search string
-	search = c.GetString("search")
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
-	if v, err := c.GetInt("kindergarten_id"); err == nil {
-		kindergarten_id = v
-	}
-	if v, err := c.GetInt("status", -1); err == nil {
-		status = v
-	}
+	search := c.GetString("search")
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	status, _ := c.GetInt("status", -1)
 	v := models.GetStudent(kindergarten_id, status, search, page, prepage)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
@@ -76,22 +56,10 @@ func (c *StudentController) GetStudent() {
 // @Failure 403
 // @router /class [get]
 func (c *StudentController) GetStudentClass() {
-	var prepage int = 20
-	var page int
-	var kindergarten_id int
-	var class_type int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
-	if v, err := c.GetInt("kindergarten_id"); err == nil {
-		kindergarten_id = v
-	}
-	if v, err := c.GetInt("class_type"); err == nil {
-		class_type = v
-	}
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_type, _ := c.GetInt("class_type")
 	v := models.GetStudentClass(kindergarten_id, class_type, page, prepage)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}

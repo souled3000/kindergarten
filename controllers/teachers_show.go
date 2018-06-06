@@ -15,15 +15,6 @@ type TeachersShowController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *TeachersShowController) URLMapping() {
-	c.Mapping("Post", c.Post)
-	c.Mapping("GetOne", c.GetOne)
-	c.Mapping("GetAll", c.GetAll)
-	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
-}
-
 // Post ...
 // @Title Post
 // @Description create TeachersShow

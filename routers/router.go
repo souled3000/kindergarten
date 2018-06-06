@@ -84,12 +84,6 @@ func init() {
 			),
 		),
 
-		beego.NSNamespace("/migrations",
-			beego.NSInclude(
-				&controllers.MigrationsController{},
-			),
-		),
-
 		beego.NSNamespace("/notice",
 			beego.NSInclude(
 				&controllers.NoticeController{},

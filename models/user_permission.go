@@ -106,7 +106,7 @@ func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, er
 	return nil, err
 }
 
-//查看用户权限
+//查看用户权限标识
 func GetUserIdentificationById(user_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var p []orm.Params
