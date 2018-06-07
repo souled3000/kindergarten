@@ -14,7 +14,7 @@ type GroupView struct {
 	Id        int       `orm:"column(id);auto"`
 	UserId    int       `orm:"column(user_id)"`
 	ClassType int8      `orm:"column(class_type)"`
-	CreatedAt time.Time `orm:"auto_add"`
+	CreatedAt time.Time `orm:"auto_now"`
 }
 
 func (t *GroupView) TableName() string {
