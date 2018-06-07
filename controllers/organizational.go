@@ -24,14 +24,8 @@ type OrganizationalController struct {
 // @Failure 403
 // @router /class [get]
 func (o *OrganizationalController) GetClass() {
-	var prepage int = 20
-	var page int
-	if v, err := o.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := o.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := o.GetInt("per_page", 20)
+	page, _ := o.GetInt("page")
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
 	class_type, _ := o.GetInt("class_type")
 	valid := validation.Validation{}
@@ -64,14 +58,8 @@ func (o *OrganizationalController) GetClass() {
 // @Failure 403
 // @router /member [get]
 func (o *OrganizationalController) Member() {
-	var prepage int = 20
-	var page int
-	if v, err := o.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := o.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := o.GetInt("per_page", 20)
+	page, _ := o.GetInt("page")
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
 	class_type, _ := o.GetInt("class_type")
 	class_id, _ := o.GetInt("class_id")
@@ -156,14 +144,8 @@ func (o *OrganizationalController) Store() {
 // @Failure 403
 // @router / [get]
 func (o *OrganizationalController) GetOrganization() {
-	var prepage int = 20
-	var page int
-	if v, err := o.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := o.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := o.GetInt("per_page", 20)
+	page, _ := o.GetInt("page")
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
 	valid := validation.Validation{}
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
@@ -277,14 +259,8 @@ func (o *OrganizationalController) UpOrganization() {
 // @Failure 403
 // @router /principal [get]
 func (o *OrganizationalController) Principal() {
-	var prepage int = 20
-	var page int
-	if v, err := o.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := o.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := o.GetInt("per_page", 20)
+	page, _ := o.GetInt("page")
 	class_id, _ := o.GetInt("class_id")
 	valid := validation.Validation{}
 	valid.Required(class_id, "class_id").Message("班级id不能为空")

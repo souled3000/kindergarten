@@ -65,27 +65,14 @@ func GetNoticeList(page, prepage int) map[string]interface{} {
 }
 
 //Web -园内生活详情
-func GetNoticeInfo(id int, page, prepage int) map[string]interface{} {
+func GetNoticeInfo(id int) map[string]interface{} {
 	var v []Notice
 	o := orm.NewOrm()
-	nums, err := o.QueryTable("notice").Filter("Id", id).Count()
+	err := o.QueryTable("notice").Filter("Id", id).One(&v)
 	if err == nil {
-		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //总页数
-		if page > totalpages {
-			page = totalpages
-		}
-		if page <= 0 {
-			page = 1
-		}
-		limit := (page - 1) * prepage
-		err := o.QueryTable("notice").Filter("Id", id).Limit(prepage, limit).One(&v)
-		if err == nil {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["total"] = nums          //总条数
-			paginatorMap["data"] = v              //返回数据
-			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap
-		}
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = v
+		return paginatorMap
 	}
 	return nil
 }

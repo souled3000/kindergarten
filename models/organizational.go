@@ -37,7 +37,7 @@ type OrganizationalTree struct {
 	ClassType      int8                 `json:"class_type" orm:"column(class_type)" description:"班级类型：1小班，2中班，3大班"`
 	CreatedAt      time.Time            `json:"created_at" orm:"column(created_at);type(datetime)" description:"添加时间"`
 	UpdatedAt      time.Time            `json:"updated_at" orm:"column(updated_at);type(datetime)" description:"修改时间"`
-	Child          []OrganizationalTree `json:"child" orm:"null"`
+	Children       []OrganizationalTree `json:"children" orm:"null"`
 }
 
 func (t *Organizational) TableName() string {
@@ -289,7 +289,7 @@ func GetOrganization(kindergarten_id int, page int, prepage int) map[string]inte
 				tree.ParentId = val.ParentId
 				tree.ParentIds = val.ParentIds
 				tree.UpdatedAt = val.UpdatedAt
-				tree.Child = next
+				tree.Children = next
 				Organizational = append(Organizational, tree)
 			}
 		}
@@ -317,7 +317,7 @@ func getNext(posts []Organizational, id int) (Organizational []OrganizationalTre
 			tree.ParentIds = val.ParentIds
 			tree.UpdatedAt = val.UpdatedAt
 			tree.Type = val.Type
-			tree.Child = next
+			tree.Children = next
 			Organizational = append(Organizational, tree)
 		}
 	}
