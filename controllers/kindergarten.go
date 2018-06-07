@@ -30,14 +30,8 @@ func (c *KindergartenController) URLMapping() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *KindergartenController) GetIntroduceInfo() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v := models.GetKindergartenById(id, page, prepage)

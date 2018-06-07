@@ -55,14 +55,8 @@ type OnemoreService struct {
 // @Failure 403 :id is empty
 // @router /teacher_down/:id [get]
 func (c *TeacherController) GetTeacherDown() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v := models.GetTeacherById(id, page, prepage)
@@ -86,24 +80,11 @@ func (c *TeacherController) GetTeacherDown() {
 // @Failure 403
 // @router / [get]
 func (c *TeacherController) GetTeacher() {
-	var prepage int = 20
-	var page int
-	var kindergarten_id int
-	var status int
-	var search string
-	search = c.GetString("search")
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
-	if v, err := c.GetInt("kindergarten_id"); err == nil {
-		kindergarten_id = v
-	}
-	if v, err := c.GetInt("status", -1); err == nil {
-		status = v
-	}
+	search := c.GetString("search")
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	status, _ := c.GetInt("status", -1)
 	v := models.GetTeacher(kindergarten_id, status, search, page, prepage)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
@@ -124,22 +105,10 @@ func (c *TeacherController) GetTeacher() {
 // @Failure 403
 // @router /class [get]
 func (c *TeacherController) GetClass() {
-	var prepage int = 20
-	var page int
-	var kindergarten_id int
-	var class_type int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
-	if v, err := c.GetInt("kindergarten_id"); err == nil {
-		kindergarten_id = v
-	}
-	if v, err := c.GetInt("class_type"); err == nil {
-		class_type = v
-	}
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_type, _ := c.GetInt("class_type")
 	v := models.GetClass(kindergarten_id, class_type, page, prepage)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}

@@ -16,13 +16,6 @@ type KindergartenLifeController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *KindergartenLifeController) URLMapping() {
-	c.Mapping("Store", c.Store)
-	c.Mapping("GetKindergartenLifeList", c.GetKindergartenLifeList)
-	c.Mapping("Delete", c.Delete)
-}
-
 // Store ...
 // @Title 保存园内生活
 // @Description Web-保存园内生活
@@ -68,17 +61,9 @@ func (c *KindergartenLifeController) Store() {
 // @Failure 403 :编号为空
 // @router /:id [get]
 func (c *KindergartenLifeController) GetKindergartenLifeInfo() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.GetKindergartenLifeInfo(id, page, prepage)
+	v := models.GetKindergartenLifeInfo(id)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
 	} else {
@@ -96,14 +81,8 @@ func (c *KindergartenLifeController) GetKindergartenLifeInfo() {
 // @Failure 403
 // @router / [get]
 func (c *KindergartenLifeController) GetKindergartenLifeList() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
 	v := models.GetKindergartenLifeList(page, prepage)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}

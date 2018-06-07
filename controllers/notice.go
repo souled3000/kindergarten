@@ -74,14 +74,8 @@ func (c *NoticeController) Store() {
 // @Failure 403
 // @router / [get]
 func (c *NoticeController) GetNoticeList() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
 	v := models.GetNoticeList(page, prepage)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
@@ -101,17 +95,9 @@ func (c *NoticeController) GetNoticeList() {
 // @Failure 403 :编号为空
 // @router /:id [get]
 func (c *NoticeController) GetNoticeInfo() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.GetNoticeInfo(id, page, prepage)
+	v := models.GetNoticeInfo(id)
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
 	} else {
