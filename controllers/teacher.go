@@ -31,6 +31,7 @@ type UserService struct {
 	GetUK    func(string) error
 	Encrypt  func(string) string
 	Test     func() string
+	GetUser  func(kindergartenId int) (interface{}, error)
 	CreateUK func(userId int, kindergartenId int, role int) (int64, error)
 	Create   func(phone string, name string, password string, kindergartenId int, role int) (interface{}, error)
 }

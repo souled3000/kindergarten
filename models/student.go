@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 	"time"
 
@@ -9,26 +10,25 @@ import (
 )
 
 type Student struct {
-	Id               int        `json:"student_id" orm:"column(student_id);auto"`
-	Name             string     `json:"name" orm:"column(name);size(20)" description:"姓名"`
-	Age              int8       `json:"age" orm:"column(age)" description:"年龄"`
-	Sex              int8       `json:"sex" orm:"column(sex)" description:"性别 0男 1女"`
-	NativePlace      string     `json:"native_place" orm:"column(native_place);size(20)" description:"籍贯"`
-	NationOrReligion string     `json:"nation_or_religion" orm:"column(nation_or_religion);size(20)" description:"民族或宗教"`
-	Number           string     `json:"number" orm:"column(number);size(11)" description:"学号"`
-	ClassInfo        string     `json:"class_info" orm:"column(class_info);size(20)" description:"所在班级"`
-	Address          string     `json:"address" orm:"column(address);size(50)" description:"住址"`
-	Avatar           string     `json:"avatar" orm:"column(avatar);size(150)" description:"头像"`
-	Status           int8       `json:"status" orm:"column(status)" description:"状态 0未分班 1已分班 2离园"`
-	UserId           int        `json:"user_id" orm:"column(user_id)" description:"用户ID"`
-	KindergartenId   int        `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
-	Phone            string     `json:"phone" orm:"column(phone);size(11)" description:"手机号"`
-	HealthStatus     string     `json:"health_status" orm:"column(health_status);size(150)" description:"健康状况，多个以逗号隔开"`
-	Hobby            string     `json:"hobby" orm:"column(hobby);size(150)" description:"兴趣爱好，多个以逗号隔开"`
-	CreatedAt        time.Time  `json:"Created_at" orm:"auto_now_add"`
-	UpdatedAt        time.Time  `json:"updated_at" orm:"auto_now"`
-	DeletedAt        time.Time  `json:"deleted_at" orm:"column(deleted_at);type(datetime);null"`
-	Kinship          []*Kinship `json:"kinship" orm:"reverse(many)"`
+	Id               int       `json:"student_id" orm:"column(student_id);auto"`
+	Name             string    `json:"name" orm:"column(name);size(20)" description:"姓名"`
+	Age              int8      `json:"age" orm:"column(age)" description:"年龄"`
+	Sex              int8      `json:"sex" orm:"column(sex)" description:"性别 0男 1女"`
+	NativePlace      string    `json:"native_place" orm:"column(native_place);size(20)" description:"籍贯"`
+	NationOrReligion string    `json:"nation_or_religion" orm:"column(nation_or_religion);size(20)" description:"民族或宗教"`
+	Number           string    `json:"number" orm:"column(number);size(11)" description:"学号"`
+	ClassInfo        string    `json:"class_info" orm:"column(class_info);size(20)" description:"所在班级"`
+	Address          string    `json:"address" orm:"column(address);size(50)" description:"住址"`
+	Avatar           string    `json:"avatar" orm:"column(avatar);size(150)" description:"头像"`
+	Status           int8      `json:"status" orm:"column(status)" description:"状态 0未分班 1已分班 2离园"`
+	UserId           int       `json:"user_id" orm:"column(user_id)" description:"用户ID"`
+	KindergartenId   int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
+	Phone            string    `json:"phone" orm:"column(phone);size(11)" description:"手机号"`
+	HealthStatus     string    `json:"health_status" orm:"column(health_status);size(150)" description:"健康状况，多个以逗号隔开"`
+	Hobby            string    `json:"hobby" orm:"column(hobby);size(150)" description:"兴趣爱好，多个以逗号隔开"`
+	CreatedAt        time.Time `json:"Created_at" orm:"auto_now_add"`
+	UpdatedAt        time.Time `json:"updated_at" orm:"auto_now"`
+	DeletedAt        time.Time `json:"deleted_at" orm:"column(deleted_at);type(datetime);null"`
 }
 
 func (t *Student) TableName() string {
@@ -178,23 +178,30 @@ func DeleteStudent(id int, status int, ty int, class_type int) map[string]interf
 }
 
 //学生详情
-func GetStudentInfo(id int) map[string]interface{} {
+func GetStudentInfo(id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
+	var kinships []orm.Params
+	//学生信息
 	student := Student{Id: id}
-	o.Read(&student)
-	_, err := o.LoadRelated(&student, "kinship")
+	err = o.Read(&student)
+	//亲属信息
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("*").From("kinship").Where("student_id = ?").String()
+	_, err = o.Raw(sql, id).Values(&kinships)
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = student
-		return paginatorMap
+		paginatorMap["student"] = student
+		paginatorMap["kinship"] = kinships
+		return paginatorMap, nil
 	}
-	return nil
+	err = errors.New("获取失败")
+	return nil, err
 }
 
 //学生--编辑
-func UpdateStudent(id int, student string, kinship string) map[string]interface{} {
+func UpdateStudent(id int, student string, kinship string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	err := o.Begin()
+	err = o.Begin()
 	v := Student{Id: id}
 	//编辑学生信息
 	var s *Student
@@ -202,30 +209,30 @@ func UpdateStudent(id int, student string, kinship string) map[string]interface{
 	if err := o.Read(&v); err == nil {
 		s.Id = v.Id
 		if _, err = o.Update(s); err == nil {
-			if err != nil {
-				err = o.Rollback()
+			if err == nil {
+				//写入亲属表
+				_, err = o.QueryTable("kinship").Filter("student_id", id).Delete()
+				if err == nil {
+					var k []Kinship
+					json.Unmarshal([]byte(kinship), &k)
+					_, err = o.InsertMulti(100, &k)
+					if err != nil {
+						o.Rollback()
+					} else {
+						o.Commit()
+					}
+				}
 			}
+		} else {
+			o.Rollback()
 		}
 	}
 
-	//写入亲属表
-	_, err = o.QueryTable("organizational").Filter("student_id", id).Delete()
 	if err == nil {
-		var k []Kinship
-		json.Unmarshal([]byte(kinship), &k)
-		_, err = o.InsertMulti(100, &k)
-		if err != nil {
-			err = o.Rollback()
-		} else {
-			err = o.Commit()
-		}
+		return nil, nil
 	}
-	if err == nil {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = 1 //返回数据
-		return paginatorMap
-	}
-	return nil
+	err = errors.New("编辑失败")
+	return nil, err
 }
 
 //学生-录入信息

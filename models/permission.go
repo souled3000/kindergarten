@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math"
 	"strconv"
 	"time"
@@ -162,14 +161,12 @@ func GetAllPermission(page int, prepage int) map[string]interface{} {
 }
 
 //权限选项
-func PermissionOption() map[string]interface{} {
+func PermissionOption() interface{} {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Permission))
 	var posts []Permission
 	var Permission []PermissionTree
 	if _, err := qs.All(&posts); err == nil {
-		fmt.Println(posts)
-		ml := make(map[string]interface{})
 		for _, val := range posts {
 			if val.ParentId == 0 {
 				next := getNexts(posts, val.Id)
@@ -186,8 +183,7 @@ func PermissionOption() map[string]interface{} {
 			}
 		}
 		if err == nil {
-			ml["data"] = Permission
-			return ml
+			return Permission
 		}
 	}
 	return nil
