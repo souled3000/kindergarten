@@ -99,9 +99,9 @@ func (c *StudentController) RemoveStudent() {
 func (c *StudentController) GetStudentInfo() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.GetStudentInfo(id)
-	if v == nil {
-		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+	v, err := models.GetStudentInfo(id)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
@@ -128,9 +128,9 @@ func (c *StudentController) UpdateStudent() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v := models.UpdateStudent(id, student, kinship)
-		if v == nil {
-			c.Data["json"] = JSONStruct{"error", 1003, nil, "编辑失败"}
+		_, err := models.UpdateStudent(id, student, kinship)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {
 			c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
 		}

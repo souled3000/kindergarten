@@ -82,9 +82,8 @@ func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, er
 	_, err = o.Raw(sql, user_id).Values(&r)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("r.route").From("user_permission as p").LeftJoin("permission_route as pr").
-		On("p.permission_id = pr.permission_id").LeftJoin("route as r").
-		On("pr.route_id = r.id").Where("user_id = ?").String()
+	sql = qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
+		On("up.permission_id = p.id").Where("up.user_id = ?").String()
 	_, err = o.Raw(sql, user_id).Values(&p)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
