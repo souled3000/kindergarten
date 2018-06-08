@@ -253,24 +253,3 @@ func (c *StudentController) DeleteStudent() {
 	}
 	c.ServeJSON()
 }
-
-// Student ...
-// @Title 学生录入列表
-// @Description 学生录入列表
-// @Param	kindergarten_id		path 	int	true		"幼儿园ID"
-// @Success 200 {string} get success!
-// @Failure 403 kindergarten_id is empty
-// @router /student [get]
-func (c *StudentController) Student() {
-	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	var User *UserService
-	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
-	client.UseService(&User)
-	User.GetUser(kindergarten_id)
-	//	if v == nil {
-	//		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
-	//	} else {
-	//		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
-	//	}
-	//	c.ServeJSON()
-}
