@@ -92,7 +92,7 @@ func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err
 	return nil, err
 }
 
-//组织架构成员/web
+//组织架构成员负责人/web
 func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
@@ -112,6 +112,25 @@ func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, 
 	if err == nil {
 		paginatorMap["principal"] = principal
 		paginatorMap["noprincipal"] = noprincipal
+		return paginatorMap, nil
+	}
+	err = errors.New("获取失败")
+	return nil, err
+}
+
+//我的幼儿园/web
+func MyKindergarten(organizational_id int) (paginatorMap map[string]interface{}, err error) {
+	paginatorMap = make(map[string]interface{})
+	o := orm.NewOrm()
+	var mk []orm.Params
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type").From("organizational_member as om").LeftJoin("teacher as t").
+		On("om.member_id = t.teacher_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("o.parent_id = ?").And("om.type = 0").String()
+	num, err := o.Raw(sql, organizational_id).Values(&mk)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = mk
 		return paginatorMap, nil
 	}
 	err = errors.New("获取失败")

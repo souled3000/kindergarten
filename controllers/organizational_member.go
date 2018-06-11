@@ -71,8 +71,8 @@ func (c *OrganizationalMemberController) OrganizationList() {
 }
 
 // member ...
-// @Title 组织架构成员
-// @Description 组织架构成员/web
+// @Title 组织架构成员负责人
+// @Description 组织架构成员负责人/web
 // @Param	organizational_id		body 	int	    true		"班级ID"
 // @Success 201 {int} models.OrganizationalMember
 // @Failure 403 body is empty
@@ -86,6 +86,31 @@ func (c *OrganizationalMemberController) WebOrganizationList() {
 		c.ServeJSON()
 	} else {
 		v, err := models.GetWebMembers(organizational_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1006, nil, err.Error()}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}
+
+// MyKindergarten ...
+// @Title 我的幼儿园
+// @Description 我的幼儿园/web
+// @Param	organizational_id		body 	int	    true		"班级ID"
+// @Success 201 {int} models.OrganizationalMember
+// @Failure 403 body is empty
+// @router /my_kinder [get]
+func (c *OrganizationalMemberController) MyKindergarten() {
+	organizational_id, _ := c.GetInt("organizational_id")
+	valid := validation.Validation{}
+	valid.Required(organizational_id, "organizational_id").Message("组织架构id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v, err := models.MyKindergarten(organizational_id)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1006, nil, err.Error()}
 		} else {
