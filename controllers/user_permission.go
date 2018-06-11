@@ -83,10 +83,29 @@ func (c *UserPermissionController) GetUserPermission() {
 	c.ServeJSON()
 }
 
+// GetGroupPermission ...
+// @Title 查看用户圈子权限标识
+// @Description 查看用户圈子权限标识
+// @Param	user_id		path 	string	true		"用户ID"
+// @Success 200 {object} models.UserPermission
+// @Failure 403 :id is empty
+// @router /group/:id [get]
+func (c *UserPermissionController) GetGroupPermission() {
+	idStr := c.Ctx.Input.Param(":id")
+	user_id, _ := strconv.Atoi(idStr)
+	v, err := models.GetGroupIdentificationById(user_id)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+	}
+	c.ServeJSON()
+}
+
 // Put ...
 // @Title 更新用户权限
 // @Description 更新用户权限
-// @Param	user_id		    formData 	int	    true		"用户ID"
+// @Param	id		    formData 	int	    true		"用户ID"
 // @Param	role		    formData 	string	true		"角色ID(json)"
 // @Param	permission		formData 	string	true		"权限ID(json)"
 // @Param	group		    formData 	string	true		"圈子ID(json)"
@@ -99,11 +118,19 @@ func (c *UserPermissionController) Put() {
 	role := c.GetString("role")
 	permission := c.GetString("permission")
 	group := c.GetString("group")
-	_, err := models.UpdateUserPermissionById(user_id, role, permission, group)
-	if err != nil {
-		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
+	valid := validation.Validation{}
+	valid.Required(user_id, "user_id").Message("用户ID不能为空")
+	valid.Required(permission, "permission").Message("权限不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
 	} else {
-		c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
+		_, err := models.UpdateUserPermissionById(user_id, role, permission, group)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
+		}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
 }
