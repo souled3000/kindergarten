@@ -5,6 +5,9 @@ import (
 	"math"
 	"time"
 
+	"github.com/astaxie/beego"
+	"github.com/hprose/hprose-golang/rpc"
+
 	"github.com/astaxie/beego/orm"
 )
 
@@ -35,6 +38,10 @@ type Teacher struct {
 	CreatedAt                  time.Time `json:"created_at" orm:"auto_now_add"`
 	UpdatedAt                  time.Time `json:"updated_at" orm:"auto_now"`
 	DeletedAt                  time.Time `json:"deleted_at" orm:""`
+}
+
+type UserService struct {
+	UpdateUK func(userId int) error
 }
 
 func (t *Teacher) TableName() string {
@@ -237,13 +244,16 @@ func UpdateTeacher(m *Teacher) map[string]interface{} {
 }
 
 //教师-录入信息
-//Admin - 动画--添加
 func AddTeacher(m *Teacher) map[string]interface{} {
+	var User *UserService
 	o := orm.NewOrm()
 	if m.Post == "" {
 		m.Post = "普通教师"
 	}
 	id, err := o.Insert(m)
+	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
+	client.UseService(&User)
+	err = User.UpdateUK(m.UserId)
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = id //返回数据

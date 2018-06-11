@@ -83,8 +83,8 @@ func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("om.*", "t.name", "t.number", "t.teacher_id", "t.phone").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").Where("om.organizational_id = ?").And("om.type = 0").String()
-	num, err := o.Raw(sql, organizational_id).Values(&v)
-	if err == nil && num > 0 {
+	_, err = o.Raw(sql, organizational_id).Values(&v)
+	if err == nil {
 		paginatorMap["data"] = v
 		return paginatorMap, nil
 	}
@@ -99,13 +99,13 @@ func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, 
 	var principal []orm.Params
 	var noprincipal []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id").From("organizational_member as om").LeftJoin("teacher as t").
+	sql := qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.is_principal = 1").And("om.type = 0").String()
 	_, err = o.Raw(sql, organizational_id).Values(&principal)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id").From("organizational_member as om").LeftJoin("teacher as t").
+	sql = qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.is_principal = 0").And("om.type = 0").String()
 	_, err = o.Raw(sql, organizational_id).Values(&noprincipal)
