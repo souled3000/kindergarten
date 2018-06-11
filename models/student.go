@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strconv"
 	"time"
+
+	"github.com/astaxie/beego"
+	"github.com/hprose/hprose-golang/rpc"
 
 	"github.com/astaxie/beego/orm"
 )
@@ -236,31 +240,41 @@ func UpdateStudent(id int, student string, kinship string) (paginatorMap map[str
 }
 
 //学生-录入信息
-func AddStudent(student string, kinship string) map[string]interface{} {
+func AddStudent(student string, kinship string) (paginatorMap map[string]interface{}, err error) {
+	var User *UserService
 	o := orm.NewOrm()
-	err := o.Begin()
+	o.Begin()
+	paginatorMap = make(map[string]interface{})
 	//写入学生表
 	var s Student
 	json.Unmarshal([]byte(student), &s)
-	_, err = o.Insert(&s)
+	id, err := o.Insert(&s)
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return nil, err
 	}
+	ids := strconv.FormatInt(id, 10)
+	kid, _ := strconv.Atoi(ids)
 	//写入亲属表
 	var k []Kinship
 	json.Unmarshal([]byte(kinship), &k)
-	id, err := o.InsertMulti(100, &k)
+	for key, _ := range k {
+		k[key].StudentId = kid
+	}
+	id, err = o.InsertMulti(100, &k)
+	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
+	client.UseService(&User)
+
+	err = User.UpdateUK(s.UserId)
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return nil, err
 	} else {
-		err = o.Commit()
+		o.Commit()
+		return nil, nil
 	}
-	if err == nil {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = id //返回数据
-		return paginatorMap
-	}
-	return nil
+	err = errors.New("保存失败")
+	return nil, err
 }
 
 //移除学生

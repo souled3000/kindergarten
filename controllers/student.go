@@ -155,9 +155,9 @@ func (c *StudentController) Post() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		l := models.AddStudent(student, kinship)
-		if l == nil {
-			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
+		_, err := models.AddStudent(student, kinship)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {
 			c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
 		}

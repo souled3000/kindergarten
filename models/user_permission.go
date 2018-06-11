@@ -122,6 +122,23 @@ func GetUserIdentificationById(user_id int) (paginatorMap map[string]interface{}
 	return nil, err
 }
 
+//查看圈子权限
+func GetGroupIdentificationById(user_id int) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var p []orm.Params
+	paginatorMap = make(map[string]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
+		On("up.permission_id = p.id").Where("up.user_id = ?").String()
+	num, err := o.Raw(sql, user_id).Values(&p)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = p
+		return paginatorMap, nil
+	}
+	err = errors.New("获取失败")
+	return nil, err
+}
+
 //修改权限
 func UpdateUserPermissionById(user_id int, role string, permission string, group string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
@@ -133,11 +150,10 @@ func UpdateUserPermissionById(user_id int, role string, permission string, group
 	var g map[string]interface{}
 	json.Unmarshal([]byte(group), &g)
 	paginatorMap = make(map[string]interface{})
-	_, err = o.QueryTable("user_role").Filter("user_id", user_id).Delete()
-	_, err = o.QueryTable("user_permission").Filter("user_id", user_id).Delete()
-	_, err = o.QueryTable("group_view").Filter("user_id", user_id).Delete()
 	//角色权限
 	if r != nil {
+		_, err = o.QueryTable("user_role").Filter("user_id", user_id).Delete()
+
 		for _, v := range r {
 			sql := "insert into user_role set user_id = ?,role_id = ?"
 			_, err = o.Raw(sql, user_id, v).Exec()
@@ -145,6 +161,7 @@ func UpdateUserPermissionById(user_id int, role string, permission string, group
 	}
 	//分配用户权限
 	if p != nil {
+		_, err = o.QueryTable("user_permission").Filter("user_id", user_id).Delete()
 		for _, v := range p {
 			sql := "insert into user_permission set user_id = ?,permission_id = ?"
 			_, err = o.Raw(sql, user_id, v).Exec()
@@ -152,6 +169,7 @@ func UpdateUserPermissionById(user_id int, role string, permission string, group
 	}
 	//圈子权限
 	if g != nil {
+		_, err = o.QueryTable("group_view").Filter("user_id", user_id).Delete()
 		timeLayout := "2006-01-02 15:04:05" //转化所需模板
 		loc, _ := time.LoadLocation("")
 		timenow := time.Now().Format("2006-01-02 15:04:05")
@@ -162,10 +180,10 @@ func UpdateUserPermissionById(user_id int, role string, permission string, group
 		}
 	}
 	if err == nil {
-		err = o.Commit()
+		o.Commit()
 		return nil, nil
 	} else {
-		err = o.Rollback()
+		o.Rollback()
 		err = errors.New("更新失败")
 		return nil, err
 	}

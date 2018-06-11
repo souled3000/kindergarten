@@ -1,6 +1,8 @@
 package services
 
 import (
+	"encoding/json"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/hprose/hprose-golang/rpc"
@@ -20,10 +22,16 @@ func (c *KindergartenServer) GetKg(user_id int, kindergarten_id int) (value map[
 	o := orm.NewOrm()
 	var v []orm.Params
 	var kinder []orm.Params
+	var permission []orm.Params
 	//幼儿园信息
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("k.name").From("kindergarten as k").Where("kindergarten_id = ?").String()
 	_, err = o.Raw(sql, kindergarten_id).Values(&kinder)
+	//权限信息
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
+		On("up.permission_id = p.id").Where("up.user_id = ?").String()
+	_, err = o.Raw(sql, user_id).Values(&permission)
 	//班级信息
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("o.id as class_id", "o.name as class_name").From("teacher as t").LeftJoin("organizational_member as om").
@@ -33,6 +41,8 @@ func (c *KindergartenServer) GetKg(user_id int, kindergarten_id int) (value map[
 	if err == nil {
 		value := v[0]
 		value["kindergarten_name"] = kinder[0]["name"]
+		jsons, _ := json.Marshal(permission)
+		value["permission"] = jsons
 		return value, nil
 	}
 	return nil, err

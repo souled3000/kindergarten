@@ -19,19 +19,12 @@ type TeacherController struct {
 	beego.Controller
 }
 
-// URLMapping ...
-func (c *TeacherController) URLMapping() {
-	c.Mapping("GetTeacherDown", c.GetTeacherDown)
-	c.Mapping("GetTeacher", c.GetTeacher)
-	c.Mapping("Delete", c.Delete)
-}
-
 type UserService struct {
-	GetOne  func(string) (int, error)
-	GetUK   func(string) error
-	Encrypt func(string) string
-	Test    func() string
-	//	GetUser  func(kindergartenId int) (interface{}, error)
+	GetOne   func(string) (int, error)
+	GetUK    func(string) error
+	Encrypt  func(string) string
+	Test     func() string
+	UserSave func(userId int) error
 	CreateUK func(userId int, kindergartenId int, role int) (int64, error)
 	Create   func(phone string, name string, password string, kindergartenId int, role int) (interface{}, error)
 }
@@ -200,14 +193,14 @@ func (c *TeacherController) Post() {
 		valid.Required(v.KindergartenId, "KindergartenId").Message("幼儿园编号不能为空")
 		valid.Required(v.UserId, "UserId").Message("用户编号不能为空")
 		valid.Required(v.Name, "Name").Message("用户名不能为空")
-		valid.Required(v.Age, "Age").Message("年龄不能为空")
-		valid.Required(v.Avatar, "Avatar").Message("头像不能为空")
+		//		valid.Required(v.Age, "Age").Message("年龄不能为空")
+		//valid.Required(v.Avatar, "Avatar").Message("头像不能为空")
 		valid.Required(v.Number, "Number").Message("教职工编号不能为空")
 		valid.Required(v.NationOrReligion, "NationOrReligion").Message("民族或宗教不能为空")
 		valid.Required(v.NativePlace, "NativePlace").Message("籍贯不能为空")
 		valid.Required(v.EnterJobTime, "EnterJobTime").Message("参加工作时间不能为空")
 		valid.Required(v.Address, "Address").Message("住址不能为空")
-		valid.Required(v.IdNumber, "IdNumber").Message("身份证号不能为空")
+		//		valid.Required(v.IdNumber, "IdNumber").Message("身份证号不能为空")
 		valid.Required(v.EmergencyContact, "EmergencyContact").Message("紧急联系人不能为空")
 		valid.Required(v.EmergencyContactPhone, "EmergencyContactPhone").Message("紧急联系人电话不能为空")
 		valid.Required(v.Source, "Source").Message("来源不能为空")
