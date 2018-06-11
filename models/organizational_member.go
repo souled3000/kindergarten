@@ -136,3 +136,28 @@ func MyKindergarten(organizational_id int) (paginatorMap map[string]interface{},
 	err = errors.New("获取失败")
 	return nil, err
 }
+
+//我的幼儿园教师
+func MyKinderTeacher(kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+	paginatorMap = make(map[string]interface{})
+	o := orm.NewOrm()
+	var class []orm.Params
+	var manage []orm.Params
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("*").From("organizational").Where("kindergarten_id = ?").And("type = 1").And("is_fixed = 1").And("level = 1").String()
+	_, err = o.Raw(sql, kindergarten_id).Values(&manage)
+
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("*").From("organizational").Where("kindergarten_id = ?").And("type = 2").And("is_fixed = 0").And("level = 2").String()
+	_, err = o.Raw(sql, kindergarten_id).Values(&class)
+	for _, v := range manage {
+		class = append(class, v)
+	}
+	if err == nil {
+		paginatorMap["class"] = class
+		return paginatorMap, nil
+	}
+	err = errors.New("获取失败")
+	return nil, err
+}
