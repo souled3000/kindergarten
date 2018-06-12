@@ -39,7 +39,9 @@ func init() {
 	orm.RegisterModel(new(Permission))
 }
 
-//保存权限
+/*
+保存权限
+*/
 func AddPermission(name string, identification string, parent_id int, route string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
@@ -100,7 +102,9 @@ func AddPermission(name string, identification string, parent_id int, route stri
 	return nil, err
 }
 
-//权限详情
+/*
+权限详情
+*/
 func GetPermissionById(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	var v []orm.Params
@@ -127,7 +131,9 @@ func GetPermissionById(id int) map[string]interface{} {
 	return nil
 }
 
-//权限列表
+/*
+权限列表
+*/
 func GetAllPermission(page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -160,7 +166,9 @@ func GetAllPermission(page int, prepage int) map[string]interface{} {
 	return nil
 }
 
-//权限选项
+/*
+权限选项
+*/
 func PermissionOption() interface{} {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Permission))
@@ -189,7 +197,6 @@ func PermissionOption() interface{} {
 	return nil
 }
 
-//获取下级
 func getNexts(posts []Permission, id int) (Permission []PermissionTree) {
 	for _, val := range posts {
 		if val.ParentId == id {

@@ -47,7 +47,7 @@ func (c *OrganizationalMemberController) Post() {
 
 // OrganizationList ...
 // @Title 组织架构成员
-// @Description 组织架构成员/admin
+// @Description 组织架构成员-admin
 // @Param	organizational_id		body 	int	    true		"班级ID"
 // @Success 201 {int} models.OrganizationalMember
 // @Failure 403 body is empty
@@ -72,7 +72,7 @@ func (c *OrganizationalMemberController) OrganizationList() {
 
 // member ...
 // @Title 组织架构成员负责人
-// @Description 组织架构成员负责人/web
+// @Description 组织架构成员负责人-web
 // @Param	organizational_id		body 	int	    true		"班级ID"
 // @Success 201 {int} models.OrganizationalMember
 // @Failure 403 body is empty
@@ -97,7 +97,7 @@ func (c *OrganizationalMemberController) WebOrganizationList() {
 
 // MyKindergarten ...
 // @Title 我的幼儿园教师
-// @Description 我的幼儿园教师/web
+// @Description 我的幼儿园教师-web
 // @Param	organizational_id		body 	int	    true		"班级ID"
 // @Success 201 {int} models.OrganizationalMember
 // @Failure 403 body is empty
@@ -110,7 +110,7 @@ func (c *OrganizationalMemberController) MyKinderTeacher() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v, err := models.MyKindergarten(organizational_id)
+		v, err := models.MyKinderTeacher(organizational_id)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1006, nil, err.Error()}
 		} else {
@@ -120,9 +120,9 @@ func (c *OrganizationalMemberController) MyKinderTeacher() {
 	}
 }
 
-// MyKinderTeacher ...
+// MyKindergarten ...
 // @Title 我的幼儿园列表
-// @Description 我的幼儿园列表/web
+// @Description 我的幼儿园列表-web
 // @Param	kindergarten_id		body 	int	    true		"幼儿园ID"
 // @Success 201 {int} models.OrganizationalMember
 // @Failure 403 body is empty
@@ -135,7 +135,7 @@ func (c *OrganizationalMemberController) MyKindergarten() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v, err := models.MyKinderTeacher(kindergarten_id)
+		v, err := models.MyKinder(kindergarten_id)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1006, nil, err.Error()}
 		} else {
