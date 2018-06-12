@@ -24,7 +24,9 @@ func init() {
 	orm.RegisterModel(new(KindergartenLife))
 }
 
-//web-添加园内生活
+/*
+web-添加园内生活
+*/
 func AddKindergartenLife(m *KindergartenLife) map[string]interface{} {
 	o := orm.NewOrm()
 	id, err := o.Insert(m)
@@ -36,7 +38,9 @@ func AddKindergartenLife(m *KindergartenLife) map[string]interface{} {
 	return nil
 }
 
-//web-园内生活列表
+/*
+web-园内生活列表
+*/
 func GetKindergartenLifeList(page, prepage int) map[string]interface{} {
 	var v []KindergartenLife
 	o := orm.NewOrm()
@@ -63,7 +67,9 @@ func GetKindergartenLifeList(page, prepage int) map[string]interface{} {
 	return nil
 }
 
-//Web -园内生活详情
+/*
+Web -园内生活详情
+*/
 func GetKindergartenLifeInfo(id int) map[string]interface{} {
 	var v []KindergartenLife
 	o := orm.NewOrm()
@@ -76,7 +82,9 @@ func GetKindergartenLifeInfo(id int) map[string]interface{} {
 	return nil
 }
 
-//web-删除园内生活
+/*
+web-删除园内生活
+*/
 func DeleteKindergartenLife(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := KindergartenLife{Id: id}

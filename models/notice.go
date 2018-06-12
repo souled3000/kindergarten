@@ -24,7 +24,9 @@ func init() {
 	orm.RegisterModel(new(Notice))
 }
 
-//公告添加
+/*
+添加公告
+*/
 func AddNotice(m *Notice) map[string]interface{} {
 	o := orm.NewOrm()
 	id, err := o.Insert(m)
@@ -36,7 +38,9 @@ func AddNotice(m *Notice) map[string]interface{} {
 	return nil
 }
 
-//公告列表
+/*
+公告列表
+*/
 func GetNoticeList(page, prepage int) map[string]interface{} {
 	var v []Notice
 	o := orm.NewOrm()
@@ -64,7 +68,9 @@ func GetNoticeList(page, prepage int) map[string]interface{} {
 
 }
 
-//Web -园内生活详情
+/*
+Web -公告详情
+*/
 func GetNoticeInfo(id int) map[string]interface{} {
 	var v []Notice
 	o := orm.NewOrm()
@@ -77,7 +83,9 @@ func GetNoticeInfo(id int) map[string]interface{} {
 	return nil
 }
 
-//删除公告
+/*
+删除公告
+*/
 func DeleteNotice(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Notice{Id: id}

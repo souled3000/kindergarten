@@ -33,4 +33,5 @@ func main() {
 	kindergartenServer := services.KindergartenServer{}
 	kindergartenServer.Init()
 	beego.Run()
+
 }

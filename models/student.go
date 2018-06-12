@@ -43,7 +43,9 @@ func init() {
 	orm.RegisterModel(new(Student))
 }
 
-//学生列表
+/*
+学生列表
+*/
 func GetStudent(id int, status int, search string, page int, prepage int) map[string]interface{} {
 	var condition []interface{}
 	where := "1=1 "
@@ -97,7 +99,9 @@ func GetStudent(id int, status int, search string, page int, prepage int) map[st
 	return nil
 }
 
-//学生班级列表
+/*
+学生班级列表
+*/
 func GetStudentClass(id int, class_type int, page int, prepage int) map[string]interface{} {
 	var condition []interface{}
 	where := "1=1 "
@@ -154,7 +158,9 @@ func GetStudentClass(id int, class_type int, page int, prepage int) map[string]i
 	return nil
 }
 
-//删除学生
+/*
+删除学生
+*/
 func DeleteStudent(id int, status int, ty int, class_type int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Student{Id: id}
@@ -181,7 +187,9 @@ func DeleteStudent(id int, status int, ty int, class_type int) map[string]interf
 	return nil
 }
 
-//学生详情
+/*
+学生详情
+*/
 func GetStudentInfo(id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var kinships []orm.Params
@@ -202,7 +210,9 @@ func GetStudentInfo(id int) (paginatorMap map[string]interface{}, err error) {
 	return nil, err
 }
 
-//学生--编辑
+/*
+学生编辑
+*/
 func UpdateStudent(id int, student string, kinship string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	err = o.Begin()
@@ -239,7 +249,9 @@ func UpdateStudent(id int, student string, kinship string) (paginatorMap map[str
 	return nil, err
 }
 
-//学生-录入信息
+/*
+学生-录入信息
+*/
 func AddStudent(student string, kinship string) (paginatorMap map[string]interface{}, err error) {
 	var User *UserService
 	o := orm.NewOrm()
@@ -277,7 +289,9 @@ func AddStudent(student string, kinship string) (paginatorMap map[string]interfa
 	return nil, err
 }
 
-//移除学生
+/*
+移除学生
+*/
 func RemoveStudent(class_id int, student_id int) map[string]interface{} {
 	o := orm.NewOrm()
 	err := o.Begin()

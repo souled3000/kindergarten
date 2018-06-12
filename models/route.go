@@ -23,7 +23,9 @@ func init() {
 	orm.RegisterModel(new(Route))
 }
 
-//添加路由
+/*
+添加路由
+*/
 func AddRoute(name string, route string) map[string]interface{} {
 	o := orm.NewOrm()
 	var r Route
@@ -38,7 +40,9 @@ func AddRoute(name string, route string) map[string]interface{} {
 	return nil
 }
 
-//路由详情
+/*
+路由详情
+*/
 func GetRouteById(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	var v []orm.Params
@@ -54,7 +58,9 @@ func GetRouteById(id int) map[string]interface{} {
 	return nil
 }
 
-//路由列表
+/*
+路由列表
+*/
 func GetAllRoute(page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -87,7 +93,9 @@ func GetAllRoute(page int, prepage int) map[string]interface{} {
 	return nil
 }
 
-//编辑路由
+/*
+编辑路由
+*/
 func UpdateRouteById(id int, name string, route string) map[string]interface{} {
 	o := orm.NewOrm()
 	num, err := o.QueryTable("route").Filter("id", id).Update(orm.Params{
@@ -101,7 +109,9 @@ func UpdateRouteById(id int, name string, route string) map[string]interface{} {
 	return nil
 }
 
-//删除路由
+/*
+删除路由
+*/
 func DeleteRoute(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Route{Id: id}

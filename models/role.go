@@ -22,8 +22,9 @@ func init() {
 	orm.RegisterModel(new(Role))
 }
 
-// AddRole insert a new Role into database and returns
-// last inserted Id on success.
+/*
+添加角色
+*/
 func AddRole(name string) map[string]interface{} {
 	o := orm.NewOrm()
 	var r Role
@@ -37,7 +38,9 @@ func AddRole(name string) map[string]interface{} {
 	return nil
 }
 
-//角色详情
+/*
+角色详情
+*/
 func GetRoleById(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	var v []orm.Params
@@ -52,7 +55,9 @@ func GetRoleById(id int) map[string]interface{} {
 	return nil
 }
 
-//角色列表
+/*
+角色列表
+*/
 func GetAllRole(page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -86,11 +91,12 @@ func GetAllRole(page int, prepage int) map[string]interface{} {
 	return nil
 }
 
-//编辑角色
+/*
+编辑角色
+*/
 func UpdateRoleById(id int, name string) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Role{Id: id}
-	// ascertain id exists in the database
 	if err := o.Read(&v); err == nil {
 		v.Name = name
 		if num, err := o.Update(&v); err == nil {
