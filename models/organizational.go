@@ -48,7 +48,9 @@ func init() {
 	orm.RegisterModel(new(Organizational))
 }
 
-//班级搜索
+/*
+班级搜索
+*/
 func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -97,7 +99,9 @@ func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) map
 	return nil
 }
 
-//班级成员
+/*
+班级成员
+*/
 func ClassMember(kindergarten_id int, class_type int, class_id int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	var student []orm.Params
@@ -145,7 +149,9 @@ func ClassMember(kindergarten_id int, class_type int, class_id int, page int, pr
 	return nil
 }
 
-//删除班级
+/*
+删除班级
+*/
 func Destroy(class_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	err = o.Begin()
@@ -204,7 +210,9 @@ func Destroy(class_id int) (paginatorMap map[string]interface{}, err error) {
 	return nil, err
 }
 
-//创建班级
+/*
+创建班级
+*/
 func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	err = o.Begin()
@@ -267,7 +275,9 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 	return nil, err
 }
 
-//组织架构列表
+/*
+组织架构列表
+*/
 func GetOrganization(kindergarten_id int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Organizational))
@@ -324,7 +334,9 @@ func getNext(posts []Organizational, id int) (Organizational []OrganizationalTre
 	return Organizational
 }
 
-//添加组织架构
+/*
+添加组织架构
+*/
 func AddOrganization(name string, ty int, parent_id int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
@@ -381,7 +393,9 @@ func AddOrganization(name string, ty int, parent_id int, kindergarten_id int) (p
 	return nil, err
 }
 
-//删除组织架构
+/*
+删除组织架构
+*/
 func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
@@ -424,7 +438,9 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 	return nil, err
 }
 
-//编辑组织架构
+/*
+编辑组织架构
+*/
 func UpOrganization(organization_id int, name string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	paginatorMap = make(map[string]interface{})
@@ -439,7 +455,9 @@ func UpOrganization(organization_id int, name string) (paginatorMap map[string]i
 	return nil, err
 }
 
-//班级成员
+/*
+班级成员
+*/
 func Principal(class_id int, page int, prepage int) map[string]interface{} {
 	o := orm.NewOrm()
 	var teacher []orm.Params

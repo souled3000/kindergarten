@@ -24,63 +24,15 @@ func init() {
 	}))
 	ns := beego.NewNamespace("/api/v2/kg",
 
-		beego.NSNamespace("/facilities_display",
-			beego.NSInclude(
-				&controllers.FacilitiesDisplayController{},
-			),
-		),
-
-		beego.NSNamespace("/grade",
-			beego.NSInclude(
-				&controllers.GradeController{},
-			),
-		),
-
-		beego.NSNamespace("/group_view",
-			beego.NSInclude(
-				&controllers.GroupViewController{},
-			),
-		),
-
 		beego.NSNamespace("/kindergarten",
 			beego.NSInclude(
 				&controllers.KindergartenController{},
 			),
 		),
 
-		beego.NSNamespace("/kindergarten_courseware",
-			beego.NSInclude(
-				&controllers.KindergartenCoursewareController{},
-			),
-		),
-
-		beego.NSNamespace("/kindergarten_folder",
-			beego.NSInclude(
-				&controllers.KindergartenFolderController{},
-			),
-		),
-
 		beego.NSNamespace("/kindergarten_life",
 			beego.NSInclude(
 				&controllers.KindergartenLifeController{},
-			),
-		),
-
-		beego.NSNamespace("/kinship",
-			beego.NSInclude(
-				&controllers.KinshipController{},
-			),
-		),
-
-		beego.NSNamespace("/life_picture",
-			beego.NSInclude(
-				&controllers.LifePictureController{},
-			),
-		),
-
-		beego.NSNamespace("/member",
-			beego.NSInclude(
-				&controllers.MemberController{},
 			),
 		),
 
@@ -108,21 +60,9 @@ func init() {
 			),
 		),
 
-		beego.NSNamespace("/permission_route",
-			beego.NSInclude(
-				&controllers.PermissionRouteController{},
-			),
-		),
-
 		beego.NSNamespace("/role",
 			beego.NSInclude(
 				&controllers.RoleController{},
-			),
-		),
-
-		beego.NSNamespace("/role_permission",
-			beego.NSInclude(
-				&controllers.RolePermissionController{},
 			),
 		),
 
@@ -132,27 +72,9 @@ func init() {
 			),
 		),
 
-		beego.NSNamespace("/slide_show",
-			beego.NSInclude(
-				&controllers.SlideShowController{},
-			),
-		),
-
 		beego.NSNamespace("/student",
 			beego.NSInclude(
 				&controllers.StudentController{},
-			),
-		),
-
-		beego.NSNamespace("/student_ examination",
-			beego.NSInclude(
-				&controllers.StudentExaminationController{},
-			),
-		),
-
-		beego.NSNamespace("/student_kindergarten",
-			beego.NSInclude(
-				&controllers.StudentKindergartenController{},
 			),
 		),
 
@@ -162,28 +84,12 @@ func init() {
 			),
 		),
 
-		beego.NSNamespace("/teacher_title",
-			beego.NSInclude(
-				&controllers.TeacherTitleController{},
-			),
-		),
-
-		beego.NSNamespace("/teachers_show",
-			beego.NSInclude(
-				&controllers.TeachersShowController{},
-			),
-		),
-
 		beego.NSNamespace("/user_permission",
 			beego.NSInclude(
 				&controllers.UserPermissionController{},
 			),
 		),
-		beego.NSNamespace("/user_role",
-			beego.NSInclude(
-				&controllers.UserRoleController{},
-			),
-		),
+
 		beego.NSNamespace("/ping",
 			beego.NSInclude(
 				&controllers.PingController{},

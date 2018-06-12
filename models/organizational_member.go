@@ -23,7 +23,9 @@ func init() {
 	orm.RegisterModel(new(OrganizationalMember))
 }
 
-//添加成员
+/*
+添加成员
+*/
 func AddMembers(ty int, member_ids string, organizational_id int, is_principal int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
@@ -75,7 +77,9 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 	return nil, err
 }
 
-//组织架构成员/admin
+/*
+组织架构成员-admin
+*/
 func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
@@ -92,7 +96,9 @@ func GetMembers(organizational_id int) (paginatorMap map[string]interface{}, err
 	return nil, err
 }
 
-//组织架构成员负责人/web
+/*
+组织架构成员负责人-web
+*/
 func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
@@ -118,8 +124,10 @@ func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, 
 	return nil, err
 }
 
-//我的幼儿园/web
-func MyKindergarten(organizational_id int) (paginatorMap map[string]interface{}, err error) {
+/*
+我的幼儿园教师-web
+*/
+func MyKinderTeacher(organizational_id int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
 	var mk []orm.Params
@@ -133,31 +141,33 @@ func MyKindergarten(organizational_id int) (paginatorMap map[string]interface{},
 		paginatorMap["data"] = mk
 		return paginatorMap, nil
 	}
-	err = errors.New("获取失败")
+	err = errors.New("暂无教师信息")
 	return nil, err
 }
 
-//我的幼儿园教师
-func MyKinderTeacher(kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+/*
+我的幼儿园列表-web
+*/
+func MyKinder(kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
 	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
 	var class []orm.Params
 	var manage []orm.Params
 
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("*").From("organizational").Where("kindergarten_id = ?").And("type = 1").And("is_fixed = 1").And("level = 1").String()
+	sql := qb.Select("o.*").From("organizational as o").Where("o.kindergarten_id = ?").And("o.type = 1").And("o.is_fixed = 1").And("o.level = 1").String()
 	_, err = o.Raw(sql, kindergarten_id).Values(&manage)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("*").From("organizational").Where("kindergarten_id = ?").And("type = 2").And("is_fixed = 0").And("level = 2").String()
-	_, err = o.Raw(sql, kindergarten_id).Values(&class)
-	for _, v := range manage {
-		class = append(class, v)
+	sql = qb.Select("o.*").From("organizational as o").Where("o.kindergarten_id = ?").And("o.type = 2").And("o.is_fixed = 0").And("o.level = 2").String()
+	num, err := o.Raw(sql, kindergarten_id).Values(&class)
+	for _, v := range class {
+		manage = append(manage, v)
 	}
-	if err == nil {
-		paginatorMap["class"] = class
+	if err == nil && num > 0 {
+		paginatorMap["class"] = manage
 		return paginatorMap, nil
 	}
-	err = errors.New("获取失败")
+	err = errors.New("暂无幼儿园信息")
 	return nil, err
 }

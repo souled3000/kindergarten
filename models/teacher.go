@@ -52,7 +52,9 @@ func init() {
 	orm.RegisterModel(new(Teacher))
 }
 
-//教师下拉菜单
+/*
+教师下拉菜单
+*/
 func GetTeacherById(id int, page, prepage int) map[string]interface{} {
 	var v []Teacher
 	o := orm.NewOrm()
@@ -71,7 +73,9 @@ func GetTeacherById(id int, page, prepage int) map[string]interface{} {
 	return nil
 }
 
-//教师列表
+/*
+教师列表
+*/
 func GetTeacher(id int, status int, search string, page int, prepage int) map[string]interface{} {
 	var condition []interface{}
 	where := "1=1 "
@@ -125,7 +129,9 @@ func GetTeacher(id int, status int, search string, page int, prepage int) map[st
 	return nil
 }
 
-//班级列表
+/*
+班级列表
+*/
 func GetClass(id int, class_type int, page int, prepage int) map[string]interface{} {
 	var condition []interface{}
 	where := "1=1 "
@@ -182,7 +188,9 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 	return nil
 }
 
-//删除教师
+/*
+删除教师
+*/
 func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Teacher{Id: id}
@@ -212,7 +220,9 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 	return nil
 }
 
-//教师详情
+/*
+教师详情
+*/
 func GetTeacherInfo(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := &Teacher{Id: id}
@@ -225,7 +235,9 @@ func GetTeacherInfo(id int) map[string]interface{} {
 	return nil
 }
 
-//教师--编辑
+/*
+教师编辑
+*/
 func UpdateTeacher(m *Teacher) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Teacher{Id: m.Id}
@@ -243,7 +255,9 @@ func UpdateTeacher(m *Teacher) map[string]interface{} {
 	return nil
 }
 
-//教师-录入信息
+/*
+教师-录入信息
+*/
 func AddTeacher(m *Teacher) map[string]interface{} {
 	var User *UserService
 	o := orm.NewOrm()
@@ -262,7 +276,9 @@ func AddTeacher(m *Teacher) map[string]interface{} {
 	return nil
 }
 
-//组织框架移除教师
+/*
+组织框架移除教师
+*/
 func RemoveTeacher(teacher_id int, class_id int) map[string]interface{} {
 	o := orm.NewOrm()
 	err := o.Begin()

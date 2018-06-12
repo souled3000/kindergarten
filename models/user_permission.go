@@ -22,7 +22,9 @@ func init() {
 	orm.RegisterModel(new(UserPermission))
 }
 
-//设置权限
+/*
+设置权限
+*/
 func AddUserPermission(user_id int, role string, permission string, group string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	err = o.Begin()
@@ -68,7 +70,9 @@ func AddUserPermission(user_id int, role string, permission string, group string
 	}
 }
 
-//查看用户权限
+/*
+查看用户权限
+*/
 func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var r []orm.Params
@@ -105,7 +109,9 @@ func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, er
 	return nil, err
 }
 
-//查看用户权限标识
+/*
+查看用户权限标识
+*/
 func GetUserIdentificationById(user_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var p []orm.Params
@@ -122,24 +128,27 @@ func GetUserIdentificationById(user_id int) (paginatorMap map[string]interface{}
 	return nil, err
 }
 
-//查看圈子权限
+/*
+查看圈子权限
+*/
 func GetGroupIdentificationById(user_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	var p []orm.Params
+	var g []orm.Params
 	paginatorMap = make(map[string]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
-		On("up.permission_id = p.id").Where("up.user_id = ?").String()
-	num, err := o.Raw(sql, user_id).Values(&p)
+	sql := qb.Select("class_type").From("group_view as gv").Where("gv.user_id = ?").String()
+	num, err := o.Raw(sql, user_id).Values(&g)
 	if err == nil && num > 0 {
-		paginatorMap["data"] = p
+		paginatorMap["data"] = g
 		return paginatorMap, nil
 	}
 	err = errors.New("获取失败")
 	return nil, err
 }
 
-//修改权限
+/*
+修改权限
+*/
 func UpdateUserPermissionById(user_id int, role string, permission string, group string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	err = o.Begin()
