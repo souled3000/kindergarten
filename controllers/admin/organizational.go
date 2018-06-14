@@ -1,4 +1,4 @@
-package controllers
+package admin
 
 import (
 	"kindergarten-service-go/models"
@@ -9,28 +9,6 @@ import (
 //组织架构
 type OrganizationalController struct {
 	BaseController
-}
-
-type JSONStruct struct {
-	Status string      `json:"status";`
-	Code   int         `json:"code";`
-	Result interface{} `json:"result";`
-	Msg    string      `json:"msg";`
-}
-
-type UserService struct {
-	GetOne   func(string) (int, error)
-	GetUK    func(string) error
-	Encrypt  func(string) string
-	Test     func() string
-	UserSave func(userId int) error
-	CreateUK func(userId int, kindergartenId int, role int) (int64, error)
-	Create   func(phone string, name string, password string, kindergartenId int, role int) (interface{}, error)
-}
-
-type OnemoreService struct {
-	Test func() string
-	Send func(phone string, text string) (interface{}, error)
 }
 
 // GetClass ...

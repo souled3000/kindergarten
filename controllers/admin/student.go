@@ -1,4 +1,4 @@
-package controllers
+package admin
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 
 //学生
 type StudentController struct {
-	beego.Controller
+	BaseController
 }
 
 // GetStudent ...
@@ -96,7 +96,7 @@ func (c *StudentController) RemoveStudent() {
 // @Success 200 {object} models.Student
 // @Failure 403 :学生编号为空
 // @router /:id [get]
-func (c *StudentController) GetStudentInfo() {
+func (c *StudentController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetStudentInfo(id)

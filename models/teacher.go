@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -41,7 +40,8 @@ type Teacher struct {
 }
 
 type UserService struct {
-	UpdateUK func(userId int) error
+	UpdateUK      func(userId int) error
+	GetUKByUserId func(userId int) (interface{}, error)
 }
 
 func (t *Teacher) TableName() string {
@@ -197,7 +197,6 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 	timeLayout := "2006-01-02 15:04:05" //转化所需模板
 	loc, _ := time.LoadLocation("")
 	timenow := time.Now().Format("2006-01-02 15:04:05")
-	fmt.Println(time.ParseInLocation(timeLayout, timenow, loc))
 	if err := o.Read(&v); err == nil {
 		if status == 0 {
 			v.Status = 2
@@ -301,6 +300,24 @@ func RemoveTeacher(teacher_id int, class_id int) map[string]interface{} {
 	if err == nil && num > 0 {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = num //返回数据
+		return paginatorMap
+	}
+	return nil
+}
+
+/*
+教师列表
+*/
+func OrganizationalTeacher(id int) map[string]interface{} {
+	o := orm.NewOrm()
+	var v []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
+		From("teacher as t").Where("kindergarten_id = ?").And("isnull(deleted_at)").String()
+	num, err := o.Raw(sql, id).Values(&v)
+	if err == nil && num > 0 {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = v
 		return paginatorMap
 	}
 	return nil
