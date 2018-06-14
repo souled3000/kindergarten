@@ -18,7 +18,7 @@ var database = beego.AppConfig.String("DB_DATABASE")
 var connection = beego.AppConfig.String("DB_CONNECTION")
 
 func init() {
-	orm.RegisterDataBase("default", connection, username+":"+password+"@tcp("+host+":"+port+")/"+database+"")
+	orm.RegisterDataBase("default", connection, username+":"+password+"@tcp("+host+":"+port+")/"+database+"?charset=utf8&loc=Local")
 	if beego.BConfig.RunMode == "dev" {
 		orm.Debug = true
 	}
