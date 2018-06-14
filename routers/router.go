@@ -9,6 +9,7 @@ package routers
 
 import (
 	"kindergarten-service-go/controllers"
+	"kindergarten-service-go/controllers/admin"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/plugins/cors"
@@ -24,21 +25,21 @@ func init() {
 	}))
 	ns := beego.NewNamespace("/api/v2/kg",
 
-		beego.NSNamespace("/kindergarten",
+		beego.NSNamespace("/admin/kindergarten",
 			beego.NSInclude(
-				&controllers.KindergartenController{},
+				&admin.KindergartenController{},
 			),
 		),
 
-		beego.NSNamespace("/kindergarten_life",
+		beego.NSNamespace("/admin/kindergarten_life",
 			beego.NSInclude(
-				&controllers.KindergartenLifeController{},
+				&admin.KindergartenLifeController{},
 			),
 		),
 
-		beego.NSNamespace("/notice",
+		beego.NSNamespace("/admin/notice",
 			beego.NSInclude(
-				&controllers.NoticeController{},
+				&admin.NoticeController{},
 			),
 		),
 
@@ -54,33 +55,45 @@ func init() {
 			),
 		),
 
-		beego.NSNamespace("/permission",
+		beego.NSNamespace("/admin/organizational",
 			beego.NSInclude(
-				&controllers.PermissionController{},
+				&admin.OrganizationalController{},
 			),
 		),
 
-		beego.NSNamespace("/role",
+		beego.NSNamespace("/admin/organizational_member",
 			beego.NSInclude(
-				&controllers.RoleController{},
+				&admin.OrganizationalMemberController{},
 			),
 		),
 
-		beego.NSNamespace("/route",
+		beego.NSNamespace("/admin/permission",
 			beego.NSInclude(
-				&controllers.RouteController{},
+				&admin.PermissionController{},
 			),
 		),
 
-		beego.NSNamespace("/student",
+		beego.NSNamespace("/admin/role",
 			beego.NSInclude(
-				&controllers.StudentController{},
+				&admin.RoleController{},
 			),
 		),
 
-		beego.NSNamespace("/teacher",
+		beego.NSNamespace("/admin/route",
 			beego.NSInclude(
-				&controllers.TeacherController{},
+				&admin.RouteController{},
+			),
+		),
+
+		beego.NSNamespace("/admin/student",
+			beego.NSInclude(
+				&admin.StudentController{},
+			),
+		),
+
+		beego.NSNamespace("/admin/teacher",
+			beego.NSInclude(
+				&admin.TeacherController{},
 			),
 		),
 
@@ -90,9 +103,21 @@ func init() {
 			),
 		),
 
+		beego.NSNamespace("/admin/user_permission",
+			beego.NSInclude(
+				&admin.UserPermissionController{},
+			),
+		),
+
 		beego.NSNamespace("/ping",
 			beego.NSInclude(
-				&controllers.PingController{},
+				&admin.PingController{},
+			),
+		),
+
+		beego.NSNamespace("/admin/ping",
+			beego.NSInclude(
+				&admin.PingController{},
 			),
 		),
 	)

@@ -51,7 +51,7 @@ func init() {
 /*
 班级搜索
 */
-func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) map[string]interface{} {
+func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	var condition []interface{}
@@ -66,14 +66,14 @@ func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) map
 		where += " AND class_type = ?"
 		condition = append(condition, class_type)
 	}
-	where += " AND type = ?"
-	condition = append(condition, 2)
-	where += " AND level = ?"
-	condition = append(condition, 3)
+	//	where += " AND type = ?"
+	//	condition = append(condition, 2)
+	//	where += " AND level = ?"
+	//	condition = append(condition, 3)
 	// 构建查询对象
-	sql := qb.Select("count(*)").From("organizational").Where(where).String()
+	sql := qb.Select("count(*)").From("organizational").Where(where).And("type = 2").And("level = 3").String()
 	var total int64
-	err := o.Raw(sql, condition).QueryRow(&total)
+	err = o.Raw(sql, condition).QueryRow(&total)
 	if err == nil {
 		var v []orm.Params
 		//根据nums总数，和prepage每页数量 生成分页总数
@@ -93,16 +93,17 @@ func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) map
 			paginatorMap["total"] = total         //总条数
 			paginatorMap["data"] = v              //分页数据
 			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap
+			return paginatorMap, nil
 		}
 	}
-	return nil
+	err = errors.New("获取失败")
+	return nil, err
 }
 
 /*
 班级成员
 */
-func ClassMember(kindergarten_id int, class_type int, class_id int, page int, prepage int) map[string]interface{} {
+func ClassMember(kindergarten_id int, class_type int, class_id int, page int, prepage int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var student []orm.Params
 	var teacher []orm.Params
@@ -132,7 +133,7 @@ func ClassMember(kindergarten_id int, class_type int, class_id int, page int, pr
 		"o.name as class_name", "o.class_type", "om.id").From("student as s").LeftJoin("organizational_member as om").
 		On("s.student_id = om.member_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where(where).And("om.type = 1").And("s.status = 1").String()
-	_, err := o.Raw(sql, condition).Values(&student)
+	_, err = o.Raw(sql, condition).Values(&student)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("t.teacher_id", "t.name", "t.avatar", "t.number", "t.phone",
@@ -144,9 +145,10 @@ func ClassMember(kindergarten_id int, class_type int, class_id int, page int, pr
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["student"] = student
 		paginatorMap["teacher"] = teacher
-		return paginatorMap
+		return paginatorMap, nil
 	}
-	return nil
+	err = errors.New("获取失败")
+	return nil, err
 }
 
 /*
@@ -405,7 +407,6 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("organizational").Where("id = ?").String()
 	_, err = o.Raw(sql, organization_id).Values(&v)
-	fmt.Println(v)
 	is_fixe := v[0]["is_fixed"].(string)
 	is_fixed, _ := strconv.Atoi(is_fixe)
 	if is_fixed == 1 {

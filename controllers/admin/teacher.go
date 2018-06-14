@@ -1,4 +1,4 @@
-package controllers
+package admin
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 
 //教师
 type TeacherController struct {
-	beego.Controller
+	BaseController
 }
 
 type UserService struct {
@@ -79,13 +79,20 @@ func (c *TeacherController) GetTeacher() {
 	page, _ := c.GetInt("page")
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	status, _ := c.GetInt("status", -1)
-	v := models.GetTeacher(kindergarten_id, status, search, page, prepage)
-	if v == nil {
-		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
 	} else {
-		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		v := models.GetTeacher(kindergarten_id, status, search, page, prepage)
+		if v == nil {
+			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
 	}
-	c.ServeJSON()
 }
 
 // GetClass ...
@@ -223,9 +230,9 @@ func (c *TeacherController) Post() {
 }
 
 // RemoveTeacher ...
-// @Title RemoveTeacher
+// @Title 移除教师
 // @Description 移除教师
-// @Param	teacher_id		path 	    int	true		    "教师ID"
+// @Param	teacher_id		    path 	    int	true		    "教师ID"
 // @Param	class_id		    path 	    int	true		    "班级ID"
 // @Success 200 {string} delete success!
 // @Failure 403 teacher_id is empty
@@ -313,5 +320,32 @@ func (c *TeacherController) Invite() {
 				}
 			}
 		}
+	}
+}
+
+// OrganizationalTeacher ...
+// @Title 组织框架教师列表
+// @Description 组织框架教师列表
+// @Param	kindergarten_id       query	int	     true		"幼儿园ID"
+// @Param	page                  query	int	     false		"页数"
+// @Param	per_page              query	int	     false		"每页显示条数"
+// @Success 200 {object} models.Teacher
+// @Failure 403
+// @router /organizational_teacher [get]
+func (c *TeacherController) OrganizationalTeacher() {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v := models.OrganizationalTeacher(kindergarten_id)
+		if v == nil {
+			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
 	}
 }

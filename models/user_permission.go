@@ -197,3 +197,21 @@ func UpdateUserPermissionById(user_id int, role string, permission string, group
 		return nil, err
 	}
 }
+
+/*
+查看用户权限
+*/
+func GetPermissionRoute(user_id int) ([]orm.Params, error) {
+	o := orm.NewOrm()
+	var r []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("r.route").From("user_permission as up").LeftJoin("permission as p").
+		On("up.permission_id = p.id").LeftJoin("permission_route as pr").
+		On("p.id = pr.permission_id").LeftJoin("route as r").
+		On("r.id = pr.route_id").Where("up.user_id = ?").String()
+	_, err := o.Raw(sql, user_id).Values(&r)
+	if err == nil {
+		return r, nil
+	}
+	return nil, err
+}

@@ -1,4 +1,4 @@
-package controllers
+package admin
 
 import (
 	"kindergarten-service-go/models"

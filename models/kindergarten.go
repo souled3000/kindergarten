@@ -1,10 +1,14 @@
 package models
 
 import (
+	"fmt"
 	"math"
 	"time"
 
+	"github.com/astaxie/beego"
+
 	"github.com/astaxie/beego/orm"
+	"github.com/hprose/hprose-golang/rpc"
 )
 
 type Kindergarten struct {
@@ -56,5 +60,17 @@ func GetKindergartenById(id int, page, prepage int) map[string]interface{} {
 			return paginatorMap
 		}
 	}
+	return nil
+}
+
+/*
+oms-设置园长
+*/
+func AddPrincipal(user_id int, kindergarten_id int, role int) error {
+	var User *UserService
+	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
+	client.UseService(&User)
+	uk, _ := User.GetUKByUserId(user_id)
+	fmt.Println(uk)
 	return nil
 }

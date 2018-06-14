@@ -1,17 +1,15 @@
-package controllers
+package admin
 
 import (
 	"kindergarten-service-go/models"
 	"strconv"
 
 	"github.com/astaxie/beego/validation"
-
-	"github.com/astaxie/beego"
 )
 
 //权限
 type PermissionController struct {
-	beego.Controller
+	BaseController
 }
 
 // Post ...
