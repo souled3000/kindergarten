@@ -11,394 +11,42 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 basePath: /api/v2/kg
 paths:
-  /facilities_display/:
-    get:
-      tags:
-      - facilities_display
-      description: get FacilitiesDisplay
-      operationId: FacilitiesDisplayController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.FacilitiesDisplay'
-        "403":
-          description: ""
+  /admin/kindergarten/:
     post:
       tags:
-      - facilities_display
-      description: create FacilitiesDisplay
-      operationId: FacilitiesDisplayController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for FacilitiesDisplay content
-        required: true
-        schema:
-          $ref: '#/definitions/models.FacilitiesDisplay'
-      responses:
-        "201":
-          description: '{int} models.FacilitiesDisplay'
-        "403":
-          description: body is empty
-  /facilities_display/{id}:
-    get:
-      tags:
-      - facilities_display
-      description: get FacilitiesDisplay by id
-      operationId: FacilitiesDisplayController.Get One
+      - admin/kindergarten
+      description: 设置园长
+      operationId: KindergartenController.设置园长
       parameters:
       - in: path
-        name: id
-        description: The key for staticblock
+        name: user_id
+        description: 用户ID
         required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.FacilitiesDisplay'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - facilities_display
-      description: update the FacilitiesDisplay
-      operationId: FacilitiesDisplayController.Put
-      parameters:
+        type: integer
+        format: int64
       - in: path
-        name: id
-        description: The id you want to update
+        name: kindergarten_id
+        description: 幼儿园ID
         required: true
-        type: string
-      - in: body
-        name: body
-        description: body for FacilitiesDisplay content
-        required: true
-        schema:
-          $ref: '#/definitions/models.FacilitiesDisplay'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.FacilitiesDisplay'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - facilities_display
-      description: delete the FacilitiesDisplay
-      operationId: FacilitiesDisplayController.Delete
-      parameters:
+        type: integer
+        format: int64
       - in: path
-        name: id
-        description: The id you want to delete
+        name: role
+        description: 身份
         required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /grade/:
-    get:
-      tags:
-      - grade
-      description: get Grade
-      operationId: GradeController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Grade'
-        "403":
-          description: ""
-    post:
-      tags:
-      - grade
-      description: create Grade
-      operationId: GradeController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for Grade content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Grade'
-      responses:
-        "201":
-          description: '{int} models.Grade'
-        "403":
-          description: body is empty
-  /grade/{id}:
-    get:
-      tags:
-      - grade
-      description: get Grade by id
-      operationId: GradeController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Grade'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - grade
-      description: update the Grade
-      operationId: GradeController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for Grade content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Grade'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Grade'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - grade
-      description: delete the Grade
-      operationId: GradeController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /group_view/:
-    get:
-      tags:
-      - group_view
-      description: get GroupView
-      operationId: GroupViewController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.GroupView'
-        "403":
-          description: ""
-    post:
-      tags:
-      - group_view
-      description: create GroupView
-      operationId: GroupViewController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for GroupView content
-        required: true
-        schema:
-          $ref: '#/definitions/models.GroupView'
-      responses:
-        "201":
-          description: '{int} models.GroupView'
-        "403":
-          description: body is empty
-  /group_view/{id}:
-    get:
-      tags:
-      - group_view
-      description: get GroupView by id
-      operationId: GroupViewController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.GroupView'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - group_view
-      description: update the GroupView
-      operationId: GroupViewController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for GroupView content
-        required: true
-        schema:
-          $ref: '#/definitions/models.GroupView'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.GroupView'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - group_view
-      description: delete the GroupView
-      operationId: GroupViewController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /kindergarten/:
-    get:
-      tags:
-      - kindergarten
-      description: 幼儿园介绍列表
-      operationId: KindergartenController.幼儿园介绍列表
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
           schema:
             $ref: '#/definitions/models.Kindergarten'
         "403":
-          description: ""
-  /kindergarten/{id}:
+          description: :id is empty
+  /admin/kindergarten/{id}:
     get:
       tags:
-      - kindergarten
+      - admin/kindergarten
       description: 幼儿园介绍详情
       operationId: KindergartenController.幼儿园介绍详情
       parameters:
@@ -414,264 +62,10 @@ paths:
             $ref: '#/definitions/models.Kindergarten'
         "403":
           description: :id is empty
-    put:
-      tags:
-      - kindergarten
-      description: update the Kindergarten
-      operationId: KindergartenController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for Kindergarten content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Kindergarten'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Kindergarten'
-        "403":
-          description: :id is not int
-  /kindergarten_courseware/:
+  /admin/kindergarten_life/:
     get:
       tags:
-      - kindergarten_courseware
-      description: get KindergartenCourseware
-      operationId: KindergartenCoursewareController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.KindergartenCourseware'
-        "403":
-          description: ""
-    post:
-      tags:
-      - kindergarten_courseware
-      description: create KindergartenCourseware
-      operationId: KindergartenCoursewareController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for KindergartenCourseware content
-        required: true
-        schema:
-          $ref: '#/definitions/models.KindergartenCourseware'
-      responses:
-        "201":
-          description: '{int} models.KindergartenCourseware'
-        "403":
-          description: body is empty
-  /kindergarten_courseware/{id}:
-    get:
-      tags:
-      - kindergarten_courseware
-      description: get KindergartenCourseware by id
-      operationId: KindergartenCoursewareController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.KindergartenCourseware'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - kindergarten_courseware
-      description: update the KindergartenCourseware
-      operationId: KindergartenCoursewareController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for KindergartenCourseware content
-        required: true
-        schema:
-          $ref: '#/definitions/models.KindergartenCourseware'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.KindergartenCourseware'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - kindergarten_courseware
-      description: delete the KindergartenCourseware
-      operationId: KindergartenCoursewareController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /kindergarten_folder/:
-    get:
-      tags:
-      - kindergarten_folder
-      description: get KindergartenFolder
-      operationId: KindergartenFolderController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.KindergartenFolder'
-        "403":
-          description: ""
-    post:
-      tags:
-      - kindergarten_folder
-      description: create KindergartenFolder
-      operationId: KindergartenFolderController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for KindergartenFolder content
-        required: true
-        schema:
-          $ref: '#/definitions/models.KindergartenFolder'
-      responses:
-        "201":
-          description: '{int} models.KindergartenFolder'
-        "403":
-          description: body is empty
-  /kindergarten_folder/{id}:
-    get:
-      tags:
-      - kindergarten_folder
-      description: get KindergartenFolder by id
-      operationId: KindergartenFolderController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.KindergartenFolder'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - kindergarten_folder
-      description: update the KindergartenFolder
-      operationId: KindergartenFolderController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for KindergartenFolder content
-        required: true
-        schema:
-          $ref: '#/definitions/models.KindergartenFolder'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.KindergartenFolder'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - kindergarten_folder
-      description: delete the KindergartenFolder
-      operationId: KindergartenFolderController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /kindergarten_life/:
-    get:
-      tags:
-      - kindergarten_life
+      - admin/kindergarten_life
       description: Web-园内生活列表
       operationId: KindergartenLifeController.Web-园内生活列表
       parameters:
@@ -694,7 +88,7 @@ paths:
           description: ""
     post:
       tags:
-      - kindergarten_life
+      - admin/kindergarten_life
       description: Web-保存园内生活
       operationId: KindergartenLifeController.保存园内生活
       parameters:
@@ -721,10 +115,10 @@ paths:
           description: '{int} models.KindergartenLife'
         "403":
           description: body is empty
-  /kindergarten_life/{id}:
+  /admin/kindergarten_life/{id}:
     get:
       tags:
-      - kindergarten_life
+      - admin/kindergarten_life
       description: Web-园内生活详情
       operationId: KindergartenLifeController.园内生活详情
       parameters:
@@ -753,7 +147,7 @@ paths:
           description: :编号为空
     delete:
       tags:
-      - kindergarten_life
+      - admin/kindergarten_life
       description: Web-删除园内生活
       operationId: KindergartenLifeController.Web-删除园内生活
       parameters:
@@ -767,355 +161,10 @@ paths:
           description: '{string} delete success!'
         "403":
           description: id is empty
-  /kinship/:
+  /admin/notice/:
     get:
       tags:
-      - kinship
-      description: get Kinship
-      operationId: KinshipController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Kinship'
-        "403":
-          description: ""
-    post:
-      tags:
-      - kinship
-      description: create Kinship
-      operationId: KinshipController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for Kinship content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Kinship'
-      responses:
-        "201":
-          description: '{int} models.Kinship'
-        "403":
-          description: body is empty
-  /kinship/{id}:
-    get:
-      tags:
-      - kinship
-      description: get Kinship by id
-      operationId: KinshipController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Kinship'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - kinship
-      description: update the Kinship
-      operationId: KinshipController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for Kinship content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Kinship'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Kinship'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - kinship
-      description: delete the Kinship
-      operationId: KinshipController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /life_picture/:
-    get:
-      tags:
-      - life_picture
-      description: get LifePicture
-      operationId: LifePictureController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.LifePicture'
-        "403":
-          description: ""
-    post:
-      tags:
-      - life_picture
-      description: create LifePicture
-      operationId: LifePictureController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for LifePicture content
-        required: true
-        schema:
-          $ref: '#/definitions/models.LifePicture'
-      responses:
-        "201":
-          description: '{int} models.LifePicture'
-        "403":
-          description: body is empty
-  /life_picture/{id}:
-    get:
-      tags:
-      - life_picture
-      description: get LifePicture by id
-      operationId: LifePictureController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.LifePicture'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - life_picture
-      description: update the LifePicture
-      operationId: LifePictureController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for LifePicture content
-        required: true
-        schema:
-          $ref: '#/definitions/models.LifePicture'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.LifePicture'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - life_picture
-      description: delete the LifePicture
-      operationId: LifePictureController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /member/:
-    get:
-      tags:
-      - member
-      description: get Member
-      operationId: MemberController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Member'
-        "403":
-          description: ""
-    post:
-      tags:
-      - member
-      description: create Member
-      operationId: MemberController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for Member content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Member'
-      responses:
-        "201":
-          description: '{int} models.Member'
-        "403":
-          description: body is empty
-  /member/{id}:
-    get:
-      tags:
-      - member
-      description: get Member by id
-      operationId: MemberController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Member'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - member
-      description: update the Member
-      operationId: MemberController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for Member content
-        required: true
-        schema:
-          $ref: '#/definitions/models.Member'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Member'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - member
-      description: delete the Member
-      operationId: MemberController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /notice/:
-    get:
-      tags:
-      - notice
+      - admin/notice
       description: Web-公告列表
       operationId: NoticeController.公告列表
       parameters:
@@ -1138,7 +187,7 @@ paths:
           description: ""
     post:
       tags:
-      - notice
+      - admin/notice
       description: Web-保存公告
       operationId: NoticeController.保存公告
       parameters:
@@ -1165,10 +214,10 @@ paths:
           description: '{int} models.Notice'
         "403":
           description: body is empty
-  /notice/{id}:
+  /admin/notice/{id}:
     get:
       tags:
-      - notice
+      - admin/notice
       description: Web-公告详情
       operationId: NoticeController.公告详情
       parameters:
@@ -1197,7 +246,7 @@ paths:
           description: :编号为空
     delete:
       tags:
-      - notice
+      - admin/notice
       description: Web-删除公告
       operationId: NoticeController.删除公告
       parameters:
@@ -1211,6 +260,1335 @@ paths:
           description: '{string} delete success!'
         "403":
           description: id is empty
+  /admin/organizational/:
+    get:
+      tags:
+      - admin/organizational
+      description: 组织架构列表
+      operationId: OrganizationalController.组织架构列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+    put:
+      tags:
+      - admin/organizational
+      description: 编辑组织架构
+      operationId: OrganizationalController.编辑组织架构
+      parameters:
+      - in: query
+        name: organization_id
+        description: 组织架构ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+    post:
+      tags:
+      - admin/organizational
+      description: 创建班级
+      operationId: OrganizationalController.创建班级
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+    delete:
+      tags:
+      - admin/organizational
+      description: 删除班级
+      operationId: OrganizationalController.删除班级
+      parameters:
+      - in: query
+        name: class_id
+        description: 班级id
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /admin/organizational/addorgan:
+    post:
+      tags:
+      - admin/organizational
+      description: 添加组织架构
+      operationId: OrganizationalController.添加组织架构
+      parameters:
+      - in: query
+        name: parent_id
+        description: 父级ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: name
+        description: 组织架构名字
+        required: true
+        type: string
+      - in: query
+        name: type
+        description: 类型
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /admin/organizational/class:
+    get:
+      tags:
+      - admin/organizational
+      description: 班级列表
+      operationId: OrganizationalController.班级
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /admin/organizational/delorgan:
+    delete:
+      tags:
+      - admin/organizational
+      description: 删除组织架构
+      operationId: OrganizationalController.删除组织架构
+      parameters:
+      - in: query
+        name: organization_id
+        description: 组织架构ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /admin/organizational/member:
+    get:
+      tags:
+      - admin/organizational
+      description: 班级成员
+      operationId: OrganizationalController.班级成员
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级id
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /admin/organizational/principal:
+    get:
+      tags:
+      - admin/organizational
+      description: 组织架构成员和负责人
+      operationId: OrganizationalController.组织架构成员和负责人
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级id
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Organizational'
+        "403":
+          description: ""
+  /admin/organizational_member/:
+    get:
+      tags:
+      - admin/organizational_member
+      description: 组织架构成员-admin
+      operationId: OrganizationalMemberController.组织架构成员
+      parameters:
+      - in: body
+        name: organizational_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+    post:
+      tags:
+      - admin/organizational_member
+      description: 班级添加成员
+      operationId: OrganizationalMemberController.班级添加成员
+      parameters:
+      - in: body
+        name: organizational_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: member_ids
+        description: 教师ID(,分割)
+        required: true
+        type: string
+      - in: body
+        name: is_principal
+        description: 是不是负责人（0不是，1是）
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: type
+        description: 身份（0教师，1学生）
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+    delete:
+      tags:
+      - admin/organizational_member
+      description: 移除组织架构成员
+      operationId: OrganizationalMemberController.移除组织架构成员
+      parameters:
+      - in: path
+        name: teacher_id
+        description: 教师ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: teacher_id is empty
+  /admin/organizational_member/member:
+    get:
+      tags:
+      - admin/organizational_member
+      description: 组织架构成员负责人-web
+      operationId: OrganizationalMemberController.组织架构成员负责人
+      parameters:
+      - in: body
+        name: organizational_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+  /admin/organizational_member/my_kinder:
+    get:
+      tags:
+      - admin/organizational_member
+      description: 我的幼儿园列表-web
+      operationId: OrganizationalMemberController.我的幼儿园列表
+      parameters:
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+  /admin/organizational_member/my_teacher:
+    get:
+      tags:
+      - admin/organizational_member
+      description: 我的幼儿园教师-web
+      operationId: OrganizationalMemberController.我的幼儿园教师
+      parameters:
+      - in: body
+        name: organizational_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+  /admin/permission/:
+    get:
+      tags:
+      - admin/permission
+      description: 权限列表
+      operationId: PermissionController.权限列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "403":
+          description: ""
+    post:
+      tags:
+      - admin/permission
+      description: 保存权限
+      operationId: PermissionController.保存权限
+      parameters:
+      - in: body
+        name: name
+        description: 权限名称
+        required: true
+        type: string
+      - in: body
+        name: identification
+        description: 权限标识
+        required: true
+        type: string
+      - in: body
+        name: parent_id
+        description: 父级ID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: route
+        description: 路由功能
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Permission'
+        "403":
+          description: body is empty
+  /admin/permission/{id}:
+    get:
+      tags:
+      - admin/permission
+      description: 权限详情
+      operationId: PermissionController.权限详情
+      parameters:
+      - in: path
+        name: id
+        description: 权限ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "403":
+          description: :id is empty
+  /admin/permission/option:
+    get:
+      tags:
+      - admin/permission
+      description: 权限选项
+      operationId: PermissionController.权限选项
+      parameters:
+      - in: path
+        name: id
+        description: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "403":
+          description: ""
+  /admin/ping/:
+    get:
+      tags:
+      - admin/ping
+      description: Ping
+      operationId: PingController.Ping
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
+  /admin/ping/rpc/onemore:
+    get:
+      tags:
+      - admin/ping
+      description: onemore服务是否调通
+      operationId: PingController.onemore服务是否调通
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
+  /admin/ping/rpc/user:
+    get:
+      tags:
+      - admin/ping
+      description: user服务是否调通
+      operationId: PingController.user服务是否调通
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
+        "403":
+          description: :没有该服务
+  /admin/role/:
+    get:
+      tags:
+      - admin/role
+      description: 角色列表
+      operationId: RoleController.Get All
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Role'
+        "403":
+          description: ""
+    post:
+      tags:
+      - admin/role
+      description: 添加角色
+      operationId: RoleController.Post
+      parameters:
+      - in: body
+        name: body
+        description: 角色名称
+        required: true
+        type: string
+      responses:
+        "201":
+          description: '{int} models.Role'
+        "403":
+          description: body is empty
+  /admin/role/{id}:
+    get:
+      tags:
+      - admin/role
+      description: 角色详情
+      operationId: RoleController.角色详情
+      parameters:
+      - in: path
+        name: id
+        description: 角色id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Role'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - admin/role
+      description: 编辑角色
+      operationId: RoleController.Put
+      parameters:
+      - in: path
+        name: id
+        description: 角色ID
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: 角色名称
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Role'
+        "403":
+          description: :id is not int
+  /admin/route/:
+    get:
+      tags:
+      - admin/route
+      description: 路由列表
+      operationId: RouteController.路由列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Route'
+        "403":
+          description: ""
+    post:
+      tags:
+      - admin/route
+      description: 保存路由
+      operationId: RouteController.保存路由
+      parameters:
+      - in: body
+        name: name
+        description: 路由名称
+        type: string
+      - in: body
+        name: route
+        description: 路由
+        type: string
+      responses:
+        "201":
+          description: '{int} models.Route'
+        "403":
+          description: body is empty
+  /admin/route/{id}:
+    get:
+      tags:
+      - admin/route
+      description: 路由详情
+      operationId: RouteController.路由详情
+      parameters:
+      - in: path
+        name: id
+        description: 路由ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Route'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - admin/route
+      description: 编辑路由
+      operationId: RouteController.Put
+      parameters:
+      - in: path
+        name: id
+        description: 路由ID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: name
+        description: 路由名称
+        type: string
+      - in: body
+        name: route
+        description: 路由
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Route'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - admin/route
+      description: 删除路由
+      operationId: RouteController.删除路由
+      parameters:
+      - in: path
+        name: id
+        description: 路由ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+  /admin/student/:
+    get:
+      tags:
+      - admin/student
+      description: 学生列表
+      operationId: StudentController.学生列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: status
+        description: 状态
+        type: integer
+        format: int64
+      - in: query
+        name: search
+        description: 搜索条件
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Student'
+        "403":
+          description: ""
+    post:
+      tags:
+      - admin/student
+      description: 学生-录入信息
+      operationId: StudentController.学生-录入信息
+      parameters:
+      - in: body
+        name: body
+        description: json
+        required: true
+        schema:
+          $ref: '#/definitions/.Animation'
+      responses:
+        "201":
+          description: '{int} models.Student'
+        "403":
+          description: body is empty
+  /admin/student/{id}:
+    get:
+      tags:
+      - admin/student
+      description: 学生详情
+      operationId: StudentController.Get Student Info
+      parameters:
+      - in: query
+        name: student_id
+        description: 学生编号
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Student'
+        "403":
+          description: :学生编号为空
+    put:
+      tags:
+      - admin/student
+      description: 编辑学生
+      operationId: StudentController.编辑学生
+      parameters:
+      - in: path
+        name: id
+        description: 学生编号
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: body
+        description: param(json)
+        required: true
+        schema:
+          $ref: '#/definitions/models.Student'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Student'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - admin/student
+      description: 删除学生
+      operationId: StudentController.DeleteStudent
+      parameters:
+      - in: path
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: status
+        description: 状态(status 0:未分班 2:离园)
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: type
+        description: 删除类型（type 0:学生离园 1:删除档案）
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+  /admin/student/class:
+    get:
+      tags:
+      - admin/student
+      description: 学生班级搜索
+      operationId: StudentController.学生班级搜索
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Student'
+        "403":
+          description: ""
+  /admin/student/invite:
+    post:
+      tags:
+      - admin/student
+      description: 邀请学生/批量邀请
+      operationId: StudentController.邀请学生/批量邀请
+      parameters:
+      - in: body
+        name: phone
+        description: 手机号(json)
+        required: true
+        type: string
+      - in: body
+        name: name
+        description: 学生姓名(json)
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: role
+        description: 身份(json)
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID(json)
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Student'
+        "403":
+          description: body is empty
+  /admin/student/remove:
+    delete:
+      tags:
+      - admin/student
+      description: 移除学生
+      operationId: StudentController.RemoveStudent
+      parameters:
+      - in: path
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: student_id is empty
+  /admin/teacher/:
+    get:
+      tags:
+      - admin/teacher
+      description: 全部教师列表
+      operationId: TeacherController.全部教师列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: status
+        description: 状态
+        type: integer
+        format: int64
+      - in: query
+        name: search
+        description: 搜索条件
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: ""
+    post:
+      tags:
+      - admin/teacher
+      description: 教师-录入信息
+      operationId: TeacherController.教师-录入信息
+      parameters:
+      - in: body
+        name: body
+        description: json
+        required: true
+        schema:
+          $ref: '#/definitions/.Animation'
+      responses:
+        "201":
+          description: '{int} models.Animation'
+        "403":
+          description: body is empty
+  /admin/teacher/{id}:
+    get:
+      tags:
+      - admin/teacher
+      description: 教师详情
+      operationId: TeacherController.Get Teacher Info
+      parameters:
+      - in: query
+        name: teacher_id
+        description: 教师编号
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: :教师编号为空
+    put:
+      tags:
+      - admin/teacher
+      description: 编辑教师
+      operationId: TeacherController.编辑教师
+      parameters:
+      - in: path
+        name: id
+        description: 教师编号
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: body
+        description: param(json)
+        required: true
+        schema:
+          $ref: '#/definitions/.Animation'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Animation'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - admin/teacher
+      description: 删除教师
+      operationId: TeacherController.Delete
+      parameters:
+      - in: path
+        name: teacher_id
+        description: 教师ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: status
+        description: 状态(status 0:未分班 2:离职)
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+  /admin/teacher/class:
+    get:
+      tags:
+      - admin/teacher
+      description: 班级列表
+      operationId: TeacherController.班级列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: ""
+  /admin/teacher/invite:
+    post:
+      tags:
+      - admin/teacher
+      description: 邀请教师/批量邀请
+      operationId: TeacherController.邀请教师/批量邀请
+      parameters:
+      - in: body
+        name: phone
+        description: 手机号
+        required: true
+        type: string
+      - in: body
+        name: name
+        description: 姓名
+        required: true
+        type: string
+      - in: body
+        name: role
+        description: 身份
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Animation'
+        "403":
+          description: body is empty
+  /admin/teacher/organizational_teacher:
+    get:
+      tags:
+      - admin/teacher
+      description: 组织框架教师列表
+      operationId: TeacherController.组织框架教师列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: ""
+  /admin/teacher/remove:
+    delete:
+      tags:
+      - admin/teacher
+      description: 移除教师
+      operationId: TeacherController.移除教师
+      parameters:
+      - in: path
+        name: teacher_id
+        description: 教师ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: teacher_id is empty
+  /admin/teacher/teacher_down/{id}:
+    get:
+      tags:
+      - admin/teacher
+      description: 教师下拉菜单
+      operationId: TeacherController.教师下拉菜单
+      parameters:
+      - in: path
+        name: id
+        description: 幼儿园ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: :id is empty
+  /admin/user_permission/:
+    post:
+      tags:
+      - admin/user_permission
+      description: 设置权限
+      operationId: UserPermissionController.设置权限
+      parameters:
+      - in: body
+        name: user_id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: role
+        description: 角色ID(json)
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: permission
+        description: 权限(json)
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: group
+        description: 圈子(班级类型)(json)
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.UserPermission'
+        "403":
+          description: body is empty
+  /admin/user_permission/{id}:
+    get:
+      tags:
+      - admin/user_permission
+      description: 查看用户权限
+      operationId: UserPermissionController.查看用户权限
+      parameters:
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.UserPermission'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - admin/user_permission
+      description: 更新用户权限
+      operationId: UserPermissionController.更新用户权限
+      parameters:
+      - in: formData
+        name: id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: role
+        description: 角色ID(json)
+        required: true
+        type: string
+      - in: formData
+        name: permission
+        description: 权限ID(json)
+        required: true
+        type: string
+      - in: formData
+        name: group
+        description: 圈子ID(json)
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.UserPermission'
+        "403":
+          description: :id is not int
+  /admin/user_permission/group/{id}:
+    get:
+      tags:
+      - admin/user_permission
+      description: 查看用户圈子权限标识
+      operationId: UserPermissionController.查看用户圈子权限标识
+      parameters:
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.UserPermission'
+        "403":
+          description: :id is empty
+  /admin/user_permission/user/{id}:
+    get:
+      tags:
+      - admin/user_permission
+      description: 查看用户权限标识
+      operationId: UserPermissionController.查看用户权限标识
+      parameters:
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.UserPermission'
+        "403":
+          description: :id is empty
   /organizational/:
     get:
       tags:
@@ -1474,7 +1852,7 @@ paths:
     get:
       tags:
       - organizational_member
-      description: 组织架构成员/admin
+      description: 组织架构成员-admin
       operationId: OrganizationalMemberController.组织架构成员
       parameters:
       - in: body
@@ -1522,1346 +1900,11 @@ paths:
           description: '{int} models.OrganizationalMember'
         "403":
           description: body is empty
-  /organizational_member/member:
-    get:
+    delete:
       tags:
       - organizational_member
-      description: 组织架构成员/web
-      operationId: OrganizationalMemberController.组织架构成员
-      parameters:
-      - in: body
-        name: organizational_id
-        description: 班级ID
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "201":
-          description: '{int} models.OrganizationalMember'
-        "403":
-          description: body is empty
-  /permission/:
-    get:
-      tags:
-      - permission
-      description: 权限列表
-      operationId: PermissionController.权限列表
-      parameters:
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Permission'
-        "403":
-          description: ""
-    post:
-      tags:
-      - permission
-      description: 保存权限
-      operationId: PermissionController.保存权限
-      parameters:
-      - in: body
-        name: name
-        description: 权限名称
-        required: true
-        type: string
-      - in: body
-        name: identification
-        description: 权限标识
-        required: true
-        type: string
-      - in: body
-        name: parent_id
-        description: 父级ID
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: route
-        description: 路由功能
-        type: integer
-        format: int64
-      responses:
-        "201":
-          description: '{int} models.Permission'
-        "403":
-          description: body is empty
-  /permission/{id}:
-    get:
-      tags:
-      - permission
-      description: 权限详情
-      operationId: PermissionController.权限详情
-      parameters:
-      - in: path
-        name: id
-        description: 权限ID
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Permission'
-        "403":
-          description: :id is empty
-  /permission/option:
-    get:
-      tags:
-      - permission
-      description: 权限选项
-      operationId: PermissionController.权限选项
-      parameters:
-      - in: path
-        name: id
-        description: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Permission'
-        "403":
-          description: ""
-  /permission_route/:
-    get:
-      tags:
-      - permission_route
-      description: get PermissionRoute
-      operationId: PermissionRouteController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.PermissionRoute'
-        "403":
-          description: ""
-    post:
-      tags:
-      - permission_route
-      description: create PermissionRoute
-      operationId: PermissionRouteController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for PermissionRoute content
-        required: true
-        schema:
-          $ref: '#/definitions/models.PermissionRoute'
-      responses:
-        "201":
-          description: '{int} models.PermissionRoute'
-        "403":
-          description: body is empty
-  /permission_route/{id}:
-    get:
-      tags:
-      - permission_route
-      description: get PermissionRoute by id
-      operationId: PermissionRouteController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.PermissionRoute'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - permission_route
-      description: update the PermissionRoute
-      operationId: PermissionRouteController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for PermissionRoute content
-        required: true
-        schema:
-          $ref: '#/definitions/models.PermissionRoute'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.PermissionRoute'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - permission_route
-      description: delete the PermissionRoute
-      operationId: PermissionRouteController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /ping/:
-    get:
-      tags:
-      - ping
-      description: Ping
-      operationId: PingController.Ping
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/.OK'
-        "403":
-          description: :没有该服务
-  /ping/rpc/onemore:
-    get:
-      tags:
-      - ping
-      description: onemore服务是否调通
-      operationId: PingController.onemore服务是否调通
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/.OK'
-        "403":
-          description: :没有该服务
-  /ping/rpc/user:
-    get:
-      tags:
-      - ping
-      description: user服务是否调通
-      operationId: PingController.user服务是否调通
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/.OK'
-        "403":
-          description: :没有该服务
-  /role/:
-    get:
-      tags:
-      - role
-      description: 角色列表
-      operationId: RoleController.Get All
-      parameters:
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Role'
-        "403":
-          description: ""
-    post:
-      tags:
-      - role
-      description: 添加角色
-      operationId: RoleController.Post
-      parameters:
-      - in: body
-        name: body
-        description: 角色名称
-        required: true
-        type: string
-      responses:
-        "201":
-          description: '{int} models.Role'
-        "403":
-          description: body is empty
-  /role/{id}:
-    get:
-      tags:
-      - role
-      description: 角色详情
-      operationId: RoleController.角色详情
-      parameters:
-      - in: path
-        name: id
-        description: 角色id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Role'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - role
-      description: 编辑角色
-      operationId: RoleController.Put
-      parameters:
-      - in: path
-        name: id
-        description: 角色ID
-        required: true
-        type: string
-      - in: path
-        name: name
-        description: 角色名称
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Role'
-        "403":
-          description: :id is not int
-  /role_permission/:
-    get:
-      tags:
-      - role_permission
-      description: get RolePermission
-      operationId: RolePermissionController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.RolePermission'
-        "403":
-          description: ""
-    post:
-      tags:
-      - role_permission
-      description: create RolePermission
-      operationId: RolePermissionController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for RolePermission content
-        required: true
-        schema:
-          $ref: '#/definitions/models.RolePermission'
-      responses:
-        "201":
-          description: '{int} models.RolePermission'
-        "403":
-          description: body is empty
-  /role_permission/{id}:
-    get:
-      tags:
-      - role_permission
-      description: get RolePermission by id
-      operationId: RolePermissionController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.RolePermission'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - role_permission
-      description: update the RolePermission
-      operationId: RolePermissionController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for RolePermission content
-        required: true
-        schema:
-          $ref: '#/definitions/models.RolePermission'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.RolePermission'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - role_permission
-      description: delete the RolePermission
-      operationId: RolePermissionController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /route/:
-    get:
-      tags:
-      - route
-      description: 路由列表
-      operationId: RouteController.路由列表
-      parameters:
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Route'
-        "403":
-          description: ""
-    post:
-      tags:
-      - route
-      description: 保存路由
-      operationId: RouteController.保存路由
-      parameters:
-      - in: body
-        name: name
-        description: 路由名称
-        type: string
-      - in: body
-        name: route
-        description: 路由
-        type: string
-      responses:
-        "201":
-          description: '{int} models.Route'
-        "403":
-          description: body is empty
-  /route/{id}:
-    get:
-      tags:
-      - route
-      description: 路由详情
-      operationId: RouteController.路由详情
-      parameters:
-      - in: path
-        name: id
-        description: 路由ID
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Route'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - route
-      description: 编辑路由
-      operationId: RouteController.Put
-      parameters:
-      - in: path
-        name: id
-        description: 路由ID
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: name
-        description: 路由名称
-        type: string
-      - in: body
-        name: route
-        description: 路由
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Route'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - route
-      description: 删除路由
-      operationId: RouteController.删除路由
-      parameters:
-      - in: path
-        name: id
-        description: 路由ID
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /slide_show/:
-    get:
-      tags:
-      - slide_show
-      description: get SlideShow
-      operationId: SlideShowController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.SlideShow'
-        "403":
-          description: ""
-    post:
-      tags:
-      - slide_show
-      description: create SlideShow
-      operationId: SlideShowController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for SlideShow content
-        required: true
-        schema:
-          $ref: '#/definitions/models.SlideShow'
-      responses:
-        "201":
-          description: '{int} models.SlideShow'
-        "403":
-          description: body is empty
-  /slide_show/{id}:
-    get:
-      tags:
-      - slide_show
-      description: get SlideShow by id
-      operationId: SlideShowController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.SlideShow'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - slide_show
-      description: update the SlideShow
-      operationId: SlideShowController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for SlideShow content
-        required: true
-        schema:
-          $ref: '#/definitions/models.SlideShow'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.SlideShow'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - slide_show
-      description: delete the SlideShow
-      operationId: SlideShowController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /student/:
-    get:
-      tags:
-      - student
-      description: 学生列表
-      operationId: StudentController.学生列表
-      parameters:
-      - in: query
-        name: kindergarten_id
-        description: 幼儿园ID
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: status
-        description: 状态
-        type: integer
-        format: int64
-      - in: query
-        name: search
-        description: 搜索条件
-        type: integer
-        format: int64
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Student'
-        "403":
-          description: ""
-    post:
-      tags:
-      - student
-      description: 学生-录入信息
-      operationId: StudentController.学生-录入信息
-      parameters:
-      - in: body
-        name: body
-        description: json
-        required: true
-        schema:
-          $ref: '#/definitions/.Animation'
-      responses:
-        "201":
-          description: '{int} models.Student'
-        "403":
-          description: body is empty
-  /student/{id}:
-    get:
-      tags:
-      - student
-      description: 学生详情
-      operationId: StudentController.Get Student Info
-      parameters:
-      - in: query
-        name: student_id
-        description: 学生编号
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Student'
-        "403":
-          description: :学生编号为空
-    put:
-      tags:
-      - student
-      description: 编辑学生
-      operationId: StudentController.编辑学生
-      parameters:
-      - in: path
-        name: id
-        description: 学生编号
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: body
-        description: param(json)
-        required: true
-        schema:
-          $ref: '#/definitions/models.Student'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Student'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - student
-      description: 删除学生
-      operationId: StudentController.DeleteStudent
-      parameters:
-      - in: path
-        name: student_id
-        description: 学生ID
-        required: true
-        type: integer
-        format: int64
-      - in: path
-        name: status
-        description: 状态(status 0:未分班 2:离园)
-        required: true
-        type: integer
-        format: int64
-      - in: path
-        name: type
-        description: 删除类型（type 0:学生离园 1:删除档案）
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /student/class:
-    get:
-      tags:
-      - student
-      description: 学生班级搜索
-      operationId: StudentController.学生班级搜索
-      parameters:
-      - in: query
-        name: kindergarten_id
-        description: 幼儿园ID
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: class_type
-        description: 班级类型
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Student'
-        "403":
-          description: ""
-  /student/invite:
-    post:
-      tags:
-      - student
-      description: 邀请学生/批量邀请
-      operationId: StudentController.邀请学生/批量邀请
-      parameters:
-      - in: body
-        name: phone
-        description: 手机号(json)
-        required: true
-        type: string
-      - in: body
-        name: name
-        description: 学生姓名(json)
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: role
-        description: 身份(json)
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: kindergarten_id
-        description: 幼儿园ID(json)
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "201":
-          description: '{int} models.Student'
-        "403":
-          description: body is empty
-  /student/remove:
-    delete:
-      tags:
-      - student
-      description: 移除学生
-      operationId: StudentController.RemoveStudent
-      parameters:
-      - in: path
-        name: student_id
-        description: 学生ID
-        required: true
-        type: integer
-        format: int64
-      - in: path
-        name: class_id
-        description: 班级ID
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: student_id is empty
-  /student_ examination/:
-    get:
-      tags:
-      - student_ examination
-      description: get StudentExamination
-      operationId: StudentExaminationController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.StudentExamination'
-        "403":
-          description: ""
-    post:
-      tags:
-      - student_ examination
-      description: create StudentExamination
-      operationId: StudentExaminationController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for StudentExamination content
-        required: true
-        schema:
-          $ref: '#/definitions/models.StudentExamination'
-      responses:
-        "201":
-          description: '{int} models.StudentExamination'
-        "403":
-          description: body is empty
-  /student_ examination/{id}:
-    get:
-      tags:
-      - student_ examination
-      description: get StudentExamination by id
-      operationId: StudentExaminationController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.StudentExamination'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - student_ examination
-      description: update the StudentExamination
-      operationId: StudentExaminationController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for StudentExamination content
-        required: true
-        schema:
-          $ref: '#/definitions/models.StudentExamination'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.StudentExamination'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - student_ examination
-      description: delete the StudentExamination
-      operationId: StudentExaminationController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /student_kindergarten/:
-    get:
-      tags:
-      - student_kindergarten
-      description: get StudentKindergarten
-      operationId: StudentKindergartenController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.StudentKindergarten'
-        "403":
-          description: ""
-    post:
-      tags:
-      - student_kindergarten
-      description: create StudentKindergarten
-      operationId: StudentKindergartenController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for StudentKindergarten content
-        required: true
-        schema:
-          $ref: '#/definitions/models.StudentKindergarten'
-      responses:
-        "201":
-          description: '{int} models.StudentKindergarten'
-        "403":
-          description: body is empty
-  /student_kindergarten/{id}:
-    get:
-      tags:
-      - student_kindergarten
-      description: get StudentKindergarten by id
-      operationId: StudentKindergartenController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.StudentKindergarten'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - student_kindergarten
-      description: update the StudentKindergarten
-      operationId: StudentKindergartenController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for StudentKindergarten content
-        required: true
-        schema:
-          $ref: '#/definitions/models.StudentKindergarten'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.StudentKindergarten'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - student_kindergarten
-      description: delete the StudentKindergarten
-      operationId: StudentKindergartenController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /teacher/:
-    get:
-      tags:
-      - teacher
-      description: 全部教师列表
-      operationId: TeacherController.全部教师列表
-      parameters:
-      - in: query
-        name: kindergarten_id
-        description: 幼儿园ID
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: status
-        description: 状态
-        type: integer
-        format: int64
-      - in: query
-        name: search
-        description: 搜索条件
-        type: integer
-        format: int64
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Teacher'
-        "403":
-          description: ""
-    post:
-      tags:
-      - teacher
-      description: 教师-录入信息
-      operationId: TeacherController.教师-录入信息
-      parameters:
-      - in: body
-        name: body
-        description: json
-        required: true
-        schema:
-          $ref: '#/definitions/.Animation'
-      responses:
-        "201":
-          description: '{int} models.Animation'
-        "403":
-          description: body is empty
-  /teacher/{id}:
-    get:
-      tags:
-      - teacher
-      description: 教师详情
-      operationId: TeacherController.Get Teacher Info
-      parameters:
-      - in: query
-        name: teacher_id
-        description: 教师编号
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Teacher'
-        "403":
-          description: :教师编号为空
-    put:
-      tags:
-      - teacher
-      description: 编辑教师
-      operationId: TeacherController.编辑教师
-      parameters:
-      - in: path
-        name: id
-        description: 教师编号
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: body
-        description: param(json)
-        required: true
-        schema:
-          $ref: '#/definitions/.Animation'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/.Animation'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - teacher
-      description: 删除教师
-      operationId: TeacherController.Delete
-      parameters:
-      - in: path
-        name: teacher_id
-        description: 教师ID
-        required: true
-        type: integer
-        format: int64
-      - in: path
-        name: status
-        description: 状态(status 0:未分班 2:离职)
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /teacher/class:
-    get:
-      tags:
-      - teacher
-      description: 班级列表
-      operationId: TeacherController.班级列表
-      parameters:
-      - in: query
-        name: kindergarten_id
-        description: 幼儿园ID
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: class_type
-        description: 班级类型
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: page
-        description: 页数
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数
-        type: integer
-        format: int64
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Teacher'
-        "403":
-          description: ""
-  /teacher/invite:
-    post:
-      tags:
-      - teacher
-      description: 邀请教师/批量邀请
-      operationId: TeacherController.邀请教师/批量邀请
-      parameters:
-      - in: body
-        name: phone
-        description: 手机号
-        required: true
-        type: string
-      - in: body
-        name: name
-        description: 姓名
-        required: true
-        type: string
-      - in: body
-        name: role
-        description: 身份
-        required: true
-        type: integer
-        format: int64
-      - in: body
-        name: kindergarten_id
-        description: 幼儿园ID
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "201":
-          description: '{int} models.Animation'
-        "403":
-          description: body is empty
-  /teacher/remove:
-    delete:
-      tags:
-      - teacher
-      description: 移除教师
-      operationId: TeacherController.RemoveTeacher
+      description: 移除组织架构成员
+      operationId: OrganizationalMemberController.移除组织架构成员
       parameters:
       - in: path
         name: teacher_id
@@ -2880,255 +1923,99 @@ paths:
           description: '{string} delete success!'
         "403":
           description: teacher_id is empty
-  /teacher/teacher_down/{id}:
+  /organizational_member/member:
     get:
       tags:
-      - teacher
-      description: 教师下拉菜单
-      operationId: TeacherController.教师下拉菜单
+      - organizational_member
+      description: 组织架构成员负责人-web
+      operationId: OrganizationalMemberController.组织架构成员负责人
       parameters:
-      - in: path
-        name: id
+      - in: body
+        name: organizational_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+  /organizational_member/my_kinder:
+    get:
+      tags:
+      - organizational_member
+      description: 我的幼儿园列表-web
+      operationId: OrganizationalMemberController.我的幼儿园列表
+      parameters:
+      - in: body
+        name: kindergarten_id
         description: 幼儿园ID
         required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Teacher'
-        "403":
-          description: :id is empty
-  /teacher_title/:
-    get:
-      tags:
-      - teacher_title
-      description: get TeacherTitle
-      operationId: TeacherTitleController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.TeacherTitle'
-        "403":
-          description: ""
-    post:
-      tags:
-      - teacher_title
-      description: create TeacherTitle
-      operationId: TeacherTitleController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for TeacherTitle content
-        required: true
-        schema:
-          $ref: '#/definitions/models.TeacherTitle'
+        type: integer
+        format: int64
       responses:
         "201":
-          description: '{int} models.TeacherTitle'
+          description: '{int} models.OrganizationalMember'
         "403":
           description: body is empty
-  /teacher_title/{id}:
+  /organizational_member/my_teacher:
     get:
       tags:
-      - teacher_title
-      description: get TeacherTitle by id
-      operationId: TeacherTitleController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.TeacherTitle'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - teacher_title
-      description: update the TeacherTitle
-      operationId: TeacherTitleController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for TeacherTitle content
-        required: true
-        schema:
-          $ref: '#/definitions/models.TeacherTitle'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.TeacherTitle'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - teacher_title
-      description: delete the TeacherTitle
-      operationId: TeacherTitleController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
-  /teachers_show/:
-    get:
-      tags:
-      - teachers_show
-      description: get TeachersShow
-      operationId: TeachersShowController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.TeachersShow'
-        "403":
-          description: ""
-    post:
-      tags:
-      - teachers_show
-      description: create TeachersShow
-      operationId: TeachersShowController.Post
+      - organizational_member
+      description: 我的幼儿园教师-web
+      operationId: OrganizationalMemberController.我的幼儿园教师
       parameters:
       - in: body
-        name: body
-        description: body for TeachersShow content
+        name: organizational_id
+        description: 班级ID
         required: true
-        schema:
-          $ref: '#/definitions/models.TeachersShow'
+        type: integer
+        format: int64
       responses:
         "201":
-          description: '{int} models.TeachersShow'
+          description: '{int} models.OrganizationalMember'
         "403":
           description: body is empty
-  /teachers_show/{id}:
+  /ping/:
     get:
       tags:
-      - teachers_show
-      description: get TeachersShow by id
-      operationId: TeachersShowController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
+      - admin/ping
+      description: Ping
+      operationId: PingController.Ping
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.TeachersShow'
+            $ref: '#/definitions/.OK'
         "403":
-          description: :id is empty
-    put:
+          description: :没有该服务
+  /ping/rpc/onemore:
+    get:
       tags:
-      - teachers_show
-      description: update the TeachersShow
-      operationId: TeachersShowController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for TeachersShow content
-        required: true
-        schema:
-          $ref: '#/definitions/models.TeachersShow'
+      - admin/ping
+      description: onemore服务是否调通
+      operationId: PingController.onemore服务是否调通
       responses:
         "200":
           description: ""
           schema:
-            $ref: '#/definitions/models.TeachersShow'
+            $ref: '#/definitions/.OK'
         "403":
-          description: :id is not int
-    delete:
+          description: :没有该服务
+  /ping/rpc/user:
+    get:
       tags:
-      - teachers_show
-      description: delete the TeachersShow
-      operationId: TeachersShowController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
+      - admin/ping
+      description: user服务是否调通
+      operationId: PingController.user服务是否调通
       responses:
         "200":
-          description: '{string} delete success!'
+          description: ""
+          schema:
+            $ref: '#/definitions/.OK'
         "403":
-          description: id is empty
+          description: :没有该服务
   /user_permission/:
     post:
       tags:
@@ -3191,7 +2078,7 @@ paths:
       operationId: UserPermissionController.更新用户权限
       parameters:
       - in: formData
-        name: user_id
+        name: id
         description: 用户ID
         required: true
         type: integer
@@ -3218,6 +2105,25 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is not int
+  /user_permission/group/{id}:
+    get:
+      tags:
+      - user_permission
+      description: 查看用户圈子权限标识
+      operationId: UserPermissionController.查看用户圈子权限标识
+      parameters:
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.UserPermission'
+        "403":
+          description: :id is empty
   /user_permission/user/{id}:
     get:
       tags:
@@ -3237,121 +2143,6 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is empty
-  /user_role/:
-    get:
-      tags:
-      - user_role
-      description: get UserRole
-      operationId: UserRoleController.Get All
-      parameters:
-      - in: query
-        name: query
-        description: Filter. e.g. col1:v1,col2:v2 ...
-        type: string
-      - in: query
-        name: fields
-        description: Fields returned. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: sortby
-        description: Sorted-by fields. e.g. col1,col2 ...
-        type: string
-      - in: query
-        name: order
-        description: Order corresponding to each sortby field, if single value, apply
-          to all sortby fields. e.g. desc,asc ...
-        type: string
-      - in: query
-        name: limit
-        description: Limit the size of result set. Must be an integer
-        type: string
-      - in: query
-        name: offset
-        description: Start position of result set. Must be an integer
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.UserRole'
-        "403":
-          description: ""
-    post:
-      tags:
-      - user_role
-      description: create UserRole
-      operationId: UserRoleController.Post
-      parameters:
-      - in: body
-        name: body
-        description: body for UserRole content
-        required: true
-        schema:
-          $ref: '#/definitions/models.UserRole'
-      responses:
-        "201":
-          description: '{int} models.UserRole'
-        "403":
-          description: body is empty
-  /user_role/{id}:
-    get:
-      tags:
-      - user_role
-      description: get UserRole by id
-      operationId: UserRoleController.Get One
-      parameters:
-      - in: path
-        name: id
-        description: The key for staticblock
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.UserRole'
-        "403":
-          description: :id is empty
-    put:
-      tags:
-      - user_role
-      description: update the UserRole
-      operationId: UserRoleController.Put
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to update
-        required: true
-        type: string
-      - in: body
-        name: body
-        description: body for UserRole content
-        required: true
-        schema:
-          $ref: '#/definitions/models.UserRole'
-      responses:
-        "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.UserRole'
-        "403":
-          description: :id is not int
-    delete:
-      tags:
-      - user_role
-      description: delete the UserRole
-      operationId: UserRoleController.Delete
-      parameters:
-      - in: path
-        name: id
-        description: The id you want to delete
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{string} delete success!'
-        "403":
-          description: id is empty
 definitions:
   .Animation:
     type: object
@@ -3359,75 +2150,6 @@ definitions:
     type: object
   .boby:
     type: object
-  models.FacilitiesDisplay:
-    title: FacilitiesDisplay
-    type: object
-    properties:
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        type: integer
-        format: int64
-      KindergartenId:
-        description: 幼儿园ID
-        type: integer
-        format: int64
-      Order:
-        description: 排序
-        type: integer
-        format: int64
-      Picture:
-        description: 图片
-        type: string
-      UpdatedAt:
-        type: string
-        format: string
-  models.Grade:
-    title: Grade
-    type: object
-    properties:
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        description: 编号
-        type: integer
-        format: int64
-      KindergartenId:
-        description: 幼儿园编号
-        type: integer
-        format: int64
-      Name:
-        description: 年级名称
-        type: string
-      Status:
-        description: 状态：0:正常，1:删除
-        type: integer
-        format: int32
-      TenantId:
-        description: 租户
-        type: integer
-        format: int64
-      UpdatedAt:
-        type: string
-        format: string
-  models.GroupView:
-    title: GroupView
-    type: object
-    properties:
-      ClassType:
-        type: integer
-        format: int32
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        type: integer
-        format: int64
-      UserId:
-        type: integer
-        format: int64
   models.Kindergarten:
     title: Kindergarten
     type: object
@@ -3476,72 +2198,6 @@ definitions:
       updated_at:
         type: string
         format: string
-  models.KindergartenCourseware:
-    title: KindergartenCourseware
-    type: object
-    properties:
-      CoursewareId:
-        description: 课件编号
-        type: integer
-        format: int64
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        description: 幼儿园文件夹编号
-        type: integer
-        format: int64
-      KindergartenFolderId:
-        description: 幼儿园课件文件夹编号
-        type: integer
-        format: int64
-      KindergartenId:
-        description: 幼儿园编号
-        type: integer
-        format: int64
-      Status:
-        type: integer
-        format: int32
-      TenantId:
-        description: 租户ID
-        type: integer
-        format: int64
-      UpdatedAt:
-        type: string
-        format: string
-  models.KindergartenFolder:
-    title: KindergartenFolder
-    type: object
-    properties:
-      CreatedAt:
-        type: string
-        format: string
-      FolderId:
-        description: 文件夹ID
-        type: integer
-        format: int64
-      FolderName:
-        description: 目录名称
-        type: string
-      Id:
-        description: 幼儿园文件夹编号
-        type: integer
-        format: int64
-      KindergartenId:
-        description: 幼儿园编号
-        type: integer
-        format: int64
-      Status:
-        description: 状态,0正常,1删除
-        type: integer
-        format: int32
-      Type:
-        description: 类型，1上传，2小班，3中班，4大班，5分享中心
-        type: integer
-        format: int32
-      UpdatedAt:
-        type: string
-        format: string
   models.KindergartenLife:
     title: KindergartenLife
     type: object
@@ -3565,121 +2221,6 @@ definitions:
       update_at:
         type: string
         format: string
-  models.Kinship:
-    title: Kinship
-    type: object
-    properties:
-      contact_information:
-        description: 联系方式
-        type: string
-      created_at:
-        type: string
-        format: string
-      kinship_id:
-        description: 编号
-        type: integer
-        format: int64
-      name:
-        description: 名字
-        type: string
-      relation:
-        description: 关系
-        type: string
-      type:
-        description: 类型，1紧急联系人，2监护人
-        type: integer
-        format: int32
-      unit_name:
-        description: 单位名称
-        type: string
-      updated_at:
-        type: string
-        format: string
-      user_id:
-        description: 用户ID
-        type: integer
-        format: int64
-  models.LifePicture:
-    title: LifePicture
-    type: object
-    properties:
-      Id:
-        type: integer
-        format: int64
-      LifeId:
-        description: 园内生活ID
-        type: integer
-        format: int64
-      Number:
-        description: 编号
-        type: integer
-        format: int32
-      Picture:
-        description: 图片地址
-        type: string
-  models.Member:
-    title: Member
-    type: object
-    properties:
-      Address:
-        description: 地址
-        type: string
-      Age:
-        description: 年龄
-        type: integer
-        format: int32
-      Avatar:
-        description: 头像
-        type: string
-      ClassInfo:
-        description: 班级信息
-        type: string
-      CreatedAt:
-        type: string
-        format: string
-      DeletedAt:
-        type: string
-        format: string
-      Id:
-        type: integer
-        format: int64
-      IdNumber:
-        description: 身份证
-        type: string
-      KindergartenId:
-        description: 幼儿园ID
-        type: integer
-        format: int64
-      Name:
-        description: 姓名
-        type: string
-      NationOrReligion:
-        description: 民族或宗教
-        type: string
-      NativePlace:
-        description: 籍贯
-        type: string
-      Number:
-        description: 编号
-        type: string
-      Phone:
-        description: 手机
-        type: string
-      Sex:
-        description: 性别：0男，1女
-        type: integer
-        format: int32
-      Status:
-        description: 状态 0未分班 1已分班 2离园
-        type: integer
-        format: int32
-      UpdatedAt:
-        type: string
-        format: string
-      UserId:
-        description: 用户ID
-        type: integer
-        format: int64
   models.Notice:
     title: Notice
     type: object
@@ -3775,19 +2316,6 @@ definitions:
         description: 修改时间
         type: string
         format: string
-  models.PermissionRoute:
-    title: PermissionRoute
-    type: object
-    properties:
-      id:
-        type: integer
-        format: int64
-      permission_id:
-        type: integer
-        format: int64
-      route_id:
-        type: integer
-        format: int64
   models.Role:
     title: Role
     type: object
@@ -3804,19 +2332,6 @@ definitions:
       updated_at:
         type: string
         format: string
-  models.RolePermission:
-    title: RolePermission
-    type: object
-    properties:
-      id:
-        type: integer
-        format: int64
-      permission_id:
-        type: integer
-        format: int64
-      role_id:
-        type: integer
-        format: int64
   models.Route:
     title: Route
     type: object
@@ -3834,31 +2349,6 @@ definitions:
         description: 路由
         type: string
       updated_at:
-        type: string
-        format: string
-  models.SlideShow:
-    title: SlideShow
-    type: object
-    properties:
-      Content:
-        description: 内容
-        type: string
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        type: integer
-        format: int64
-      KindergartenId:
-        type: integer
-        format: int64
-      Picture:
-        description: 图片
-        type: string
-      Title:
-        description: 标题
-        type: string
-      UpdatedAt:
         type: string
         format: string
   models.Student:
@@ -3894,10 +2384,6 @@ definitions:
         description: 幼儿园ID
         type: integer
         format: int64
-      kinship:
-        type: array
-        items:
-          $ref: '#/definitions/models.Kinship'
       name:
         description: 姓名
         type: string
@@ -3931,98 +2417,6 @@ definitions:
         description: 用户ID
         type: integer
         format: int64
-  models.StudentExamination:
-    title: StudentExamination
-    type: object
-    properties:
-      CreatedAt:
-        type: string
-        format: string
-      Height:
-        description: 身高
-        type: number
-        format: double
-      Id:
-        description: 体检编号
-        type: integer
-        format: int64
-      KindergartenId:
-        description: 幼儿园ID
-        type: integer
-        format: int64
-      Status:
-        description: 状态：0:正常，1:删除
-        type: integer
-        format: int32
-      StudentId:
-        description: 学生ID
-        type: integer
-        format: int64
-      UpdatedAt:
-        type: string
-        format: string
-      Userid:
-        description: 用户ID
-        type: integer
-        format: int64
-      Weight:
-        description: 体重
-        type: number
-        format: double
-  models.StudentKindergarten:
-    title: StudentKindergarten
-    type: object
-    properties:
-      ClassName:
-        description: 班级名称
-        type: string
-      CreatedAt:
-        type: string
-        format: string
-      EnterGardenTime:
-        description: 入园时间
-        type: string
-        format: string
-      Height:
-        type: number
-        format: double
-      Id:
-        type: integer
-        format: int64
-      Identity:
-        type: string
-      InKindergarten:
-        description: 目前是否在园
-        type: string
-      IsExist:
-        description: 是否在系统内
-        type: integer
-        format: int32
-      KindergartenId:
-        description: 幼儿园ID
-        type: integer
-        format: int64
-      KindergartenName:
-        description: 幼儿园名称
-        type: string
-      LeaveTime:
-        description: 离园时间
-        type: string
-        format: string
-      Status:
-        description: 状态：0:正常，1:删除
-        type: integer
-        format: int32
-      StudentId:
-        description: 学生ID
-        type: integer
-        format: int64
-      UpdatedAt:
-        type: string
-        format: string
-      Weight:
-        type: number
-        format: double
   models.Teacher:
     title: Teacher
     type: object
@@ -4114,50 +2508,6 @@ definitions:
         description: 用户id
         type: integer
         format: int64
-  models.TeacherTitle:
-    title: TeacherTitle
-    type: object
-    properties:
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        type: integer
-        format: int64
-      TeacherId:
-        description: 教师ID
-        type: integer
-        format: int64
-      Title:
-        description: 职称
-        type: string
-      UpdatedAt:
-        type: string
-        format: string
-  models.TeachersShow:
-    title: TeachersShow
-    type: object
-    properties:
-      CreatedAt:
-        type: string
-        format: string
-      Id:
-        type: integer
-        format: int64
-      Introduction:
-        description: 介绍
-        type: string
-      KindergartenId:
-        description: 幼儿园ID
-        type: integer
-        format: int64
-      TeacherId:
-        description: 教师ID
-        type: integer
-        format: int64
-      UpdatedAt:
-        type: string
-        format: string
   models.UserPermission:
     title: UserPermission
     type: object
@@ -4171,51 +2521,14 @@ definitions:
       UserId:
         type: integer
         format: int64
-  models.UserRole:
-    title: UserRole
-    type: object
-    properties:
-      Id:
-        type: integer
-        format: int64
-      RoleId:
-        type: integer
-        format: int64
-      UserId:
-        type: integer
-        format: int64
 tags:
-- name: facilities_display
+- name: admin/kindergarten
   description: |
-    FacilitiesDisplayController operations for FacilitiesDisplay
-- name: grade
-  description: |
-    GradeController operations for Grade
-- name: group_view
-  description: |
-    GroupViewController operations for GroupView
-- name: kindergarten
-  description: |
-    KindergartenController operations for Kindergarten
-- name: kindergarten_courseware
-  description: |
-    KindergartenCoursewareController operations for KindergartenCourseware
-- name: kindergarten_folder
-  description: |
-    KindergartenFolderController operations for KindergartenFolder
-- name: kindergarten_life
+    幼儿园
+- name: admin/kindergarten_life
   description: |
     园内生活
-- name: kinship
-  description: |
-    KinshipController operations for Kinship
-- name: life_picture
-  description: |
-    LifePictureController operations for LifePicture
-- name: member
-  description: |
-    MemberController operations for Member
-- name: notice
+- name: admin/notice
   description: |
     发布公告
 - name: organizational
@@ -4224,45 +2537,30 @@ tags:
 - name: organizational_member
   description: |
     组织架构成员
-- name: permission
+- name: admin/organizational
+  description: |
+    组织架构
+- name: admin/organizational_member
+  description: |
+    组织架构成员
+- name: admin/permission
   description: |
     权限
-- name: permission_route
-  description: |
-    PermissionRouteController operations for PermissionRoute
-- name: role
+- name: admin/role
   description: |
     角色
-- name: role_permission
-  description: |
-    RolePermissionController operations for RolePermission
-- name: route
+- name: admin/route
   description: |
     路由
-- name: slide_show
-  description: |
-    SlideShowController operations for SlideShow
-- name: student
+- name: admin/student
   description: |
     学生
-- name: student_ examination
-  description: |
-    StudentExaminationController operations for StudentExamination
-- name: student_kindergarten
-  description: |
-    StudentKindergartenController operations for StudentKindergarten
-- name: teacher
+- name: admin/teacher
   description: |
     教师
-- name: teacher_title
-  description: |
-    TeacherTitleController operations for TeacherTitle
-- name: teachers_show
-  description: |
-    TeachersShowController operations for TeachersShow
 - name: user_permission
   description: |
     用户分配权限
-- name: user_role
+- name: admin/user_permission
   description: |
-    UserRoleController operations for UserRole
+    用户分配权限

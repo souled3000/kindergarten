@@ -27,51 +27,51 @@ func init() {
 添加成员
 */
 func AddMembers(ty int, member_ids string, organizational_id int, is_principal int) (paginatorMap map[string]interface{}, err error) {
-	paginatorMap = make(map[string]interface{})
 	o := orm.NewOrm()
+	o.Begin()
 	var v []orm.Params
-	err = o.Begin()
+	paginatorMap = make(map[string]interface{})
 	s := strings.Split(member_ids, ",")
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("o.*").From("organizational as o").Where("id = ?").String()
 	_, err = o.Raw(sql, organizational_id).Values(&v)
+
 	//组织架构为园长不能添加
 	if v[0]["type"] == "1" && v[0]["is_fixed"] == "1" {
 		err = errors.New("不能添加")
 		return nil, err
-	}
-	for _, value := range s {
-		sql := "insert into organizational_member set organizational_id = ?,type = ?,member_id = ?,is_principal = ?"
-		_, err = o.Raw(sql, organizational_id, ty, value, is_principal).Exec()
-		if err == nil {
-			if v[0]["type"] == "2" && v[0]["level"] == "3" {
-				//0教师 1学生
-				if ty == 0 {
-					_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
-						"status": 1,
-					})
-					if err != nil {
-						err = o.Rollback()
-					}
-				} else {
-					_, err := o.QueryTable("student").Filter("student_id", value).Update(orm.Params{
-						"status": 1,
-					})
-					if err != nil {
-						err = o.Rollback()
+	} else {
+		for _, value := range s {
+
+			sql := "insert into organizational_member set organizational_id = ?,type = ?,member_id = ?,is_principal = ?"
+			_, err = o.Raw(sql, organizational_id, ty, value, is_principal).Exec()
+			if err == nil {
+				if v[0]["type"] == "2" && v[0]["level"] == "3" {
+					//0教师 1学生
+					if ty == 0 {
+						_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
+							"status": 1,
+						})
+						if err != nil {
+							o.Rollback()
+							return nil, err
+						}
+					} else {
+						_, err := o.QueryTable("student").Filter("student_id", value).Update(orm.Params{
+							"status": 1,
+						})
+						if err != nil {
+							o.Rollback()
+							return nil, err
+						}
 					}
 				}
 			}
 		}
-	}
-	if err == nil {
-		err = o.Commit()
-	} else {
-		err = o.Rollback()
-	}
-	if err == nil {
-		paginatorMap["data"] = nil //返回数据
-		return paginatorMap, nil
+		if err == nil {
+			o.Commit()
+			return nil, err
+		}
 	}
 	err = errors.New("保存失败")
 	return nil, err
@@ -105,13 +105,13 @@ func GetWebMembers(organizational_id int) (paginatorMap map[string]interface{}, 
 	var principal []orm.Params
 	var noprincipal []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type").From("organizational_member as om").LeftJoin("teacher as t").
+	sql := qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type", "t.phone", "t.teacher_id").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.is_principal = 1").And("om.type = 0").String()
 	_, err = o.Raw(sql, organizational_id).Values(&principal)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type").From("organizational_member as om").LeftJoin("teacher as t").
+	sql = qb.Select("t.avatar", "t.name", "o.name as title", "t.user_id", "o.is_fixed", "o.level", "o.type", "t.phone", "t.teacher_id").From("organizational_member as om").LeftJoin("teacher as t").
 		On("om.member_id = t.teacher_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.is_principal = 0").And("om.type = 0").String()
 	_, err = o.Raw(sql, organizational_id).Values(&noprincipal)
@@ -170,4 +170,49 @@ func MyKinder(kindergarten_id int) (paginatorMap map[string]interface{}, err err
 	}
 	err = errors.New("暂无幼儿园信息")
 	return nil, err
+}
+
+/*
+组织框架移除教师
+*/
+func DestroyMember(teacher_id int, class_id int) error {
+	o := orm.NewOrm()
+	var or []orm.Params
+	var om []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("om.*").From("organizational_member as om").Where("om.organizational_id = ?").And("om.member_id = ?").String()
+	_, err := o.Raw(sql, class_id, teacher_id).Values(&om)
+	if om == nil {
+		err = errors.New("成员不存在")
+		return err
+	}
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("o.*").From("organizational as o").Where("o.id = ?").String()
+	_, err = o.Raw(sql, class_id).Values(&or)
+	//组织架构为园长不能删除
+	if or[0]["type"].(string) == "1" && or[0]["is_fixed"] == "1" {
+		err = errors.New("不能删除")
+		return err
+	} else {
+		//组织架构类型是年级组并且是第三级需要设置教师或者学生状态为未分配班级
+		if or[0]["type"].(string) == "2" && or[0]["level"] == "3" {
+			if om[0]["type"] == 0 {
+				o.QueryTable("teacher").Filter("teacher_id", teacher_id).Update(orm.Params{
+					"status": 0,
+				})
+			} else {
+				o.QueryTable("student").Filter("student_id", teacher_id).Update(orm.Params{
+					"status": 0,
+				})
+			}
+			_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
+		} else {
+			_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
+		}
+	}
+	if err == nil {
+		return nil
+	}
+	err = errors.New("移除失败")
+	return err
 }

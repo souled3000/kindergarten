@@ -85,17 +85,13 @@ func GetKindergartenLifeInfo(id int) map[string]interface{} {
 /*
 web-删除园内生活
 */
-func DeleteKindergartenLife(id int) map[string]interface{} {
+func DeleteKindergartenLife(id int) (err error) {
 	o := orm.NewOrm()
 	v := KindergartenLife{Id: id}
-	// ascertain id exists in the database
-	if err := o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&KindergartenLife{Id: id}); err == nil {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["data"] = num //返回数据
-			return paginatorMap
+	if err = o.Read(&v); err == nil {
+		if _, err = o.Delete(&KindergartenLife{Id: id}); err == nil {
+			return nil
 		}
 	}
-	return nil
+	return err
 }
