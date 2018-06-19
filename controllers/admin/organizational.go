@@ -167,7 +167,7 @@ func (o *OrganizationalController) GetOrganization() {
 // @Param	parent_id           query	int	         true		"父级ID"
 // @Param	kindergarten_id     query	int	         true		"幼儿园ID"
 // @Param	name                query	string	     true		"组织架构名字"
-// @Param	type                query	int	         true		"类型"
+// @Param	type                query	int	         true		"类型(0 普通 1管理层 2年级组)"
 // @Success 200 {object} models.Organizational
 // @Failure 403
 // @router /addorgan [post]

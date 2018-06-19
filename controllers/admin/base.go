@@ -13,12 +13,12 @@ type BaseController struct {
 }
 
 //func (c *BaseController) Prepare() {
-//	u_id := 2726
+//	u_id := 2888
 //	//	u_id, _ := c.GetInt("u_id")
 //	Url, err := models.GetPermissionRoute(u_id)
-//	fmt.Println(Url)
 //	controller, action := c.GetControllerAndAction()
 //	route := "" + controller + "." + action + ""
+//	fmt.Println(route)
 //	if err == nil {
 //		tmp := false
 //		for _, v := range Url {

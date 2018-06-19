@@ -378,7 +378,7 @@ paths:
         type: string
       - in: query
         name: type
-        description: 类型
+        description: 类型(0 普通 1管理层 2年级组)
         required: true
         type: integer
         format: int64

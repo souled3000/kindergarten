@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/astaxie/beego/orm"
@@ -32,17 +33,23 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 	var v []orm.Params
 	paginatorMap = make(map[string]interface{})
 	s := strings.Split(member_ids, ",")
+	fmt.Println(s)
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("o.*").From("organizational as o").Where("id = ?").String()
 	_, err = o.Raw(sql, organizational_id).Values(&v)
-
+	if v == nil {
+		err = errors.New("没有该班级")
+		return nil, err
+	}
 	//组织架构为园长不能添加
 	if v[0]["type"] == "1" && v[0]["is_fixed"] == "1" {
 		err = errors.New("不能添加")
 		return nil, err
 	} else {
 		for _, value := range s {
-
+			if value == "" {
+				break
+			}
 			sql := "insert into organizational_member set organizational_id = ?,type = ?,member_id = ?,is_principal = ?"
 			_, err = o.Raw(sql, organizational_id, ty, value, is_principal).Exec()
 			if err == nil {
@@ -72,7 +79,6 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 			o.Commit()
 			return nil, err
 		}
-
 	}
 	err = errors.New("保存失败")
 	return nil, err
@@ -190,6 +196,10 @@ func DestroyMember(teacher_id int, class_id int) error {
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("o.*").From("organizational as o").Where("o.id = ?").String()
 	_, err = o.Raw(sql, class_id).Values(&or)
+	if or == nil {
+		err = errors.New("班级不存在")
+		return err
+	}
 	//组织架构为园长不能删除
 	if or[0]["type"].(string) == "1" && or[0]["is_fixed"] == "1" {
 		err = errors.New("不能删除")
