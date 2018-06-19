@@ -122,7 +122,7 @@ func (c *OrganizationalMemberController) WebOrganizationList() {
 	}
 }
 
-// MyKindergarten ...
+// MyKinderTeacher ...
 // @Title 我的幼儿园教师
 // @Description 我的幼儿园教师-web
 // @Param	organizational_id		body 	int	    true		"班级ID"
