@@ -215,12 +215,17 @@ func (c *StudentController) Invite() {
 					password = User.Encrypt(vcode)
 					_, err := User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
 					if err == nil {
-						_, err := Onemore.Send(value.Phone, text)
+						res, err := Onemore.Send(value.Phone, text)
 						if err == nil {
-							c.Data["json"] = JSONStruct{"success", 0, nil, "发送成功"}
-							c.ServeJSON()
+							if int(res["code"].(float64)) == 0 {
+								c.Data["json"] = JSONStruct{"success", 0, nil, res["msg"].(string)}
+								c.ServeJSON()
+							} else {
+								c.Data["json"] = JSONStruct{"error", 1001, nil, res["msg"].(string)}
+								c.ServeJSON()
+							}
 						} else {
-							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送失败"}
+							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送有误"}
 							c.ServeJSON()
 						}
 					}
