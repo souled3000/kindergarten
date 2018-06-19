@@ -72,6 +72,7 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 			o.Commit()
 			return nil, err
 		}
+
 	}
 	err = errors.New("保存失败")
 	return nil, err

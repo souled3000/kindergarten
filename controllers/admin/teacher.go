@@ -24,7 +24,6 @@ type UserService struct {
 	GetUK    func(string) error
 	Encrypt  func(string) string
 	Test     func() string
-	UserSave func(userId int) error
 	CreateUK func(userId int, kindergartenId int, role int) (int64, error)
 	Create   func(phone string, name string, password string, kindergartenId int, role int) (interface{}, error)
 }
@@ -327,20 +326,24 @@ func (c *TeacherController) Invite() {
 // @Title 组织框架教师列表
 // @Description 组织框架教师列表
 // @Param	kindergarten_id       query	int	     true		"幼儿园ID"
-// @Param	page                  query	int	     false		"页数"
-// @Param	per_page              query	int	     false		"每页显示条数"
+// @Param	type                  query	int	     true		"年级组标识(1 年级组)"
+// @Param	person                query	int	     true		"是否为负责人(1 负责 2 不是负责人)"
 // @Success 200 {object} models.Teacher
 // @Failure 403
 // @router /organizational_teacher [get]
 func (c *TeacherController) OrganizationalTeacher() {
+	ty, _ := c.GetInt("type")
+	person, _ := c.GetInt("person")
+	class_id, _ := c.GetInt("class_id")
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	valid := validation.Validation{}
+	valid.Required(person, "person").Message("身份不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v := models.OrganizationalTeacher(kindergarten_id)
+		v := models.OrganizationalTeacher(kindergarten_id, ty, person, class_id)
 		if v == nil {
 			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 		} else {

@@ -40,8 +40,11 @@ type Teacher struct {
 }
 
 type UserService struct {
-	UpdateUK      func(userId int) error
-	GetUKByUserId func(userId int) (interface{}, error)
+	UpdateUK       func(userId int) error
+	UpdateByUkId   func(ukId int, userId int, kindergartenId int, role int) error
+	GetUKByUserId  func(userId int) (interface{}, error)
+	GetOneByUserId func(userId int) (interface{}, error)
+	CreateUK       func(userId int, kindergartenId int, role int) (int64, error)
 }
 
 func (t *Teacher) TableName() string {
@@ -151,7 +154,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 	// 构建查询对象
 	sql := qb.Select("count(*)").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("status = 1").And("isnull(deleted_at)").String()
+		On("om.organizational_id = o.id").Where(where).And("t.status = 1").And("o.type = 2").And("o.level = 3").And("isnull(deleted_at)").String()
 	var total int64
 	err := o.Raw(sql, condition).QueryRow(&total)
 	if err == nil {
@@ -168,7 +171,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "o.name as class").From("teacher as t").LeftJoin("organizational_member as om").
 			On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").And("status = 1").Limit(prepage).Offset(limit).String()
+			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").And("o.type = 2").And("o.level = 3").And("status = 1").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
@@ -308,17 +311,54 @@ func RemoveTeacher(teacher_id int, class_id int) map[string]interface{} {
 /*
 教师列表
 */
-func OrganizationalTeacher(id int) map[string]interface{} {
+func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]interface{} {
 	o := orm.NewOrm()
 	var v []orm.Params
-	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
-		From("teacher as t").Where("kindergarten_id = ?").And("isnull(deleted_at)").String()
-	num, err := o.Raw(sql, id).Values(&v)
-	if err == nil && num > 0 {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = v
-		return paginatorMap
+	var teacher []orm.Params
+	var condition []interface{}
+	where := "1=1 "
+	paginatorMap := make(map[string]interface{})
+	if ty == 2 {
+		if person == 1 {
+			qb, _ := orm.NewQueryBuilder("mysql")
+			sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
+				From("teacher as t").Where("kindergarten_id = ?").And("isnull(deleted_at)").And("status = 0").String()
+			_, err := o.Raw(sql, id).Values(&v)
+
+			if class_id > 0 {
+				where += " AND om.organizational_id = ?"
+				condition = append(condition, class_id)
+			}
+			qb, _ = orm.NewQueryBuilder("mysql")
+			sql = qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "om.id").From("teacher as t").LeftJoin("organizational_member as om").
+				On("t.teacher_id = om.member_id").Where(where).And("om.type = 0").And("is_principal = 0").String()
+			_, err = o.Raw(sql, condition).Values(&teacher)
+			for _, val := range teacher {
+				v = append(v, val)
+			}
+			if err == nil {
+				paginatorMap["data"] = v
+				return paginatorMap
+			}
+		} else {
+			qb, _ := orm.NewQueryBuilder("mysql")
+			sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
+				From("teacher as t").Where("kindergarten_id = ?").And("isnull(deleted_at)").And("status = 0").String()
+			num, err := o.Raw(sql, id).Values(&v)
+			if err == nil && num > 0 {
+				paginatorMap["data"] = v
+				return paginatorMap
+			}
+		}
+	} else {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
+			From("teacher as t").Where("kindergarten_id = ?").And("isnull(deleted_at)").String()
+		num, err := o.Raw(sql, id).Values(&v)
+		if err == nil && num > 0 {
+			paginatorMap["data"] = v
+			return paginatorMap
+		}
 	}
 	return nil
 }
