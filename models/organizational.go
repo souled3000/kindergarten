@@ -86,7 +86,7 @@ func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) (pa
 		}
 		limit := (page - 1) * prepage
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("*").From("organizational").Where(where).Limit(prepage).Offset(limit).String()
+		sql := qb.Select("*").From("organizational").Where(where).And("type = 2").And("level = 3").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
@@ -238,13 +238,15 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("max(CONVERT(o.name,SIGNED)) as m").From("organizational as o").Where(where).And("type = 2").And("level = 3").String()
 	_, err = o.Raw(sql, condition).Values(&max_name)
+	if max_name[0]["m"] == nil {
+		max_name[0]["m"] = "0"
+	}
+	fmt.Println(max_name)
 	m := max_name[0]["m"].(string)
 	//班级号
 	ml := strings.Replace(m, "班", "", -1)
-	fmt.Println(ml)
 	new_name, _ := strconv.Atoi(ml)
 	name_number := new_name + 1
-	fmt.Println(name_number)
 	name := strconv.Itoa(name_number)
 	if num == 0 {
 		err = errors.New("班级不存在")

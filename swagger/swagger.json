@@ -21,7 +21,7 @@
                     "admin/kindergarten"
                 ],
                 "description": "设置园长",
-                "operationId": "KindergartenController.设置园长",
+                "operationId": "KindergartenController.添加园长/教师/学生到幼儿园 未激活状态",
                 "parameters": [
                     {
                         "in": "path",
@@ -42,7 +42,7 @@
                     {
                         "in": "path",
                         "name": "role",
-                        "description": "身份",
+                        "description": "身份（1 园长 5 ）",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -1966,15 +1966,17 @@
                     },
                     {
                         "in": "query",
-                        "name": "page",
-                        "description": "页数",
+                        "name": "type",
+                        "description": "年级组标识(1 年级组)",
+                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     },
                     {
                         "in": "query",
-                        "name": "per_page",
-                        "description": "每页显示条数",
+                        "name": "person",
+                        "description": "是否为负责人(1 负责 2 不是负责人)",
+                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     }

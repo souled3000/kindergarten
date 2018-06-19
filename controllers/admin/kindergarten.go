@@ -34,11 +34,11 @@ func (c *KindergartenController) GetIntroduceInfo() {
 }
 
 // SetPrincipal ...
-// @Title 设置园长
+// @Title 添加园长/教师/学生到幼儿园 未激活状态
 // @Description 设置园长
 // @Param	user_id		        path 	int	true		"用户ID"
 // @Param	kindergarten_id		path 	int	true		"幼儿园ID"
-// @Param	role		        path 	int	true		"身份"
+// @Param	role		        path 	int	true		"身份（1 园长 5 ）"
 // @Success 200 {object} models.Kindergarten
 // @Failure 403 :id is empty
 // @router / [post]
@@ -47,6 +47,7 @@ func (c *KindergartenController) SetPrincipal() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	role, _ := c.GetInt("role")
 	valid := validation.Validation{}
+	//	valid.Required(role, "role").Message("身份不能为空")
 	valid.Required(user_id, "user_id").Message("用户ID不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	if valid.HasErrors() {
