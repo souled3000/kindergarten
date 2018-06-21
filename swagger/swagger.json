@@ -16,6 +16,40 @@
     "basePath": "/api/v2/kg",
     "paths": {
         "/admin/kindergarten/": {
+            "get": {
+                "tags": [
+                    "admin/kindergarten"
+                ],
+                "description": "幼儿园列表",
+                "operationId": "KindergartenController.幼儿园列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Kindergarten"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "admin/kindergarten"
