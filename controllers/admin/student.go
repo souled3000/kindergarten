@@ -80,8 +80,8 @@ func (c *StudentController) GetStudentClass() {
 func (c *StudentController) RemoveStudent() {
 	student_id, _ := c.GetInt("student_id")
 	class_id, _ := c.GetInt("class_id")
-	v := models.RemoveStudent(class_id, student_id)
-	if v == nil {
+	err := models.RemoveStudent(class_id, student_id)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1004, nil, "移除失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "移除成功"}

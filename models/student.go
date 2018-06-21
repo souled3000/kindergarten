@@ -67,9 +67,7 @@ func GetStudent(id int, status int, search string, page int, prepage int) map[st
 	qb, _ := orm.NewQueryBuilder("mysql")
 
 	// 构建查询对象
-	sql := qb.Select("count(*)").From("student as s").LeftJoin("organizational_member as om").
-		On("s.student_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").String()
+	sql := qb.Select("count(*)").From("student as s").Where(where).And("isnull(deleted_at)").String()
 	var total int64
 	err := o.Raw(sql, condition).QueryRow(&total)
 	if err == nil {
@@ -84,9 +82,8 @@ func GetStudent(id int, status int, search string, page int, prepage int) map[st
 		}
 		limit := (page - 1) * prepage
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("s.name", "s.avatar", "s.student_id", "s.number", "s.phone", "o.name as class").From("student as s").LeftJoin("organizational_member as om").
-			On("s.student_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").Limit(prepage).Offset(limit).String()
+		sql := qb.Select("s.name", "s.avatar", "s.student_id", "s.number", "s.phone").
+			From("student as s").Where(where).And("isnull(deleted_at)").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
@@ -178,7 +175,7 @@ func DeleteStudent(id int, status int, ty int, class_type int) map[string]interf
 			v.Status = 0
 		}
 		if _, err = o.Update(&v); err == nil {
-			_, err = o.QueryTable("organizaional_member").Filter("member_id", id).Delete()
+			_, err = o.QueryTable("organizational_member").Filter("member_id", id).Delete()
 			paginatorMap := make(map[string]interface{})
 			paginatorMap["data"] = nil //返回数据
 			return paginatorMap
@@ -292,25 +289,25 @@ func AddStudent(student string, kinship string) (paginatorMap map[string]interfa
 /*
 移除学生
 */
-func RemoveStudent(class_id int, student_id int) map[string]interface{} {
+func RemoveStudent(class_id int, student_id int) error {
 	o := orm.NewOrm()
-	err := o.Begin()
-	_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", student_id).Delete()
+	o.Begin()
+	_, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", student_id).Delete()
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return err
 	}
-	num, err := o.QueryTable("student").Filter("student_id", student_id).Update(orm.Params{
+	_, err = o.QueryTable("student").Filter("student_id", student_id).Update(orm.Params{
 		"status": 0,
 	})
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return err
 	} else {
-		err = o.Commit()
+		o.Commit()
 	}
-	if err == nil && num > 0 {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = num //返回数据
-		return paginatorMap
+	if err == nil {
+		return nil
 	}
-	return nil
+	return err
 }

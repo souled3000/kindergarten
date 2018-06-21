@@ -169,3 +169,44 @@ func AddPrincipal(user_id int, kindergarten_id int, role int) error {
 	}
 	return err
 }
+
+/*
+学生列表
+*/
+func GetAll(page int, prepage int, search string) map[string]interface{} {
+	o := orm.NewOrm()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	var condition []interface{}
+	where := "1=1 "
+	if search != "" {
+		where += " AND name like ?"
+		condition = append(condition, "%"+search+"%")
+	}
+	// 构建查询对象
+	sql := qb.Select("count(*)").From("kindergarten").Where(where).String()
+	var total int64
+	err := o.Raw(sql, condition).QueryRow(&total)
+	if err == nil {
+		var v []orm.Params
+		//根据nums总数，和prepage每页数量 生成分页总数
+		totalpages := int(math.Ceil(float64(total) / float64(prepage))) //page总数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("*").From("kindergarten").Where(where).Limit(prepage).Offset(limit).String()
+		num, err := o.Raw(sql, condition).Values(&v)
+		if err == nil && num > 0 {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = total         //总条数
+			paginatorMap["data"] = v              //分页数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
+		}
+	}
+	return nil
+}

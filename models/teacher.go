@@ -100,9 +100,7 @@ func GetTeacher(id int, status int, search string, page int, prepage int) map[st
 	qb, _ := orm.NewQueryBuilder("mysql")
 
 	// 构建查询对象
-	sql := qb.Select("count(*)").From("teacher as t").LeftJoin("organizational_member as om").
-		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").String()
+	sql := qb.Select("count(*)").From("teacher as t").Where(where).And("isnull(deleted_at)").String()
 	var total int64
 	err := o.Raw(sql, condition).QueryRow(&total)
 	if err == nil {
@@ -117,9 +115,8 @@ func GetTeacher(id int, status int, search string, page int, prepage int) map[st
 		}
 		limit := (page - 1) * prepage
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "o.name as class").From("teacher as t").LeftJoin("organizational_member as om").
-			On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").Limit(prepage).Offset(limit).String()
+		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
+			From("teacher as t").Where(where).And("isnull(deleted_at)").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
@@ -154,7 +151,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 	// 构建查询对象
 	sql := qb.Select("count(*)").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where(where).And("t.status = 1").And("o.type = 2").And("o.level = 3").And("is_principal = 0").And("isnull(deleted_at)").String()
+		On("om.organizational_id = o.id").Where(where).And("t.status = 1").And("o.type = 2").And("o.level = 3").And("om.is_principal = 0").And("isnull(deleted_at)").String()
 	var total int64
 	err := o.Raw(sql, condition).QueryRow(&total)
 	if err == nil {
@@ -171,7 +168,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "o.name as class").From("teacher as t").LeftJoin("organizational_member as om").
 			On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").And("is_principal = 0").And("o.type = 2").And("o.level = 3").And("status = 1").Limit(prepage).Offset(limit).String()
+			On("om.organizational_id = o.id").Where(where).And("isnull(deleted_at)").And("om.is_principal = 0").And("o.type = 2").And("o.level = 3").And("status = 1").Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
