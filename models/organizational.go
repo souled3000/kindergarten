@@ -66,10 +66,6 @@ func GetClassAll(kindergarten_id int, class_type int, page int, prepage int) (pa
 		where += " AND class_type = ?"
 		condition = append(condition, class_type)
 	}
-	//	where += " AND type = ?"
-	//	condition = append(condition, 2)
-	//	where += " AND level = ?"
-	//	condition = append(condition, 3)
 	// 构建查询对象
 	sql := qb.Select("count(*)").From("organizational").Where(where).And("type = 2").And("level = 3").String()
 	var total int64

@@ -63,3 +63,24 @@ func (c *KindergartenController) SetPrincipal() {
 		c.ServeJSON()
 	}
 }
+
+// GetAll ...
+// @Title 幼儿园列表
+// @Description 幼儿园列表
+// @Param	page                  query	int	     false		"页数"
+// @Param	per_page              query	int	     false		"每页显示条数"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403
+// @router / [get]
+func (c *KindergartenController) GetAll() {
+	search := c.GetString("search")
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	v := models.GetAll(page, prepage, search)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+	}
+	c.ServeJSON()
+}

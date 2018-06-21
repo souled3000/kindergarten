@@ -36,7 +36,7 @@ func (c *KindergartenServer) GetKg(user_id int, kindergarten_id int) (value map[
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("o.id as class_id", "o.name as class_name").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where("t.user_id = ?").String()
+		On("om.organizational_id = o.id").Where("t.user_id = ?").And("o.type = 2").And("o.level = 3").String()
 	_, err = o.Raw(sql, user_id).Values(&v)
 	if err == nil {
 		value := v[0]
