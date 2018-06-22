@@ -85,6 +85,36 @@ paths:
             $ref: '#/definitions/models.Kindergarten'
         "403":
           description: :id is empty
+  /admin/kindergarten/student_class:
+    get:
+      tags:
+      - admin/kindergarten
+      description: 学生姓名搜索班级
+      operationId: KindergartenController.学生姓名搜索班级
+      parameters:
+      - in: query
+        name: name
+        description: 姓名
+        required: true
+        schema:
+          $ref: '#/definitions/.name'
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: ""
   /admin/kindergarten_life/:
     get:
       tags:
@@ -2174,6 +2204,8 @@ definitions:
   .OK:
     type: object
   .boby:
+    type: object
+  .name:
     type: object
   models.Kindergarten:
     title: Kindergarten

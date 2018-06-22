@@ -171,7 +171,7 @@ func AddPrincipal(user_id int, kindergarten_id int, role int) error {
 }
 
 /*
-学生列表
+oms幼儿园列表
 */
 func GetAll(page int, prepage int, search string) map[string]interface{} {
 	o := orm.NewOrm()
@@ -200,6 +200,45 @@ func GetAll(page int, prepage int, search string) map[string]interface{} {
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("*").From("kindergarten").Where(where).Limit(prepage).Offset(limit).String()
 		num, err := o.Raw(sql, condition).Values(&v)
+		if err == nil && num > 0 {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["total"] = total         //总条数
+			paginatorMap["data"] = v              //分页数据
+			paginatorMap["page_num"] = totalpages //总页数
+			return paginatorMap
+		}
+	}
+	return nil
+}
+
+/*
+学生姓名搜索班级
+*/
+func StudentClass(page int, prepage int, name string) map[string]interface{} {
+	o := orm.NewOrm()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	// 构建查询对象
+	sql := qb.Select("count(*)").From("organizational_member as om").LeftJoin("student as t").
+		On("om.member_id = t.student_id").LeftJoin("organizational as o").
+		On("o.id = om.organizational_id").Where("t.name = ?").And("om.type = 1").String()
+	var total int64
+	err := o.Raw(sql, name).QueryRow(&total)
+	if err == nil {
+		var v []orm.Params
+		//根据nums总数，和prepage每页数量 生成分页总数
+		totalpages := int(math.Ceil(float64(total) / float64(prepage))) //page总数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("o.id as class_id", "o.name as class_name").From("organizational_member as om").LeftJoin("student as t").
+			On("om.member_id = t.student_id").LeftJoin("organizational as o").
+			On("o.id = om.organizational_id").Where("t.name = ?").And("om.type = 1").Limit(prepage).Offset(limit).String()
+		num, err := o.Raw(sql, name).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
 			paginatorMap["total"] = total         //总条数
