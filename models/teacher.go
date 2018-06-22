@@ -328,8 +328,8 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]
 			}
 			qb, _ = orm.NewQueryBuilder("mysql")
 			sql = qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone", "om.id").From("teacher as t").LeftJoin("organizational_member as om").
-				On("t.teacher_id = om.member_id").Where(where).And("om.type = 0").And("is_principal = 0").String()
-			_, err = o.Raw(sql, condition).Values(&teacher)
+				On("t.teacher_id = om.member_id").Where(where).And("t.kindergarten_id = ?").And("om.type = 0").And("is_principal = 0").String()
+			_, err = o.Raw(sql, condition, id).Values(&teacher)
 			for _, val := range teacher {
 				v = append(v, val)
 			}

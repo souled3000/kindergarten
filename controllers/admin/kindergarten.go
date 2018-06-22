@@ -84,3 +84,32 @@ func (c *KindergartenController) GetAll() {
 	}
 	c.ServeJSON()
 }
+
+// StudentClass ...
+// @Title 学生姓名搜索班级
+// @Description 学生姓名搜索班级
+// @Param	name                  query	name	     true		"姓名"
+// @Param	page                  query	int	     false		"页数"
+// @Param	per_page              query	int	     false		"每页显示条数"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403
+// @router /student_class [get]
+func (c *KindergartenController) StudentClass() {
+	name := c.GetString("name")
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	valid := validation.Validation{}
+	valid.Required(name, "name").Message("学生姓名不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v := models.StudentClass(page, prepage, name)
+		if v == nil {
+			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}
