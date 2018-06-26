@@ -1614,6 +1614,271 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is empty
+  /healthy/class/:
+    get:
+      tags:
+      - healthy/class
+      description: get Class
+      operationId: ClassController.GetAll
+      parameters:
+      - in: query
+        name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: fields
+        description: Fields returned. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: sortby
+        description: Sorted-by fields. e.g. col1,col2 ...
+        type: string
+      - in: query
+        name: order
+        description: Order corresponding to each sortby field, if single value, apply
+          to all sortby fields. e.g. desc,asc ...
+        type: string
+      - in: query
+        name: limit
+        description: Limit the size of result set. Must be an integer
+        type: string
+      - in: query
+        name: offset
+        description: Start position of result set. Must be an integer
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Class'
+        "403":
+          description: ""
+    post:
+      tags:
+      - healthy/class
+      description: create Class
+      operationId: ClassController.Create
+      parameters:
+      - in: body
+        name: body
+        description: body for Class content
+        required: true
+        schema:
+          $ref: '#/definitions/.Class'
+      responses:
+        "201":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Class'
+        "403":
+          description: body is empty
+  /healthy/class/{id}:
+    get:
+      tags:
+      - healthy/class
+      description: get Class by id
+      operationId: ClassController.GetOne
+      parameters:
+      - in: path
+        name: id
+        description: The key for staticblock
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Class'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - healthy/class
+      description: update the Class
+      operationId: ClassController.Put
+      parameters:
+      - in: path
+        name: id
+        description: The id you want to update
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: body for Class content
+        required: true
+        schema:
+          $ref: '#/definitions/.Class'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Class'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - healthy/class
+      description: delete the Class
+      operationId: ClassController.Delete
+      parameters:
+      - in: path
+        name: id
+        description: The id you want to delete
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+  /healthy/drug/:
+    post:
+      tags:
+      - healthy/drug
+      description: 添加喂药申请
+      operationId: DrugController.添加喂药申请
+      parameters:
+      - in: formData
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: drug
+        description: 药品
+        required: true
+        type: string
+      - in: formData
+        name: explain
+        description: 用量说明
+        required: true
+        type: string
+      - in: formData
+        name: symptom
+        description: 症状
+        required: true
+        type: string
+      - in: formData
+        name: user_id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
+        "1003":
+          description: 保存失败
+  /healthy/inspect/:
+    get:
+      tags:
+      - healthy/inspect
+      description: 餐检列表
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/.SxWorks'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
+    post:
+      tags:
+      - healthy/inspect
+      description: 添加喂药申请
+      operationId: InspectController.添加检查
+      parameters:
+      - in: formData
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: types
+        description: 检查类型
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: abnormal
+        description: 异常情况
+        required: true
+        type: string
+      - in: formData
+        name: handel
+        description: 处理方式
+        required: true
+        type: string
+      - in: formData
+        name: url
+        description: 照片留档
+        required: true
+        type: string
+      - in: formData
+        name: infect
+        description: 是否传染（1，否2，是）
+        required: true
+        type: string
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
+        "1003":
+          description: 保存失败
+  /healthy/inspect/{id}:
+    delete:
+      tags:
+      - healthy/inspect
+      description: 删除
+      operationId: InspectController.Delete
+      parameters:
+      - in: path
+        name: id
+        description: 自增ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: '{string} delete success!'
+        "1003":
+          description: id is empty
   /organizational/:
     get:
       tags:
@@ -2171,7 +2436,11 @@ paths:
 definitions:
   .Animation:
     type: object
+  .Class:
+    type: object
   .OK:
+    type: object
+  .SxWorks:
     type: object
   .boby:
     type: object
@@ -2547,6 +2816,24 @@ definitions:
         type: integer
         format: int64
 tags:
+- name: healthy/drug
+  description: |
+    喂药申请
+- name: healthy/inspect
+  description: |
+    餐检
+- name: healthy/body
+  description: |
+    BodyController operations for Body
+- name: healthy/class
+  description: |
+    ClassController operations for Class
+- name: healthy/situation
+  description: |
+    SituationController operations for Situation
+- name: healthy/column
+  description: |
+    ColumnController operations for Column
 - name: admin/kindergarten
   description: |
     幼儿园

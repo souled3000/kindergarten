@@ -13,6 +13,7 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/plugins/cors"
+	"kindergarten-service-go/controllers/healthy"
 )
 
 func init() {
@@ -24,6 +25,42 @@ func init() {
 		AllowCredentials: true,
 	}))
 	ns := beego.NewNamespace("/api/v2/kg",
+
+		beego.NSNamespace("/healthy/drug",
+			beego.NSInclude(
+				&healthy.DrugController{},
+			),
+		),
+
+		beego.NSNamespace("/healthy/inspect",
+			beego.NSInclude(
+				&healthy.InspectController{},
+			),
+		),
+
+		beego.NSNamespace("/healthy/body",
+			beego.NSInclude(
+				&healthy.BodyController{},
+			),
+		),
+
+		beego.NSNamespace("/healthy/class",
+			beego.NSInclude(
+				&healthy.ClassController{},
+			),
+		),
+
+		beego.NSNamespace("/healthy/situation",
+			beego.NSInclude(
+				&healthy.SituationController{},
+			),
+		),
+
+		beego.NSNamespace("/healthy/column",
+			beego.NSInclude(
+				&healthy.ColumnController{},
+			),
+		),
 
 		beego.NSNamespace("/admin/kindergarten",
 			beego.NSInclude(
