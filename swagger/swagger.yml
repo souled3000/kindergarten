@@ -1644,6 +1644,28 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is empty
+  /app/visitors/:
+    get:
+      tags:
+      - app/visitors
+      description: 幼儿园访客列表
+      operationId: KindergartenVisitorsController.幼儿园访客列表
+      parameters:
+      - in: query
+        name: page
+        description: 当前页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json}  JSONStruct'
+        "1005":
+          description: 获取失败
   /healthy/class/:
     get:
       tags:
@@ -2908,3 +2930,6 @@ tags:
 - name: admin/user_permission
   description: |
     用户分配权限
+- name: app/visitors
+  description: |
+    幼儿园 - 访客
