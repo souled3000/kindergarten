@@ -157,6 +157,11 @@ func init() {
 				&admin.PingController{},
 			),
 		),
+		beego.NSNamespace("/app/visitors",
+			beego.NSInclude(
+				&controllers.KindergartenVisitorsController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
