@@ -162,6 +162,11 @@ func init() {
 				&controllers.KindergartenVisitorsController{},
 			),
 		),
+		beego.NSNamespace("/app/special_child",
+			beego.NSInclude(
+				&controllers.ExceptionalChildController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
