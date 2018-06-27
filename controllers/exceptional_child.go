@@ -18,7 +18,7 @@ func (c *ExceptionalChildController) URLMapping() {
 // @Description 特殊儿童列表/搜索特殊儿童
 // @Param	keyword	   	 query	string	 false	"关键字(特殊儿童姓名/特殊儿童过敏源)"
 // @Param	page	  	 query	int	 	 false	"当前页，默认为1"
-// @Param   per_page     query  int      false  "每页显示条数,默认为10"
+// @Param   per_page     query  int      false  "每页显示条数，默认为10"
 // @Success 0 {json} 	JSONStruct
 // @Failure 1005 获取失败
 // @router / [get]
