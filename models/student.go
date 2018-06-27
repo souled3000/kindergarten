@@ -25,7 +25,7 @@ type Student struct {
 	Address          string    `json:"address" orm:"column(address);size(50)" description:"住址"`
 	Avatar           string    `json:"avatar" orm:"column(avatar);size(150)" description:"头像"`
 	Status           int8      `json:"status" orm:"column(status)" description:"状态 0未分班 1已分班 2离园"`
-	UserId           int       `json:"user_id" orm:"column(user_id)" description:"用户ID"`
+	BabyId			 int	   `json:"baby_id" orm:"column(baby_id)"`
 	KindergartenId   int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
 	Phone            string    `json:"phone" orm:"column(phone);size(11)" description:"手机号"`
 	HealthStatus     string    `json:"health_status" orm:"column(health_status);size(150)" description:"健康状况，多个以逗号隔开"`
@@ -274,7 +274,7 @@ func AddStudent(student string, kinship string) (paginatorMap map[string]interfa
 	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
 	client.UseService(&User)
 
-	err = User.UpdateUK(s.UserId)
+	//err = User.UpdateUK(s.UserId)
 	if err != nil {
 		o.Rollback()
 		return nil, err
