@@ -51,6 +51,7 @@ func GetExceptionalChild(page int, limit int, keyword string) (Page, error) {
 			String()
 
 		if _, err := o.Raw(sql).Values(&maps); err == nil {
+			var newMap []orm.Params
 			for _, v := range maps {
 				t := time.Now()
 				currentTime := t.Unix() - (24 * 3600 * 3) //当前时间戳
@@ -67,13 +68,13 @@ func GetExceptionalChild(page int, limit int, keyword string) (Page, error) {
 					v["new"] = 0
 					v["class"] = "大班一班"
 				}
-				
+
 				delete(v, "updated_at")
-				maps = append(maps, v)
+				newMap = append(newMap, v)
 			}
 
 			pageNum := int(math.Ceil(float64(total) / float64(limit)))
-			return Page{maps, total, pageNum}, nil
+			return Page{newMap, total, pageNum}, nil
 		}
 	}
 	return Page{}, nil
