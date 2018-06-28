@@ -141,6 +141,11 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	if err == nil{
 		counts["day"] = day
 	}
+	//实际检查人数
+	day_actual, err := o.QueryTable("healthy_inspect").Filter("created_at__contains", day_time).Filter("kindergarten_id",kindergarten_id).Count()
+	if err == nil{
+		counts["day_actual"] = day_actual
+	}
 	//每月统计
 	month_time := time.Now().Format("2006-01")
 	month, err := o.QueryTable("healthy_inspect").Filter("created_at__contains", month_time).Filter("kindergarten_id",kindergarten_id).Filter("abnormal__isnull", false).Count()
