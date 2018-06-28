@@ -34,7 +34,6 @@ func init() {
 
 
 
-
 // AddExceptionalChild insert a new ExceptionalChild into database and returns
 // last inserted Id on success.
 func AddExceptionalChild(child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
@@ -50,21 +49,31 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 	exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 	exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 	o := orm.NewOrm()
-	if id, err = o.Insert(&exceptionalChild); err != nil && id > 0 {
-		return id, nil
+	if id, err = o.Insert(&exceptionalChild); err == nil && id > 0 {
+		return id, err
 	}
 	return id, err
 }
 
 // GetExceptionalChildById retrieves ExceptionalChild by Id. Returns error if
 // Id doesn't exist
-func GetExceptionalChildById(id int) (v *ExceptionalChild, err error) {
+func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error) {
 	o := orm.NewOrm()
-	v = &ExceptionalChild{Id: id}
-	if err = o.Read(v); err == nil {
-		return v, nil
+	//exceptionalChild = &ExceptionalChild{Id: id}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("*").From("exceptional_child").Where("id="+id).String()
+	var maps []orm.Params
+	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
+		var newMaps []orm.Params
+		for _, v := range maps {
+			v["class"] = "大班一班"
+			newMaps = append(newMaps, v)
+		}
+		return newMaps, err
+	} else {
+		return nil, err
 	}
-	return nil, err
+
 }
 
 // GetAllExceptionalChild retrieves all ExceptionalChild matches certain condition. Returns empty list if
@@ -133,6 +142,8 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 			}
 			pageNum := int(math.Ceil(float64(total) / float64(limit)))
 			return Page{newMap, total, pageNum}, nil
+		} else {
+			return Page{}, nil
 		}
 	}
 	return Page{}, nil

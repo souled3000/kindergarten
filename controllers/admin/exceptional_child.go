@@ -45,6 +45,7 @@ func (c *ExceptionalChildController) GetAll() {
 
 	if info, err := models.GetAllExceptionalChild(child_name, somatotype, page, limit, keyword); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
+
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
@@ -120,12 +121,16 @@ func (c *ExceptionalChildController) Post() {
 func (c *ExceptionalChildController) GetOne() {
 	// 主键ID
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetExceptionalChildById(id)
-	if err != nil {
-		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	//id, _ := strconv.Atoi(idStr)
+	v, err := models.GetExceptionalChildById(idStr)
+	if err == nil {
+		if v != nil {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		} else {
+			c.Data["json"] = JSONStruct{"error", 1002, err, "没有相关数据"}
+		}
 	} else {
-		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+			c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
 	c.ServeJSON()
 }
