@@ -1021,6 +1021,195 @@ paths:
           description: '{string} delete success!'
         "403":
           description: id is empty
+  /admin/special_child/:
+    get:
+      tags:
+      - admin/special_child
+      description: 特殊儿童列表/搜索特殊儿童
+      operationId: ExceptionalChildController.特殊儿童列表/搜索特殊儿童
+      parameters:
+      - in: query
+        name: child_name
+        description: 特殊儿童姓名
+        type: string
+      - in: query
+        name: somatotype
+        description: 体质类型
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 当前页，默认为1
+        type: string
+      - in: query
+        name: per_page
+        description: 每页显示条数，默认为10
+        type: string
+      - in: query
+        name: keyword
+        description: 关键字(特殊儿童姓名/特殊儿童过敏源)
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.ExceptionalChild'
+        "1005":
+          description: 获取失败
+    post:
+      tags:
+      - admin/special_child
+      description: 新增特殊儿童
+      operationId: ExceptionalChildController.新增特殊儿童
+      parameters:
+      - in: formData
+        name: child_name
+        description: 特殊儿童姓名
+        required: true
+        type: string
+      - in: formData
+        name: class
+        description: 特殊儿童班级
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: somatotype
+        description: 体质类型
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: allergen
+        description: 过敏源
+        required: true
+        type: string
+      - in: formData
+        name: source
+        description: 信息来源
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: creator
+        description: 创建人
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONSturct'
+        "1003":
+          description: 新增失败
+  /admin/special_child/{id}:
+    get:
+      tags:
+      - admin/special_child
+      description: 按ID查询特殊儿童
+      operationId: ExceptionalChildController.按ID查询特殊儿童
+      parameters:
+      - in: path
+        name: id
+        description: 特殊儿童ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.ExceptionalChild'
+        "1005":
+          description: 获取失败
+    put:
+      tags:
+      - admin/special_child
+      description: 更新特殊儿童
+      operationId: ExceptionalChildController.更新特殊儿童
+      parameters:
+      - in: path
+        name: id
+        description: 特殊儿童主键自增ID
+        required: true
+        type: string
+      - in: body
+        name: child_name
+        description: 特殊儿童姓名
+        required: true
+        type: string
+      - in: body
+        name: class
+        description: 特殊儿童班级
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: somatotype
+        description: 体质类型
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: allergen
+        description: 过敏源
+        required: true
+        type: string
+      - in: body
+        name: source
+        description: 来源信息
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: creator
+        description: 创建人
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1003":
+          description: 更新失败
+    delete:
+      tags:
+      - admin/special_child
+      description: 删除特殊儿童
+      operationId: ExceptionalChildController.删除特殊儿童
+      parameters:
+      - in: path
+        name: id
+        description: 特殊儿童ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1004":
+          description: 删除失败
   /admin/student/:
     get:
       tags:
@@ -1657,17 +1846,14 @@ paths:
         type: string
       - in: query
         name: page
-        description: 当前页，默认为1
-        type: integer
-        format: int64
-      - in: query
-        name: per_page
-        description: 每页显示条数，默认为10
+        description: 当前页
         type: integer
         format: int64
       responses:
         "0":
-          description: "{json} \tJSONStruct"
+          description: ""
+          schema:
+            $ref: '#/definitions/models.ExceptionalChild'
         "1005":
           description: 获取失败
   /app/visitors/:
@@ -2917,6 +3103,39 @@ definitions:
         description: 编号
         type: integer
         format: int64
+  models.ExceptionalChild:
+    title: ExceptionalChild
+    type: object
+    properties:
+      allergen:
+        type: string
+      child_name:
+        type: string
+      class:
+        type: integer
+        format: int64
+      created_at:
+        type: string
+      creator:
+        type: integer
+        format: int64
+      id:
+        type: integer
+        format: int64
+      kindergarten_id:
+        type: integer
+        format: int64
+      somatotype:
+        type: integer
+        format: int32
+      source:
+        type: integer
+        format: int32
+      student_id:
+        type: integer
+        format: int64
+      updated_at:
+        type: string
   models.Kindergarten:
     title: Kindergarten
     type: object
