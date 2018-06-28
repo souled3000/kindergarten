@@ -14,6 +14,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/plugins/cors"
 	"kindergarten-service-go/controllers/healthy"
+	"kindergarten-service-go/controllers/healthy/app"
 )
 
 func init() {
@@ -32,9 +33,21 @@ func init() {
 			),
 		),
 
+		beego.NSNamespace("/app/healthy/drug",
+			beego.NSInclude(
+				&app.DrugController{},
+			),
+		),
+
 		beego.NSNamespace("/healthy/inspect",
 			beego.NSInclude(
 				&healthy.InspectController{},
+			),
+		),
+
+		beego.NSNamespace("/app/healthy/inspect",
+			beego.NSInclude(
+				&app.InspectController{},
 			),
 		),
 
@@ -44,9 +57,21 @@ func init() {
 			),
 		),
 
+		beego.NSNamespace("/app/healthy/body",
+			beego.NSInclude(
+				&app.BodyController{},
+			),
+		),
+
 		beego.NSNamespace("/healthy/class",
 			beego.NSInclude(
 				&healthy.ClassController{},
+			),
+		),
+
+		beego.NSNamespace("/app/healthy/class",
+			beego.NSInclude(
+				&app.ClassController{},
 			),
 		),
 
@@ -56,9 +81,21 @@ func init() {
 			),
 		),
 
+		beego.NSNamespace("/app/healthy/situation",
+			beego.NSInclude(
+				&app.SituationController{},
+			),
+		),
+
 		beego.NSNamespace("/healthy/column",
 			beego.NSInclude(
 				&healthy.ColumnController{},
+			),
+		),
+
+		beego.NSNamespace("/app/healthy/column",
+			beego.NSInclude(
+				&app.ColumnController{},
 			),
 		),
 

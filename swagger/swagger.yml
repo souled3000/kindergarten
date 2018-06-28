@@ -1644,6 +1644,586 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is empty
+  /app/healthy/body/:
+    get:
+      tags:
+      - app/healthy/body
+      description: 体检主题列表
+      operationId: BodyController.体检主题列表
+      parameters:
+      - in: query
+        name: page
+        description: 页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页条数
+        type: integer
+        format: int64
+      - in: query
+        name: types
+        description: 类型
+        type: integer
+        format: int64
+      - in: query
+        name: theme
+        description: 名字搜索
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Body'
+        "403":
+          description: ""
+    post:
+      tags:
+      - app/healthy/body
+      description: 添加主题
+      operationId: BodyController.
+      parameters:
+      - in: query
+        name: theme
+        description: 主题名
+        type: string
+      - in: query
+        name: total
+        description: 总人数
+        type: integer
+        format: int64
+      - in: query
+        name: actual
+        description: 实际人数
+        type: integer
+        format: int64
+      - in: query
+        name: rate
+        description: 合格率
+        type: string
+      - in: query
+        name: test_time
+        description: 测评日期
+        type: string
+      - in: query
+        name: mechanism
+        description: 体检机构id
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        type: integer
+        format: int64
+      - in: query
+        name: types
+        description: 类型 1，体质测评2，体检
+        type: integer
+        format: int64
+      - in: query
+        name: project
+        description: 体检项目
+        type: string
+      responses:
+        "201":
+          description: '{int} models.Category'
+        "403":
+          description: body is empty
+  /app/healthy/body/{id}:
+    put:
+      tags:
+      - app/healthy/body
+      description: 修改体检主题
+      operationId: BodyController.修改体检主题
+      parameters:
+      - in: query
+        name: theme
+        description: 主题名
+        type: string
+      - in: query
+        name: total
+        description: 总人数
+        type: integer
+        format: int64
+      - in: query
+        name: actual
+        description: 实际人数
+        type: integer
+        format: int64
+      - in: query
+        name: rate
+        description: 合格率
+        type: string
+      - in: query
+        name: test_time
+        description: 测评日期
+        type: string
+      - in: query
+        name: mechanism
+        description: 体检机构id
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        type: integer
+        format: int64
+      - in: query
+        name: types
+        description: 类型 1，体质测评2，体检
+        type: integer
+        format: int64
+      - in: query
+        name: project
+        description: 体检项目
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Cover'
+        "403":
+          description: :id is not int
+  /app/healthy/class/:
+    get:
+      tags:
+      - app/healthy/class
+      description: 体检主题列表
+      operationId: ClassController.体检主题列表
+      parameters:
+      - in: query
+        name: page
+        description: 页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页条数
+        type: integer
+        format: int64
+      - in: query
+        name: types
+        description: 类型
+        type: integer
+        format: int64
+      - in: query
+        name: theme
+        description: 名字搜索
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Class'
+        "403":
+          description: ""
+    post:
+      tags:
+      - app/healthy/class
+      description: 添加主题
+      operationId: ClassController.
+      parameters:
+      - in: query
+        name: body_id
+        description: 主题id
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级id
+        type: integer
+        format: int64
+      - in: query
+        name: class_total
+        description: 总人数
+        type: integer
+        format: int64
+      - in: query
+        name: class_actual
+        description: "false"
+        type: integer
+        format: int64
+      - in: query
+        name: test_time
+        description: 测评日期
+        type: string
+      - in: query
+        name: class_rate
+        description: "false"
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Category'
+        "403":
+          description: body is empty
+  /app/healthy/class/{id}:
+    put:
+      tags:
+      - app/healthy/class
+      description: 修改体检主题
+      operationId: ClassController.修改体检主题
+      parameters:
+      - in: query
+        name: theme
+        description: 主题名
+        type: string
+      - in: query
+        name: total
+        description: 总人数
+        type: integer
+        format: int64
+      - in: query
+        name: actual
+        description: 实际人数
+        type: integer
+        format: int64
+      - in: query
+        name: rate
+        description: 合格率
+        type: string
+      - in: query
+        name: test_time
+        description: 测评日期
+        type: string
+      - in: query
+        name: mechanism
+        description: 体检机构id
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        type: integer
+        format: int64
+      - in: query
+        name: types
+        description: 类型 1，体质测评2，体检
+        type: integer
+        format: int64
+      - in: query
+        name: project
+        description: 体检项目
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Cover'
+        "403":
+          description: :id is not int
+  /app/healthy/drug/:
+    get:
+      tags:
+      - app/healthy/drug
+      description: 喂药申请列表
+      operationId: DrugController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/.SxWorks'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
+    post:
+      tags:
+      - app/healthy/drug
+      description: 添加喂药申请
+      operationId: DrugController.添加喂药申请
+      parameters:
+      - in: formData
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: drug
+        description: 药品
+        required: true
+        type: string
+      - in: formData
+        name: explain
+        description: 用量说明
+        required: true
+        type: string
+      - in: formData
+        name: symptom
+        description: 症状
+        required: true
+        type: string
+      - in: formData
+        name: user_id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
+        "1003":
+          description: 保存失败
+  /app/healthy/drug/{id}:
+    get:
+      tags:
+      - app/healthy/drug
+      description: 详情
+      operationId: DrugController.GetAll
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Counts'
+        "1001":
+          description: 参数不能为空
+        "1003":
+          description: 获取失败
+  /app/healthy/inspect/:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 餐检列表
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        type: integer
+        format: int64
+      - in: query
+        name: role
+        description: 身份类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: date
+        description: 餐检时间
+        required: true
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/.SxWorks'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
+    post:
+      tags:
+      - app/healthy/inspect
+      description: 添加喂药申请
+      operationId: InspectController.添加检查
+      parameters:
+      - in: formData
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: types
+        description: 检查类型
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: abnormal
+        description: 异常情况
+        required: true
+        type: string
+      - in: formData
+        name: handel
+        description: 处理方式
+        required: true
+        type: string
+      - in: formData
+        name: url
+        description: 照片留档
+        required: true
+        type: string
+      - in: formData
+        name: infect
+        description: 是否传染（1，否2，是）
+        required: true
+        type: string
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
+        "1003":
+          description: 保存失败
+  /app/healthy/inspect/{id}:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 详情
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Counts'
+        "1001":
+          description: 参数不能为空
+        "1003":
+          description: 获取失败
+    put:
+      tags:
+      - app/healthy/inspect
+      description: 添加喂药申请
+      operationId: InspectController.编辑检查
+      parameters:
+      - in: formData
+        name: class_id
+        description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: student_id
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: types
+        description: 检查类型
+        required: true
+        type: integer
+        format: int64
+      - in: formData
+        name: abnormal
+        description: 异常情况
+        required: true
+        type: string
+      - in: formData
+        name: handel
+        description: 处理方式
+        required: true
+        type: string
+      - in: formData
+        name: url
+        description: 照片留档
+        required: true
+        type: string
+      - in: formData
+        name: infect
+        description: 是否传染（1，否2，是）
+        required: true
+        type: string
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
+        "1003":
+          description: 保存失败
+    delete:
+      tags:
+      - app/healthy/inspect
+      description: 删除
+      operationId: InspectController.Delete
+      parameters:
+      - in: path
+        name: id
+        description: 自增ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: '{string} delete success!'
+        "1003":
+          description: id is empty
+  /app/healthy/inspect/counts/:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 统计
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/.Counts'
+        "1001":
+          description: 参数不能为空
+        "1003":
+          description: 获取失败
   /app/special_child/:
     get:
       tags:
@@ -3291,19 +3871,37 @@ tags:
 - name: healthy/drug
   description: |
     喂药申请
+- name: app/healthy/drug
+  description: |
+    喂药申请（前端）
 - name: healthy/inspect
   description: |
     餐检
+- name: app/healthy/inspect
+  description: |
+    餐检（前端）
 - name: healthy/body
   description: |
     BodyController operations for Body
+- name: app/healthy/body
+  description: |
+    体检（前端）
 - name: healthy/class
   description: |
     ClassController operations for Class
+- name: app/healthy/class
+  description: |
+    体检班级（前端）
 - name: healthy/situation
   description: |
     SituationController operations for Situation
+- name: app/healthy/situation
+  description: |
+    SituationController operations for Situation
 - name: healthy/column
+  description: |
+    ColumnController operations for Column
+- name: app/healthy/column
   description: |
     ColumnController operations for Column
 - name: admin/kindergarten

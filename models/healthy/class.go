@@ -4,6 +4,9 @@ import (
 	"github.com/astaxie/beego/orm"
 	"time"
 	"strconv"
+	"fmt"
+	"reflect"
+	"math"
 )
 
 type Class struct {
@@ -66,6 +69,7 @@ func GetAllClass(page int,per_page int,class_id int,body_id int) (ml map[string]
 	}
 	var d []orm.Params
 	sql := "select a.*,c.name as class_name,b.theme from healthy_class a left join healthy_body b on a.body_id = b.id left join organizational c on c.id = a.class_id "+where+" order by a.id desc "
+	sqlNum := "select count(a.id) as num from healthy_class a left join healthy_body b on a.body_id = b.id left join organizational c on c.id = a.class_id "+where+" order by a.id desc "
 	limit := " limit "+strconv.Itoa((page-1)*per_page)+","+strconv.Itoa(per_page)
 	ml = make(map[string]interface{})
 	if _,err = o.Raw(sql+limit).Values(&d); err == nil {
@@ -73,9 +77,13 @@ func GetAllClass(page int,per_page int,class_id int,body_id int) (ml map[string]
 			Num		int 	`json:"num"`
 		}
 		var total Num
-		err = o.Raw(sql).QueryRow(&total);
+		err = o.Raw(sqlNum).QueryRow(&total);
+		fmt.Print(total,reflect.TypeOf(total))
+		pageNum := int(math.Ceil(float64(total.Num) / float64(per_page)))
 		ml["data"] = d
 		ml["total"] = total.Num
+		ml["pageNum"] = pageNum
+		ml["limit"] = per_page
 		return ml,nil
 	}
 	return nil,err
