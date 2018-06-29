@@ -87,3 +87,13 @@ func GetAllBody(page int,per_page int,types int,theme string) (ml map[string]int
 	}
 	return nil,err
 }
+//添加或查询
+func CrBody(theme string, kindergarten_id int,test_time string, types int)(id int64, err error){
+	o := orm.NewOrm()
+	body := Body{Theme: theme, KindergartenId:kindergarten_id,TestTime:test_time,Types:types}
+	// 三个返回参数依次为：是否新创建的，对象 Id 值，错误
+	if _, id, err := o.ReadOrCreate(&body, "Theme","KindergartenId","TestTime"); err == nil {
+			return  id,nil
+	}
+	return  id,err
+}
