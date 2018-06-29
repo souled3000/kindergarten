@@ -297,3 +297,53 @@ func (o *OrganizationalController) Principal() {
 		o.ServeJSON()
 	}
 }
+
+// GetClass ...
+// @Title 幼儿园所有班级
+// @Description 幼儿园所有班级
+// @Param	kindergarten_id           query	int	     true		"幼儿园ID"
+// @Success 200 {object} models.Organizational
+// @Failure 403
+// @router /class_kinder [get]
+func (o *OrganizationalController) GetKC() {
+	kindergarten_id, _ := o.GetInt("kindergarten_id")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
+	} else {
+		v, err := models.GetkinderClass(kindergarten_id)
+		if err != nil {
+			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		o.ServeJSON()
+	}
+}
+
+// GetClassStudent ...
+// @Title 幼儿园班级所有学生
+// @Description 幼儿园班级所有学生
+// @Param	class_id           query	int	     true		"班级ID"
+// @Success 200 {object} models.Organizational
+// @Failure 403
+// @router /class_student [get]
+func (o *OrganizationalController) GetCS() {
+	class_id, _ := o.GetInt("class_id")
+	valid := validation.Validation{}
+	valid.Required(class_id, "class_id").Message("班级id不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
+	} else {
+		v, err := models.GetClassStudent(class_id)
+		if err != nil {
+			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		o.ServeJSON()
+	}
+}
