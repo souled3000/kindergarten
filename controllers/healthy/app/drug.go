@@ -45,7 +45,7 @@ func (c *DrugController) Post() {
 	valid.Required(explain,"explain").Message("用量说明不能为空")
 	valid.Required(symptom,"symptom").Message("症状不能为空")
 	valid.Required(user_id,"user_id").Message("用户ID不能为空")
-	valid.Required(url,"url").Message("图片不能为空")
+
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
 
