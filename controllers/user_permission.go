@@ -132,3 +132,27 @@ func (c *UserPermissionController) Put() {
 		c.ServeJSON()
 	}
 }
+
+// GroupAll ...
+// @Title 筛选圈子
+// @Description 筛选圈子
+// @Param	user_id		        path 	int	true		"用户ID"
+// @Param	class_type		    path 	int	true		"班级类型"
+// @Param	role		        path 	int	true		"身份(1 kindergarten_id,role,class_type  5 user_id,role,class_type)"
+// @Param	kindergarten_id		path 	int	true		"幼儿园id"
+// @Success 200 {object} models.UserPermission
+// @Failure 403 :id is empty
+// @router /group_all [get]
+func (c *UserPermissionController) GroupAll() {
+	role, _ := c.GetInt("role")
+	user_id, _ := c.GetInt("user_id")
+	class_type, _ := c.GetInt("class_type")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	v, err := models.GetGroupAll(user_id, class_type, role, kindergarten_id)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+	}
+	c.ServeJSON()
+}

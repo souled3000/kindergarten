@@ -215,3 +215,54 @@ func GetPermissionRoute(user_id int) ([]orm.Params, error) {
 	}
 	return nil, err
 }
+
+/*
+筛选圈子
+*/
+func GetGroupAll(user_id int, class_type int, role int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var g []orm.Params
+	paginatorMap = make(map[string]interface{})
+	if role == 1 {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("name as class_name", "id as class_id", "class_type").From("organizational").Where("kindergarten_id = ?").And("class_type = ?").And("level = 3").String()
+		_, err := o.Raw(sql, kindergarten_id, class_type).Values(&g)
+		if err != nil {
+			err = errors.New("未创建班级")
+			return nil, err
+		}
+		for key, val := range g {
+			if val["class_type"].(string) == "3" {
+				g[key]["class"] = "大班" + val["class_name"].(string) + ""
+			} else if val["class_type"].(string) == "2" {
+				g[key]["class"] = "中班" + val["class_name"].(string) + ""
+			} else {
+				g[key]["class"] = "小班" + val["class_name"].(string) + ""
+			}
+		}
+	} else if role == 5 {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("o.name as class_name", "gv.class_id", "gv.class_type").From("group_view as gv").LeftJoin("organizational as o").
+			On("o.id = gv.class_id").Where("gv.user_id = ?").And("gv.class_type = ?").String()
+		_, err := o.Raw(sql, user_id, class_type).Values(&g)
+		if err != nil {
+			err = errors.New("未创建班级")
+			return nil, err
+		}
+		for key, val := range g {
+			if val["class_type"].(string) == "3" {
+				g[key]["class"] = "大班" + val["class_name"].(string) + ""
+			} else if val["class_type"].(string) == "2" {
+				g[key]["class"] = "中班" + val["class_name"].(string) + ""
+			} else {
+				g[key]["class"] = "小班" + val["class_name"].(string) + ""
+			}
+		}
+	}
+	if err == nil {
+		paginatorMap["data"] = g
+		return paginatorMap, nil
+	}
+	err = errors.New("未创建班级")
+	return nil, err
+}
