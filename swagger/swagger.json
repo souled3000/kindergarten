@@ -2958,8 +2958,27 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "body_id",
-                        "description": "主题id",
+                        "name": "body_name",
+                        "description": "主题名",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "test_time",
+                        "description": "年-月-日",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "类型",
                         "type": "integer",
                         "format": "int64"
                     },
@@ -2996,6 +3015,31 @@
                         "description": "false",
                         "type": "integer",
                         "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Category"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/app/healthy/class/add_info": {
+            "post": {
+                "tags": [
+                    "app/healthy/class"
+                ],
+                "description": "添加主题",
+                "operationId": "ClassController.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "data",
+                        "description": "json 串",
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -3539,6 +3583,39 @@
                 }
             }
         },
+        "/app/healthy/situation/": {
+            "get": {
+                "tags": [
+                    "app/healthy/situation"
+                ],
+                "description": "病例列表",
+                "operationId": "SituationController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
         "/app/special_child/": {
             "get": {
                 "tags": [
@@ -3870,8 +3947,27 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "body_id",
-                        "description": "主题id",
+                        "name": "body_name",
+                        "description": "主题名",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "test_time",
+                        "description": "年-月-日",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "类型",
                         "type": "integer",
                         "format": "int64"
                     },
@@ -3908,6 +4004,31 @@
                         "description": "false",
                         "type": "integer",
                         "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Category"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/healthy/class/add_info": {
+            "post": {
+                "tags": [
+                    "healthy/class"
+                ],
+                "description": "添加主题",
+                "operationId": "ClassController.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "data",
+                        "description": "json 串",
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -4451,6 +4572,69 @@
                 }
             }
         },
+        "/healthy/situation/": {
+            "post": {
+                "tags": [
+                    "healthy/situation"
+                ],
+                "description": "添加病因",
+                "operationId": "SituationController.添加病因",
+                "parameters": [
+                    {
+                        "in": "formData",
+                        "name": "name",
+                        "description": "记录名称",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "types",
+                        "description": "类型",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{int} models.Drug.Id"
+                    },
+                    "1001": {
+                        "description": "补全信息"
+                    },
+                    "1003": {
+                        "description": "保存失败"
+                    }
+                }
+            }
+        },
+        "/healthy/situation/{id}": {
+            "delete": {
+                "tags": [
+                    "healthy/situation"
+                ],
+                "description": "删除",
+                "operationId": "SituationController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "自增ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{string} delete success!"
+                    },
+                    "1003": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
         "/organizational/": {
             "get": {
                 "tags": [
@@ -4673,6 +4857,66 @@
                         "in": "query",
                         "name": "per_page",
                         "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organizational"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/organizational/class_kinder": {
+            "get": {
+                "tags": [
+                    "organizational"
+                ],
+                "description": "幼儿园所有班级",
+                "operationId": "OrganizationalController.幼儿园所有班级",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organizational"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/organizational/class_student": {
+            "get": {
+                "tags": [
+                    "organizational"
+                ],
+                "description": "幼儿园班级所有学生",
+                "operationId": "OrganizationalController.幼儿园班级所有学生",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     }
@@ -5946,7 +6190,7 @@
         },
         {
             "name": "app/healthy/body",
-            "description": "体检（前端）\n"
+            "description": "BodyController operations for Body\n"
         },
         {
             "name": "healthy/class",
@@ -5954,11 +6198,11 @@
         },
         {
             "name": "app/healthy/class",
-            "description": "体检班级（前端）\n"
+            "description": "ClassController operations for Class\n"
         },
         {
             "name": "healthy/situation",
-            "description": "SituationController operations for Situation\n"
+            "description": "病因\n"
         },
         {
             "name": "app/healthy/situation",

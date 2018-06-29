@@ -4,8 +4,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	"time"
 	"strconv"
-	"fmt"
-	"reflect"
 	"math"
 )
 
@@ -26,9 +24,32 @@ func (t *Class) TableName() string {
 func init() {
 	orm.RegisterModel(new(Class))
 }
-func AddClass(b *Class) (id int64, err error){
+func AddClass(b *Class,body_id int, class_id int,types int) (err error){
 	o := orm.NewOrm()
-	id, err = o.Insert(b)
+	o.Begin()
+	var some_err []interface{}
+	if _, _, err = o.ReadOrCreate(&b, "BodyId","ClassId"); err != nil {
+		some_err = append(some_err,err)
+	}
+	var inspect []Inspect
+	sql := "select b.student_id,a.organizational_id as class_id,b.kindergarten_id,c.name as class_name from organizational_member a left join student b on b.student_id=a.member_id left join organizational c on c.id=a.organizational_id where a.type=1 and a.organizational_id="+strconv.Itoa(class_id)
+	if _,err = o.Raw(sql).QueryRows(&inspect); err != nil{
+		some_err = append(some_err,err)
+	}
+
+	for key,_ := range inspect {
+		inspect[key].BodyId = body_id
+		inspect[key].Types = types
+	}
+	if _,err = o.InsertMulti(len(inspect),inspect); err != nil {
+		some_err = append(some_err,err)
+	}
+	if len(some_err) > 0 {
+		o.Rollback()
+	} else {
+		o.Commit()
+		return  nil
+	}
 	return
 }
 
@@ -78,7 +99,6 @@ func GetAllClass(page int,per_page int,class_id int,body_id int) (ml map[string]
 		}
 		var total Num
 		err = o.Raw(sqlNum).QueryRow(&total);
-		fmt.Print(total,reflect.TypeOf(total))
 		pageNum := int(math.Ceil(float64(total.Num) / float64(per_page)))
 		ml["data"] = d
 		ml["total"] = total.Num

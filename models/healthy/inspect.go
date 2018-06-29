@@ -4,6 +4,9 @@ import (
 	"github.com/astaxie/beego/orm"
 	"time"
 	"math"
+	"kindergarten-service-go/models"
+	"fmt"
+	"encoding/json"
 )
 
 type Inspect struct {
@@ -23,8 +26,32 @@ type Inspect struct {
 	Infect         int			`json:"infect" orm:"column(infect)" description:"是否传染"`
 	DrugId		   int			`json:"drug_id" orm:"column(drug_id)" description:"喂药申请"`
 	Abnormal       string 		`json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
+	BodyId		   int			`json:"body_id" orm:"column(body_id)"`
 	Date		   string		`json:"date" orm:"column(date)" description:"参检时间"`
 	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
+}
+
+type Inspect_add struct {
+	Id             int			`json:"id" orm:"column(id);auto" description:"编号"`
+	StudentId      int			`json:"student_id" orm:"column(student_id)" description:"学生ID"`
+	Weight         float64		`json:"weight" orm:"column(weight)" description:"体重"`
+	ClassName	   string		`json:"class_name" orm:"column" description:"班级名称"`
+	Height         float64		`json:"height" orm:"column(height)" description:"身高"`
+	Content        string 		`json:"content" orm:"column(content);size(100)" description:"备注"`
+	Evaluate       int			`json:"evaluate" orm:"column(evaluate)" description:"评价"`
+	ClassId        int			`json:"class_id" orm:"column(class_id)" description:"班级ID"`
+	KindergartenId int			`json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
+	TeacherId      int 			`json:"teacher_id" orm:"column(teacher_id)" description:"记录人ID"`
+	Types          int			`json:"types" orm:"column(types)" description:"类型"`
+	Handel         string 		`json:"handel" orm:"column(handel);size(100)" description:"处理方式"`
+	Url            string 		`json:"url" orm:"column(url);size(1800)" description:"照片"`
+	Infect         int			`json:"infect" orm:"column(infect)" description:"是否传染"`
+	DrugId		   int			`json:"drug_id" orm:"column(drug_id)" description:"喂药申请"`
+	Abnormal       string 		`json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
+	Date		   string		`json:"date" orm:"column(date)" description:"参检时间"`
+	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
+	BodyId        int			`json:"body_id" orm:"column(body_id)" description:"班级ID"`
+	Info			Column		`json:"info"`
 }
 
 func (t *Inspect) TableName() string {
@@ -51,7 +78,8 @@ func (m Inspect) Save() error {
 }
 
 //晨、午、晚列表
-func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role int, date string) (Page, error) {
+func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, baby_id int, date string) (Page, error) {
+	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
 
@@ -75,7 +103,21 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role i
 		con = append(con, "%"+date+"%")
 	}
 
-	o := orm.NewOrm()
+	if baby_id != 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil{
+			student_id = 0
+		}else {
+			student_id = student.Id
+		}
+
+		fmt.Print(student)
+		where += "AND healthy_inspect.student_id = ? "
+		con = append(con, student_id)
+	}
+
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
 
@@ -189,4 +231,47 @@ func (m Inspect) SaveInspect() error {
 	o.Update(&m);
 
 	return nil
+}
+
+func AddlistInspect(data string) (some_err []interface{}) {
+	o := orm.NewOrm()
+	o.Begin()
+	var i []Inspect_add
+	json.Unmarshal([]byte(data),&i)
+	for key,val := range i{
+		var v Inspect
+		v.StudentId = val.StudentId
+		v.Weight = val.Weight
+		v.Height = val.Height
+		v.Content = val.Content
+		v.Evaluate = val.Evaluate
+		v.ClassId = val.ClassId
+		v.ClassName = val.ClassName
+		v.KindergartenId = val.KindergartenId
+		v.TeacherId = val.TeacherId
+		v.Types = val.Types
+		v.BodyId = val.BodyId
+		v.Infect = val.Infect
+		v.Abnormal = val.Abnormal
+		v.Date = val.Date
+		v.Url = val.Url
+		if _, id, err := o.ReadOrCreate(&v, "StudentId","ClassId","KindergartenId","Types","BodyId"); err != nil {
+			some_err = append(some_err,err)
+		} else {
+			i[key].Info.StudentId = val.StudentId
+			i[key].Info.InspectId = int(id)
+			if _, _, err := o.ReadOrCreate(&i[key].Info, "StudentId","InspectId"); err != nil {
+				some_err = append(some_err,err)
+			}
+		}
+	}
+
+	if len(some_err) > 0 {
+		o.Rollback()
+	} else {
+		o.Commit()
+		return  nil
+	}
+
+	return some_err
 }

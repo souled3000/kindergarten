@@ -22,7 +22,10 @@ func (c *ClassController) URLMapping() {
 // Post ...
 // @Title
 // @Description 添加主题
-// @Param	body_id			query	int	false	"主题id"
+// @Param	body_name			query	string	false	"主题名"
+// @Param	kindergarten_id		query	int	false	"幼儿园id"
+// @Param	test_time			query	string	false	"年-月-日"
+// @Param	types		query	int	false	"类型"
 // @Param	class_id		query	int	false	"班级id"
 // @Param	class_total		query	int	false	"总人数"
 // @Param	class_actual	query	int	false	""
@@ -32,22 +35,43 @@ func (c *ClassController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *ClassController) Post() {
-	body_id,_ := c.GetInt("body_id")
+	body_name := c.GetString("body_name")
+	kindergarten_id,_ := c.GetInt("kindergarten_id")
+	test_time := c.GetString("test_time")
+	types,_ := c.GetInt("types")
+
+	body_id,_ := healthy.CrBody(body_name,kindergarten_id,test_time,types)
 	class_id,_ := c.GetInt("class_id")
 	class_total,_ := c.GetInt("class_total")
-	//class_time := c.GetString("class_time")
 	class_actual,_ := c.GetInt("class_actual")
 	class_rate,_ := c.GetInt("class_rate")
 	var b healthy.Class
-	b.BodyId = body_id
+	b.BodyId = int(body_id)
 	b.ClassRate = class_rate
 	b.ClassActual = class_actual
 	b.ClassTotal = class_total
 	b.ClassId = class_id
-	if _,err := healthy.AddClass(&b); err == nil {
+	if err := healthy.AddClass(&b,int(body_id), class_id,types); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "添加成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "添加失败"}
+	}
+	c.ServeJSON()
+}
+
+// Post ...
+// @Title
+// @Description 添加主题
+// @Param	data			query	string	false	"json 串"
+// @Success 201 {int} models.Category
+// @Failure 403 body is empty
+// @router /add_info [post]
+func (c *ClassController) Post_info() {
+	data := c.GetString("data")
+	if err := healthy.AddlistInspect(data); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "添加成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1001, err, "添加失败"}
 	}
 	c.ServeJSON()
 }
