@@ -6,6 +6,7 @@ import(
 	"time"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 
@@ -37,27 +38,37 @@ func init() {
 
 // AddExceptionalChild insert a new ExceptionalChild into database and returns
 // last inserted Id on success.
-func AddExceptionalChild(child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
+func AddExceptionalChild(child_name string, class int, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
 	var exceptionalChild ExceptionalChild
-	exceptionalChild.ChildName = child_name
-	exceptionalChild.Class = class
-	exceptionalChild.Somatotype = somatotype
-	exceptionalChild.Allergen = allergen
-	exceptionalChild.Source = source
-	exceptionalChild.KindergartenId = kindergarten_id
-	exceptionalChild.Creator = creator
-	exceptionalChild.StudentId = student_id
-	exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-	exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 	o := orm.NewOrm()
-	o.Begin()
-	if id, err = o.Insert(&exceptionalChild); err == nil && id > 0 {
-
-		o.Commit()
-		return id, err
+	allergen := strings.Split(allergens, ",")
+	for _, v := range allergen {
+		if v != "" {
+			exceptionalChild.ChildName = child_name
+			exceptionalChild.Class = class
+			exceptionalChild.Somatotype = somatotype
+			exceptionalChild.Allergen = v
+			exceptionalChild.Source = source
+			exceptionalChild.KindergartenId = kindergarten_id
+			exceptionalChild.Creator = creator
+			exceptionalChild.StudentId = student_id
+			exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+			exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+			o.Begin()
+			if id, err = o.Insert(&exceptionalChild); err == nil && id > 0 {
+				o.Commit()
+				return id, err
+			} else {
+				o.Rollback()
+				return id, err
+			}
+		} else {
+			o.Rollback()
+			return
+		}
 	}
-	o.Rollback()
-	return id, err
+
+	return
 }
 
 // GetExceptionalChildById retrieves ExceptionalChild by Id. Returns error if
@@ -121,9 +132,10 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 		offset := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("*").From("exceptional_child").Where(where).OrderBy("id").Desc().Limit(int(limit)).Offset(int(offset)).String()
+		sql := qb.Select("*").From("exceptional_child as ex").LeftJoin("organizational as or").On("or.id = ex.class").Where(where).OrderBy("ex.id").Desc().Limit(int(limit)).Offset(int(offset)).String()
 		if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 			var newMap []orm.Params
+			fmt.Println(maps)
 			for _, v := range maps {
 				t := time.Now()
 				currentTime := t.Unix() - (24 * 3600 * 3) //当前时间戳
