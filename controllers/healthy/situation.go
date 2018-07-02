@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego"
 	"kindergarten-service-go/models/healthy"
 	"strconv"
-	"fmt"
 	"github.com/astaxie/beego/validation"
 )
 
@@ -32,11 +31,8 @@ func (c *SituationController) Post() {
 	name := c.GetString("name")
 	types, _:= c.GetInt("types")
 
-	fmt.Print(name)
-	fmt.Println(types)
-
 	valid := validation.Validation{}
-	valid.Required(name,"name").Message("名字1111不能为空")
+	valid.Required(name,"name").Message("名字不能为空")
 	valid.Required(types,"types").Message("类型ID不能为空")
 	if valid.HasErrors(){
 		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}

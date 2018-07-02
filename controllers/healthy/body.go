@@ -43,7 +43,7 @@ func (c *BodyController) Post() {
 	kindergarten_id,_ := c.GetInt("kindergarten_id")
 	types,_ := c.GetInt("types")
 	project := c.GetString("project")
-	var b *healthy.Body
+	var b healthy.Body
 	b.Theme = theme
 	b.Total = total
 	b.Actual = actual
@@ -53,7 +53,7 @@ func (c *BodyController) Post() {
 	b.KindergartenId = kindergarten_id
 	b.Types = types
 	b.Project = project
-	if _,err := healthy.AddBody(b); err == nil {
+	if _,err := healthy.AddBody(&b); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "添加成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "添加失败"}
@@ -133,5 +133,33 @@ func (c *BodyController) GetAll() {
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}
 	}
+	c.ServeJSON()
+}
+
+// GetOne ...
+// @Title 主题详情
+// @Description 主题详情
+// @Param	id		path 	string	true		"自增ID"
+// @Success 200 {object} healthy.Body
+// @Failure 403
+// @router /:id  [get]
+func (c *BodyController) GetOne() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	class_id,_ := c.GetInt("class_id")
+	if class_id > 0 {
+		if l,err := healthy.GetOneBodyClass(id,class_id); err == nil {
+			c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
+		} else {
+			c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}
+		}
+	}else{
+		if l,err := healthy.GetOneBody(id); err == nil {
+			c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
+		} else {
+			c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}
+		}
+	}
+
 	c.ServeJSON()
 }

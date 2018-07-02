@@ -228,3 +228,21 @@ func (c *StudentController) GetBaby() {
 	}
 	c.ServeJSON()
 }
+
+// GetNameClass ...
+// @Title GetNameClass
+// @Description 学生名字获取班级
+// @Param	name       query	 int	 true		"学生姓名"
+// @Success 200 {object} models.Student
+// @Failure 403 :幼儿园id不能为空
+// @router /get_class [get]
+func (c *StudentController) GetNameClass() {
+	name := c.GetString("name")
+	v, err := models.GetNameClass(name)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+	}
+	c.ServeJSON()
+}

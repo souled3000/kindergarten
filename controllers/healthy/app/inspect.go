@@ -20,6 +20,8 @@ func (c *InspectController) URLMapping() {
 	c.Mapping("Delete", c.Delete)
 }
 
+
+
 // @Title 添加检查
 // @Description 添加喂药申请
 // @Param   class_id     			formData    int  	true        "班级ID"
@@ -264,6 +266,64 @@ func (c *InspectController) Put() {
 	} else {
 		fmt.Println(err)
 		c.Data["json"] = JSONStruct{"error", 1003, "", "编辑失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// @Title 个人身高体重
+// @Description 个人身高体重
+// @Param   baby_id     			formData    int  	true        "宝宝ID"
+// @Success 0 {int} models.Drug.Id
+// @Failure 1001 补全信息
+// @Failure 1003 获取失败
+// @router /boby [get]
+func (c *InspectController) Boby() {
+	var f *healthy.Inspect
+	bady_id, _:= c.GetInt("baby_id")
+
+	//验证参数是否为空
+	valid := validation.Validation{}
+	valid.Required(bady_id,"baby_id").Message("宝宝ID不能为空")
+	if valid.HasErrors(){
+		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+		c.ServeJSON()
+		c.StopRun()
+	}
+	if works, err := f.Baby(bady_id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// @Title 宝宝情况
+// @Description 宝宝情况
+// @Param   baby_id     			formData    int  	true        "宝宝ID"
+// @Success 0 {int} models.Drug.Id
+// @Failure 1001 补全信息
+// @Failure 1003 获取失败
+// @router /situation [get]
+func (c *InspectController) Situation() {
+	var f *healthy.Inspect
+	bady_id, _:= c.GetInt("baby_id")
+
+	//验证参数是否为空
+	valid := validation.Validation{}
+	valid.Required(bady_id,"baby_id").Message("宝宝ID不能为空")
+	if valid.HasErrors(){
+		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+		c.ServeJSON()
+		c.StopRun()
+	}
+
+
+	if works, err := f.Situation(bady_id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
 
 	c.ServeJSON()

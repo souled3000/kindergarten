@@ -2420,6 +2420,26 @@ paths:
           description: '{string} delete success!'
         "1003":
           description: id is empty
+  /app/healthy/inspect/boby:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 个人身高体重
+      operationId: InspectController.个人身高体重
+      parameters:
+      - in: formData
+        name: baby_id
+        description: 宝宝ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
+        "1003":
+          description: 获取失败
   /app/healthy/inspect/counts/:
     get:
       tags:
@@ -2440,6 +2460,26 @@ paths:
             $ref: '#/definitions/.Counts'
         "1001":
           description: 参数不能为空
+        "1003":
+          description: 获取失败
+  /app/healthy/inspect/situation:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 宝宝情况
+      operationId: InspectController.宝宝情况
+      parameters:
+      - in: formData
+        name: baby_id
+        description: 宝宝ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{int} models.Drug.Id'
+        "1001":
+          description: 补全信息
         "1003":
           description: 获取失败
   /app/healthy/situation/:
@@ -2481,6 +2521,11 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
+    post:
+      tags:
+      - app/special_child
+      description: 过敏食物报备
+      operationId: ExceptionalChildController.过敏食物报备
   /app/visitors/:
     get:
       tags:

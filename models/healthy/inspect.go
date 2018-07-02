@@ -7,14 +7,17 @@ import (
 	"kindergarten-service-go/models"
 	"fmt"
 	"encoding/json"
+	"strconv"
 )
 
 type Inspect struct {
 	Id             int			`json:"id" orm:"column(id);auto" description:"编号"`
 	StudentId      int			`json:"student_id" orm:"column(student_id)" description:"学生ID"`
 	Weight         float64		`json:"weight" orm:"column(weight)" description:"体重"`
+	AbnormalWeight string		`json:"abnormal_weight" orm:"column(abnormal_weight)"`
 	ClassName	   string		`json:"class_name" orm:"column" description:"班级名称"`
 	Height         float64		`json:"height" orm:"column(height)" description:"身高"`
+	AbnormalHeight string		`json:"abnormal_height" orm:"column(abnormal_height)"`
 	Content        string 		`json:"content" orm:"column(content);size(100)" description:"备注"`
 	Evaluate       int			`json:"evaluate" orm:"column(evaluate)" description:"评价"`
 	ClassId        int			`json:"class_id" orm:"column(class_id)" description:"班级ID"`
@@ -50,7 +53,7 @@ type Inspect_add struct {
 	Abnormal       string 		`json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
 	Date		   string		`json:"date" orm:"column(date)" description:"参检时间"`
 	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
-	BodyId        int			`json:"body_id" orm:"column(body_id)" description:"班级ID"`
+	BodyId         int			`json:"body_id" orm:"column(body_id)" description:"班级ID"`
 	Info			Column		`json:"info"`
 }
 
@@ -71,7 +74,26 @@ type Page struct {
 
 //创建记录
 func (m Inspect) Save() error {
+	tmp := m
 	o := orm.NewOrm()
+
+	where := " where 1=1 "
+	if tmp.StudentId > 0{
+		where += " and student_id = "+strconv.Itoa(tmp.StudentId)
+	}
+
+	if tmp.Date != "" {
+		where += " and left(created_at,10) = '"+tmp.Date+"'"
+	}else {
+		day_time := time.Now().Format("2006-01-02")
+		where += " and left(created_at,10) = '"+ day_time +"'"
+	}
+
+	var drug []Drug
+	_, err := o.Raw("SELECT id FROM healthy_drug "+where).QueryRows(&drug)
+	if err == nil {
+		m.DrugId = drug[0].Id
+	}
 	o.Insert(&m);
 
 	return nil
@@ -135,7 +157,7 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		}
 		start := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("healthy_inspect.*,student.name as student_name,teacher.name as teacher_name").From(f.TableName()).
+		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.avatar,teacher.name as teacher_name").From(f.TableName()).
 			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
 			LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
 			Where(where).
@@ -240,6 +262,11 @@ func AddlistInspect(data string) (some_err []interface{}) {
 	json.Unmarshal([]byte(data),&i)
 	for key,val := range i{
 		var v Inspect
+		/*s := models.Student{Id:val.StudentId}
+		if err := o.Read(&s); err == nil {
+
+		}*/
+
 		v.StudentId = val.StudentId
 		v.Weight = val.Weight
 		v.Height = val.Height
@@ -274,4 +301,44 @@ func AddlistInspect(data string) (some_err []interface{}) {
 	}
 
 	return some_err
+}
+
+func (f *Inspect) Baby(baby_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := " (height != 0 Or weight !=0) "
+	where += " AND (types = 5 Or types = 4) "
+	var sxWords []orm.Params
+
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("date,height,weight").From(f.TableName()).Where(where).Limit(5).Offset(0).String()
+
+	if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+
+		return Page{0, 0, 0, sxWords}, nil
+	}
+
+	return Page{}, nil
+}
+
+//获取宝宝健康详情
+func (f *Inspect) Situation(baby_id int) (map[string]interface{}, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1=1 "
+	if baby_id > 0{
+		where += "AND body_id  = "+strconv.Itoa(baby_id)
+	}
+	var Situation []orm.Params
+
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("*").From(f.TableName()).Where(where).OrderBy("id").Desc().Limit(1).Offset(0).String()
+
+	if _, err := o.Raw(sql, con).Values(&Situation); err == nil {
+		return Situation[0],nil
+	}
+
+	return nil, nil
 }

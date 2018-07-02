@@ -507,7 +507,11 @@ func GetkinderClass(kindergarten_id int, user_id int) (paginatorMapmap map[strin
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("teacher_id").From("teacher").Where("user_id = ?").String()
 	_, err = o.Raw(sql, user_id).Values(&teacher)
-	if err == nil {
+	if teacher == nil && err == nil {
+		paginatorMap["data"] = v
+		paginatorMap["teacher_id"] = nil
+		return paginatorMap, nil
+	} else {
 		paginatorMap["data"] = v
 		paginatorMap["teacher_id"] = teacher[0]["teacher_id"]
 		return paginatorMap, nil
@@ -542,11 +546,12 @@ func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err e
 	var v []orm.Params
 	var class []interface{}
 	baby_id := strings.Split(babyIds, ",")
+	paginatorMapmap = make(map[string]interface{})
 	for _, s := range baby_id {
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("s.name", "s.student_id", "s.baby_id", "o.name as class_name", "o.id as class_id", "class_type").From("student as s").LeftJoin("organizational_member as om").
 			On("s.student_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("status = 1").And("isnull(deleted_at)").String()
+			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("s.status = 1").And("om.type = 1").And("om.is_principal = 1").And("isnull(s.deleted_at)").String()
 		_, err = o.Raw(sql, s).Values(&v)
 		for key, val := range v {
 			if val["class_type"].(string) == "3" {
@@ -560,7 +565,6 @@ func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err e
 		class = append(class, v)
 	}
 	if err == nil {
-		paginatorMapmap = make(map[string]interface{})
 		paginatorMapmap["data"] = class
 		return paginatorMapmap, nil
 	}

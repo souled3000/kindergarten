@@ -37,27 +37,35 @@ func init() {
 
 // AddExceptionalChild insert a new ExceptionalChild into database and returns
 // last inserted Id on success.
-func AddExceptionalChild(child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
+func AddExceptionalChild(child_name string, class int, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
 	var exceptionalChild ExceptionalChild
-	exceptionalChild.ChildName = child_name
-	exceptionalChild.Class = class
-	exceptionalChild.Somatotype = somatotype
-	exceptionalChild.Allergen = allergen
-	exceptionalChild.Source = source
-	exceptionalChild.KindergartenId = kindergarten_id
-	exceptionalChild.Creator = creator
-	exceptionalChild.StudentId = student_id
-	exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-	exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 	o := orm.NewOrm()
+	allergen := strings.Split(allergens, ",")
 	o.Begin()
-	if id, err = o.Insert(&exceptionalChild); err == nil && id > 0 {
-
-		o.Commit()
-		return id, err
+	for _, v := range allergen {
+		if v != "" {
+			exceptionalChild.Id = 0
+			exceptionalChild.ChildName = child_name
+			exceptionalChild.Class = class
+			exceptionalChild.Somatotype = somatotype
+			exceptionalChild.Allergen = v
+			exceptionalChild.Source = source
+			exceptionalChild.KindergartenId = kindergarten_id
+			exceptionalChild.Creator = creator
+			exceptionalChild.StudentId = student_id
+			exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+			exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+			if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
+				o.Rollback()
+				return id, err
+			}
+		} else {
+			o.Rollback()
+			return id, err
+		}
 	}
-	o.Rollback()
-	return id, err
+	o.Commit()
+	return id,nil
 }
 
 // GetExceptionalChildById retrieves ExceptionalChild by Id. Returns error if
@@ -65,12 +73,22 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("*").From("exceptional_child").Where("id="+id).String()
+	sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where("ex.id="+id).String()
 	var maps []orm.Params
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		var newMaps []orm.Params
 		for _, v := range maps {
-			v["class"] = "大班一班"
+			if v["class_type"].(string) == "3" {
+				v["class_name"] = "大班" + v["name"].(string) + ""
+
+			} else if v["class_type"].(string) == "2" {
+				v["class_name"] = "中班" + v["name"].(string) + ""
+			} else {
+				v["class_name"] = "小班" + v["name"].(string) + ""
+			}
+
+			delete(v, "class_type")
+			delete(v, "name")
 			newMaps = append(newMaps, v)
 		}
 		return newMaps, err
@@ -89,24 +107,24 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 	where := "1=1 "
 
 	if child_name != "" {
-		where += " AND child_name like \"%" + string(child_name) + "%\""
+		where += " AND ex.child_name like \"%" + string(child_name) + "%\""
 	}
 
 	if somatotype != 0 {
 		Somatotype := strconv.FormatInt(int64(somatotype), 10)
 
-		where += " AND somatotype = " + string(Somatotype)
+		where += " AND ex.somatotype = " + string(Somatotype)
 	}
 
 	// 特殊儿童姓名或者特殊儿童过敏源
 	if keyword != "" {
-		where += " AND child_name like \"%" + string(keyword) + "%\" OR allergen like \"%" + string(keyword) + "%\""
+		where += " AND ex.child_name like \"%" + string(keyword) + "%\" OR ex.allergen like \"%" + string(keyword) + "%\""
 
 	}
 
 	totalqb, _ := orm.NewQueryBuilder("mysql")
 
-	tatolsql := totalqb.Select("count(*)").From("exceptional_child").Where(where).String()
+	tatolsql := totalqb.Select("count(*)").From("exceptional_child as ex").Where(where).String()
 
 	var total int64
 	err := o.Raw(tatolsql).QueryRow(&total)
@@ -121,10 +139,19 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 		offset := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("*").From("exceptional_child").Where(where).OrderBy("id").Desc().Limit(int(limit)).Offset(int(offset)).String()
+		sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where(where).OrderBy("ex.id").Desc().Limit(int(limit)).Offset(int(offset)).String()
 		if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 			var newMap []orm.Params
 			for _, v := range maps {
+				if v["class_type"].(string) == "3" {
+					v["class_name"] = "大班" + v["name"].(string) + ""
+
+				} else if v["class_type"].(string) == "2" {
+					v["class_name"] = "中班" + v["name"].(string) + ""
+				} else {
+					v["class_name"] = "小班" + v["name"].(string) + ""
+				}
+
 				t := time.Now()
 				currentTime := t.Unix() - (24 * 3600 * 3) //当前时间戳
 				BeCharge := v["updated_at"]
@@ -135,13 +162,13 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 				sr := theTime.Unix() //将更新时间转为时间戳
 				if sr > currentTime {
 					v["new"] = 1 //最新
-					v["class"] = "大班二班"
 				} else {
 					v["new"] = 0
-					v["class"] = "大班一班"
 				}
 
 				delete(v, "updated_at")
+				delete(v, "class_type")
+				delete(v, "name")
 				newMap = append(newMap, v)
 			}
 			pageNum := int(math.Ceil(float64(total) / float64(limit)))

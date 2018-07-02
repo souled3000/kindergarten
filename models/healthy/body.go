@@ -3,6 +3,9 @@ package healthy
 import (
 	"github.com/astaxie/beego/orm"
 	"time"
+	"strings"
+	"encoding/json"
+	"strconv"
 )
 
 type Body struct {
@@ -30,6 +33,67 @@ func AddBody(b *Body) (id int64, err error){
 	o := orm.NewOrm()
 	id, err = o.Insert(b)
 	return
+}
+
+func GetOneBody(id int) (ml map[string]interface{}, err error){
+	o := orm.NewOrm()
+	var b Body
+	b.Id = id
+	if err := o.Read(&b); err == nil {
+		project := strings.Split(b.Project,",")
+		var p_str string
+		var p_num int
+		for key,val := range project {
+			if strings.Contains(val, "眼") {
+				p_num++
+			} else {
+				if key == 0 {
+					p_str += val
+				} else {
+					p_str += ","+val
+				}
+			}
+		}
+		if p_num > 0{
+			p_str += ",column:视力"
+		}
+		bjson,_ :=json.Marshal(b)
+		json.Unmarshal(bjson, &ml)
+		ml["h5_project"] = p_str
+		return ml, nil
+	}
+	return nil, err
+}
+
+func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error){
+	o := orm.NewOrm()
+	sql := "select a.id,a.theme,a.test_time,a.mechanism,a.kindergarten_id,a.types,a.project,b.class_total as total,b.class_actual as actual,b.class_rate as rate from healthy_body a left join healthy_class b on a.id = b.body_id where a.id="+strconv.Itoa(id)+" and b.class_id="+strconv.Itoa(class_id)
+	var b Body
+
+	if err = o.Raw(sql).QueryRow(&b); err == nil {
+		project := strings.Split(b.Project,",")
+		var p_str string
+		var p_num int
+		for key,val := range project {
+			if strings.Contains(val, "眼") {
+				p_num++
+			} else {
+				if key == 0 {
+					p_str += val
+				} else {
+					p_str += ","+val
+				}
+			}
+		}
+		if p_num > 0{
+			p_str += ",column:视力"
+		}
+		bjson,_ :=json.Marshal(b)
+		json.Unmarshal(bjson, &ml)
+		ml["h5_project"] = p_str
+		return ml, nil
+	}
+	return nil, err
 }
 
 func UpdataByIdBody(b *Body) (err error) {
@@ -93,7 +157,7 @@ func CrBody(theme string, kindergarten_id int,test_time string, types int)(id in
 	body := Body{Theme: theme, KindergartenId:kindergarten_id,TestTime:test_time,Types:types}
 	// 三个返回参数依次为：是否新创建的，对象 Id 值，错误
 	if _, id, err := o.ReadOrCreate(&body, "Theme","KindergartenId","TestTime"); err == nil {
-			return  id,nil
+		return  id,nil
 	}
 	return  id,err
 }
