@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"kindergarten-service-go/models"
 
@@ -30,7 +29,6 @@ func (c *KindergartenServer) GetKg(user_id int, kindergarten_id int) (value map[
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("k.name").From("kindergarten as k").Where("kindergarten_id = ?").String()
 	_, err = o.Raw(sql, kindergarten_id).Values(&kinder)
-	fmt.Println(kinder[0]["name"])
 	//权限信息
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
