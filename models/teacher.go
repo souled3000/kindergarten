@@ -359,3 +359,21 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]
 	}
 	return nil
 }
+
+/*
+教师列表
+*/
+func UserGetTeacherId(user_id int) (paginatorMapmap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var teacher []orm.Params
+	paginatorMap := make(map[string]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
+		From("teacher as t").Where("user_id = ?").And("isnull(deleted_at)").And("status = 0").String()
+	num, err := o.Raw(sql, user_id).Values(&teacher)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = teacher
+		return paginatorMap, nil
+	}
+	return nil, err
+}
