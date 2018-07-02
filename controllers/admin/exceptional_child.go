@@ -99,16 +99,14 @@ func (c *ExceptionalChildController) Post() {
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
-		c.ServeJSON()
 	} else {
 		if _, err := models.AddExceptionalChild(child_name, class, somatotype, allergen, source, kindergarten_id, creator, student_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "新增成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "新增失败"}
 		}
-		c.ServeJSON()
 	}
-
+	c.ServeJSON()
 }
 
 // GetOne ...
@@ -180,7 +178,6 @@ func (c *ExceptionalChildController) Put() {
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
-		c.ServeJSON()
 	} else {
 		if err := models.UpdateExceptionalChildById(id, child_name, class, somatotype, allergen, source, kindergarten_id, creator, student_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
