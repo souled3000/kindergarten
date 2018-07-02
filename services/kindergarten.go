@@ -91,22 +91,3 @@ func (c *KindergartenServer) GetClass(kindergarten_id int) (ml map[string]interf
 	ml["data"] = v
 	return ml
 }
-
-/*
-宝宝所在班级
-*/
-func (c *KindergartenServer) GetBabyClass(Baby_id int) (ml map[string]interface{}, err error) {
-	o := orm.NewOrm()
-	var v []orm.Params
-	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("s.name", "s.student_id", "o.name as class_name", "o.id as class_id").From("student as s").LeftJoin("organizational_member as om").
-		On("s.student_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where("s.baby_id = ?").And("status = 1").And("isnull(deleted_at)").String()
-	_, err = o.Raw(sql, Baby_id).Values(&v)
-	if err == nil {
-		ml = make(map[string]interface{})
-		ml["data"] = v
-		return ml, nil
-	}
-	return nil, err
-}

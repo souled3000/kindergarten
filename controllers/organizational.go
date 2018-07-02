@@ -350,3 +350,29 @@ func (o *OrganizationalController) GetCS() {
 		o.ServeJSON()
 	}
 }
+
+// GetBabyClass ...
+// @Title 宝宝所在班级
+// @Description 宝宝所在班级
+// @Param	baby_id           query	int	     true		"宝宝ID"
+// @Success 200 {object} models.Organizational
+// @Failure 403
+// @router /class_baby [get]
+func (o *OrganizationalController) GetBabyClass() {
+	babyIds := o.GetString("baby_ids")
+	valid := validation.Validation{}
+	valid.Required(babyIds, "babyIds").Message("宝宝id不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
+	} else {
+		v, err := models.GetBabyClass(babyIds)
+		if err != nil {
+			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		o.ServeJSON()
+	}
+
+}

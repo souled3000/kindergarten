@@ -285,21 +285,21 @@ func (c *TeacherController) Invite() {
 					text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + value.Phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
 					//密码加密
 					password = User.Encrypt(vcode)
-					_, err = User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
+					res, err := Onemore.Send(value.Phone, text)
 					if err == nil {
-						res, err := Onemore.Send(value.Phone, text)
-						if err == nil {
-							if int(res["code"].(float64)) == 0 {
+						if int(res["code"].(float64)) == 0 {
+							_, err = User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
+							if err == nil {
 								c.Data["json"] = JSONStruct{"success", 0, nil, res["msg"].(string)}
-								c.ServeJSON()
-							} else {
-								c.Data["json"] = JSONStruct{"error", 1001, nil, res["msg"].(string)}
 								c.ServeJSON()
 							}
 						} else {
-							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送有误"}
+							c.Data["json"] = JSONStruct{"error", 1001, nil, res["msg"].(string)}
 							c.ServeJSON()
 						}
+					} else {
+						c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送有误"}
+						c.ServeJSON()
 					}
 				}
 			}

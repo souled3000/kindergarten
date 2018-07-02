@@ -533,3 +533,36 @@ func GetClassStudent(class_id int) (paginatorMapmap map[string]interface{}, err 
 	}
 	return nil, err
 }
+
+/*
+宝宝所在班级
+*/
+func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var v []orm.Params
+	var class []interface{}
+	baby_id := strings.Split(babyIds, ",")
+	for _, s := range baby_id {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("s.name", "s.student_id", "s.baby_id", "o.name as class_name", "o.id as class_id", "class_type").From("student as s").LeftJoin("organizational_member as om").
+			On("s.student_id = om.member_id").LeftJoin("organizational as o").
+			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("status = 1").And("isnull(deleted_at)").String()
+		_, err = o.Raw(sql, s).Values(&v)
+		for key, val := range v {
+			if val["class_type"].(string) == "3" {
+				v[key]["class"] = "大班" + val["class_name"].(string) + ""
+			} else if val["class_type"].(string) == "2" {
+				v[key]["class"] = "中班" + val["class_name"].(string) + ""
+			} else {
+				v[key]["class"] = "小班" + val["class_name"].(string) + ""
+			}
+		}
+		class = append(class, v)
+	}
+	if err == nil {
+		paginatorMapmap = make(map[string]interface{})
+		paginatorMapmap["data"] = class
+		return paginatorMapmap, nil
+	}
+	return nil, err
+}
