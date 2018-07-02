@@ -2,19 +2,16 @@ package healthy
 
 import (
 	"github.com/astaxie/beego/orm"
-	"strconv"
 )
 
 type Height struct {
 	Id       	int	   	 	`json:"id" orm:"column(id);auto"`
-	Age			string	  	`json:"age" orm:"column(age)"`
-	Small		string	  	`json:"small" orm:"column(small)"`
-	SdOne		string	  	`json:"sd_one" orm:"column(sd_one)"`
-	SdTwo		string		`json:"sd_two" orm:"column(sd_two)"`
-	SdThree		string		`json:"sd_three" orm:"column(sd_three)"`
-	SdFour		string		`json:"sd_four" orm:"column(sd_four)"`
-	SdFive 		string		`json:"sd_five" orm:"column(sd_five)"`
-	Large		string		`json:"large" orm:"column(large)"`
+	Age			int		  	`json:"age" orm:"column(age)"`
+	Small		float64	  	`json:"small" orm:"column(small)"`
+	SdOne		float64	  	`json:"sd_one" orm:"column(sd_one)"`
+	SdTwo		float64		`json:"sd_two" orm:"column(sd_two)"`
+	SdThree		float64		`json:"sd_three" orm:"column(sd_three)"`
+	Large		float64		`json:"large" orm:"column(large)"`
 	Type		int			`json:"type" orm:"column(type)"`
 }
 
@@ -26,6 +23,7 @@ func (t *Height) TableName() string {
 	return "healthy_height"
 }
 
+//根据年龄判断身高
 func (w *Height) Compare(sex int,age,weight float64)  (types string,err error) {
 
 	o := orm.NewOrm()
@@ -34,19 +32,16 @@ func (w *Height) Compare(sex int,age,weight float64)  (types string,err error) {
 	err = o.QueryTable("healthy_height").Filter("type",sex).Filter("age", age).One(&info)
 	if err == nil{
 
-		small := info.Small
-		sml,_ := strconv.ParseFloat(small, 64)
-
-		large := info.Large
-		len,_ := strconv.ParseFloat(large, 64)
-
-		if weight < sml {
-			status = "1"
-		}
-		if weight > len {
-			status = "2"
-		}else {
-			status = "0"
+		if weight < info.Small {
+			status = "1" //矮小
+		}else if weight >= info.Small && weight<info.SdOne {
+			status = "2" //偏矮
+		}else if weight >= info.SdOne && weight < info.SdThree{
+			status = "3" //正常
+		}else if weight >= info.SdThree && weight < info.Large{
+			status = "4" //偏胖
+		}else if weight >= info.Large {
+			status = "5"
 		}
 	}else {
 		return "",err

@@ -45,16 +45,13 @@ func (c *InspectController) Post() {
 	drug_id, _:= c.GetInt("drug_id")
 	teacher_id, _:= c.GetInt("teacher_id")
 	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	date := c.GetString("date")
 
 	valid := validation.Validation{}
 	valid.Required(class_name,"class_name").Message("班级名称不能为空")
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
 	valid.Required(class_id,"class_id").Message("班级ID不能为空")
-	valid.Required(types,"types").Message("检查类型不能为空")
-	valid.Required(abnormal,"abnormal").Message("异常情况不能为空")
 	valid.Required(teacher_id,"teacher_id").Message("教师ID不能为空")
-	valid.Required(handel,"handel").Message("异常情况不能为空")
-	valid.Required(infect,"infect").Message("传染情况不能为空")
 	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
 
 	if valid.HasErrors() {
@@ -76,12 +73,13 @@ func (c *InspectController) Post() {
 		TeacherId:teacher_id,
 		KindergartenId:kindergarten_id,
 		ClassName:class_name,
+		Date:date,
 	}
 	if err := w.Save(); err == nil {
-		c.Data["json"] = JSONStruct{"success", 0, "", "申请成功"}
+		c.Data["json"] = JSONStruct{"success", 0, "", "记录成功"}
 	} else {
 		fmt.Println(err)
-		c.Data["json"] = JSONStruct{"error", 1003, "", "申请失败"}
+		c.Data["json"] = JSONStruct{"error", 1003, "", "记录失败"}
 	}
 
 	c.ServeJSON()
