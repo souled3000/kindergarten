@@ -209,4 +209,3 @@ func (c *ExceptionalChildController) Delete() {
 	}
 	c.ServeJSON()
 }
-
