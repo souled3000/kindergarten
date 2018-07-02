@@ -210,6 +210,11 @@ func init() {
 				&admin.ExceptionalChildController{},
 			),
 		),
+		beego.NSNamespace("/app/allergen_child",
+			beego.NSInclude(
+				&controllers.AllergenChildController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }

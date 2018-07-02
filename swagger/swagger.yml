@@ -1833,6 +1833,23 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is empty
+  /app/allergen_child/:
+    get:
+      tags:
+      - app/allergen_child
+      description: 根据过敏源获取特殊儿童
+      operationId: AllergenChildController.根据过敏源获取特殊儿童
+      parameters:
+      - in: query
+        name: allergen
+        description: 过敏源信息，多个过敏源以','分隔
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1005":
+          description: 获取失败
   /app/healthy/body/:
     get:
       tags:
@@ -3728,6 +3745,44 @@ paths:
         description: 用户ID
         required: true
         type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.UserPermission'
+        "403":
+          description: :id is empty
+  /user_permission/group_all:
+    get:
+      tags:
+      - user_permission
+      description: 筛选圈子
+      operationId: UserPermissionController.筛选圈子
+      parameters:
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: role
+        description: 身份(1 kindergarten_id,role,class_type  5 user_id,role,class_type)
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园id
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
