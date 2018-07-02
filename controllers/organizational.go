@@ -196,6 +196,7 @@ func (o *OrganizationalController) GetOrganization() {
 func (o *OrganizationalController) AddOrganization() {
 	name := o.GetString("name")
 	ty, _ := o.GetInt("type")
+	class_type, _ := o.GetInt("class_type")
 	parent_id, _ := o.GetInt("parent_id")
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
 	valid := validation.Validation{}
@@ -204,7 +205,7 @@ func (o *OrganizationalController) AddOrganization() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		_, err := models.AddOrganization(name, ty, parent_id, kindergarten_id)
+		_, err := models.AddOrganization(name, ty, parent_id, kindergarten_id, class_type)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {
@@ -301,11 +302,13 @@ func (o *OrganizationalController) Principal() {
 // GetClass ...
 // @Title 幼儿园所有班级
 // @Description 幼儿园所有班级
-// @Param	kindergarten_id           query	int	     true		"幼儿园ID"
+// @Param	user_id                   query	int	     true		"用户id"
+// @Param	kindergarten_id           query	int	     true		"幼儿园id"
 // @Success 200 {object} models.Organizational
 // @Failure 403
 // @router /class_kinder [get]
 func (o *OrganizationalController) GetKC() {
+	user_id, _ := o.GetInt("user_id", -1)
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
 	valid := validation.Validation{}
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园编号不能为空")
@@ -313,7 +316,7 @@ func (o *OrganizationalController) GetKC() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		v, err := models.GetkinderClass(kindergarten_id)
+		v, err := models.GetkinderClass(kindergarten_id, user_id)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 		} else {

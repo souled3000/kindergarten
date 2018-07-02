@@ -55,9 +55,9 @@ func AddUserPermission(user_id int, role string, permission string, group string
 		loc, _ := time.LoadLocation("")
 		timenow := time.Now().Format("2006-01-02 15:04:05")
 		created_at, _ := time.ParseInLocation(timeLayout, timenow, loc)
-		for _, v := range g {
-			sql := "insert into group_view set user_id = ?,class_type = ?,created_at = ?"
-			_, err = o.Raw(sql, user_id, v, created_at).Exec()
+		for k, v := range g {
+			sql := "insert into group_view set user_id = ?,class_type = ?,class_id = ?,created_at = ?"
+			_, err = o.Raw(sql, user_id, k, v, created_at).Exec()
 		}
 	}
 	if err == nil {
@@ -73,13 +73,13 @@ func AddUserPermission(user_id int, role string, permission string, group string
 /*
 查看用户权限
 */
-func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, err error) {
+func GetUserPermissionById(user_id int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+
 	o := orm.NewOrm()
 	var r []orm.Params
 	var p []orm.Params
 	var g []orm.Params
 	var rol []orm.Params
-
 	paginatorMap = make(map[string]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("r.role_id").From("user_role as r").Where("user_id = ?").String()
@@ -91,7 +91,7 @@ func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, er
 	_, err = o.Raw(sql, user_id).Values(&p)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("g.class_type").From("group_view as g").Where("user_id = ?").String()
+	sql = qb.Select("g.class_id").From("group_view as g").Where("user_id = ?").String()
 	_, err = o.Raw(sql, user_id).Values(&g)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
@@ -102,6 +102,7 @@ func GetUserPermissionById(user_id int) (paginatorMap map[string]interface{}, er
 		paginatorMap["user_role"] = r
 		paginatorMap["user_permission"] = p
 		paginatorMap["group_view"] = g
+		paginatorMap["group_permission"] = GetGroupPermission(kindergarten_id)
 		paginatorMap["roles"] = rol
 		paginatorMap["permissions"] = PermissionOption()
 		return paginatorMap, nil
@@ -136,7 +137,7 @@ func GetGroupIdentificationById(user_id int) (paginatorMap map[string]interface{
 	var g []orm.Params
 	paginatorMap = make(map[string]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("class_type").From("group_view as gv").Where("gv.user_id = ?").String()
+	sql := qb.Select("class_id").From("group_view as gv").Where("gv.user_id = ?").String()
 	num, err := o.Raw(sql, user_id).Values(&g)
 	if err == nil && num > 0 {
 		paginatorMap["data"] = g
@@ -183,9 +184,9 @@ func UpdateUserPermissionById(user_id int, role string, permission string, group
 		loc, _ := time.LoadLocation("")
 		timenow := time.Now().Format("2006-01-02 15:04:05")
 		created_at, _ := time.ParseInLocation(timeLayout, timenow, loc)
-		for _, v := range g {
-			sql := "insert into group_view set user_id = ?,class_type = ?,created_at = ?"
-			_, err = o.Raw(sql, user_id, v, created_at).Exec()
+		for k, v := range g {
+			sql := "insert into group_view set user_id = ?,class_type = ?, class_id = ?,created_at = ?"
+			_, err = o.Raw(sql, user_id, k, v, created_at).Exec()
 		}
 	}
 	if err == nil {

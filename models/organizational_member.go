@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/astaxie/beego/orm"
@@ -33,7 +32,6 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 	var v []orm.Params
 	paginatorMap = make(map[string]interface{})
 	s := strings.Split(member_ids, ",")
-	fmt.Println(s)
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("o.*").From("organizational as o").Where("id = ?").String()
 	_, err = o.Raw(sql, organizational_id).Values(&v)
@@ -182,7 +180,7 @@ func MyKinder(kindergarten_id int) (paginatorMap map[string]interface{}, err err
 /*
 组织框架移除教师
 */
-func DestroyMember(teacher_id int, class_id int) error {
+func DestroyMember(teacher_id int, class_id int, is_principal int) error {
 	o := orm.NewOrm()
 	var or []orm.Params
 	var om []orm.Params
@@ -207,7 +205,7 @@ func DestroyMember(teacher_id int, class_id int) error {
 	} else {
 		//组织架构类型是年级组并且是第三级需要设置教师或者学生状态为未分配班级
 		if or[0]["type"].(string) == "2" && or[0]["level"] == "3" {
-			if om[0]["type"] == 0 {
+			if om[0]["type"].(string) == "0" {
 				o.QueryTable("teacher").Filter("teacher_id", teacher_id).Update(orm.Params{
 					"status": 0,
 				})
@@ -216,9 +214,10 @@ func DestroyMember(teacher_id int, class_id int) error {
 					"status": 0,
 				})
 			}
-			_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
+			_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Filter("is_principal", is_principal).Delete()
 		} else {
-			_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
+			_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Filter("is_principal", is_principal).Delete()
+
 		}
 	}
 	if err == nil {

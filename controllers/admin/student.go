@@ -1,17 +1,11 @@
 package admin
 
 import (
-	"encoding/json"
 	"fmt"
 	"kindergarten-service-go/models"
-	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/astaxie/beego/validation"
-	"github.com/hprose/hprose-golang/rpc"
-
-	"github.com/astaxie/beego"
 )
 
 //学生
@@ -168,70 +162,27 @@ func (c *StudentController) Post() {
 // Invite ...
 // @Title 邀请学生/批量邀请
 // @Description 邀请学生/批量邀请
-// @Param	phone		        body 	string	true		"手机号(json)"
-// @Param	name		            body 	int   	true		"学生姓名(json)"
-// @Param	role  		        body 	int  	true		"身份(json)"
-// @Param	kindergarten_id		body 	int   	true		"幼儿园ID(json)"
+// @Param	name		        body 	int   	true		"学生姓名(json)"
+// @Param	baby_id		        body 	int   	true		"宝宝id(json)"
+// @Param	kindergarten_id		body 	int   	true		"幼儿园id(json)"
 // @Success 201 {int} models.Student
 // @Failure 403 body is empty
 // @router /invite [post]
 func (c *StudentController) Invite() {
-	var User *UserService
-	var Onemore *OnemoreService
-	var password string
-	var text string
 	student := c.GetString("student")
-	var s []inviteTeacher
-	json.Unmarshal([]byte(student), &s)
 	valid := validation.Validation{}
 	valid.Required(student, "student").Message("学生信息不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		//rpc服务
-		client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
-		client.UseService(&User)
-		client = rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_SMS_SERVER"))
-		client.UseService(&Onemore)
-		//获取用户关联表
-		for _, value := range s {
-			err := User.GetUK(value.Phone)
-			if err == nil {
-				c.Data["json"] = JSONStruct{"error", 1009, nil, "" + value.Phone + "已被邀请过"}
-				c.ServeJSON()
-			} else {
-				//获取用户信息
-				userId, _ := User.GetOne(value.Phone)
-				if userId != 0 {
-					User.CreateUK(userId, value.KindergartenId, value.Role)
-				} else {
-					//生成六位验证码
-					rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-					vcode := fmt.Sprintf("%06v", rnd.Int31n(1000000))
-					//发送短信
-					text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + value.Phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
-					//密码加密
-					password = User.Encrypt(vcode)
-					_, err := User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
-					if err == nil {
-						res, err := Onemore.Send(value.Phone, text)
-						if err == nil {
-							if int(res["code"].(float64)) == 0 {
-								c.Data["json"] = JSONStruct{"success", 0, nil, res["msg"].(string)}
-								c.ServeJSON()
-							} else {
-								c.Data["json"] = JSONStruct{"error", 1001, nil, res["msg"].(string)}
-								c.ServeJSON()
-							}
-						} else {
-							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送有误"}
-							c.ServeJSON()
-						}
-					}
-				}
-			}
+		err := models.Invite(student)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "邀请成功"}
 		}
+		c.ServeJSON()
 	}
 }
 
@@ -255,6 +206,25 @@ func (c *StudentController) DeleteStudent() {
 		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+	}
+	c.ServeJSON()
+}
+
+// GetBaby ...
+// @Title GetBaby
+// @Description 宝贝信息
+// @Param	kindergarten_id       query	 int	 true		"幼儿园id"
+// @Success 200 {object} models.Student
+// @Failure 403 :幼儿园id不能为空
+// @router /baby [get]
+func (c *StudentController) GetBaby() {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	fmt.Println(kindergarten_id)
+	v, err := models.GetBabyInfo(kindergarten_id)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
 	c.ServeJSON()
 }
