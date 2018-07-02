@@ -2695,32 +2695,6 @@
                 }
             }
         },
-        "/app/allergen_child/": {
-            "get": {
-                "tags": [
-                    "app/allergen_child"
-                ],
-                "description": "根据过敏源获取特殊儿童",
-                "operationId": "AllergenChildController.根据过敏源获取特殊儿童",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "allergen",
-                        "description": "过敏源信息，多个过敏源以','分隔",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "0": {
-                        "description": "{json} \tJSONStruct"
-                    },
-                    "1005": {
-                        "description": "获取失败"
-                    }
-                }
-            }
-        },
         "/app/healthy/body/": {
             "get": {
                 "tags": [
@@ -3647,29 +3621,20 @@
                 "tags": [
                     "app/special_child"
                 ],
-                "description": "特殊儿童列表/搜索特殊儿童",
-                "operationId": "ExceptionalChildController.特殊儿童列表/搜索特殊儿童",
+                "description": "根据过敏源获取特殊儿童",
+                "operationId": "ExceptionalChildController.根据过敏源获取特殊儿童",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "keyword",
-                        "description": "关键字(特殊儿童姓名/特殊儿童过敏源)",
+                        "name": "allergen",
+                        "description": "过敏源信息，多个过敏源以','分隔",
+                        "required": true,
                         "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "page",
-                        "description": "当前页",
-                        "type": "integer",
-                        "format": "int64"
                     }
                 ],
                 "responses": {
                     "0": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.ExceptionalChild"
-                        }
+                        "description": "{json} \tJSONStruct"
                     },
                     "1005": {
                         "description": "获取失败"
