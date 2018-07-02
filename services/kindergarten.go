@@ -3,7 +3,6 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-
 	"kindergarten-service-go/models"
 
 	"github.com/astaxie/beego"
@@ -90,4 +89,14 @@ func (c *KindergartenServer) GetClass(kindergarten_id int) (ml map[string]interf
 	ml = make(map[string]interface{})
 	ml["data"] = v
 	return ml
+}
+func (c *KindergartenServer) GetAllergenChild(allergen string) (ml interface{}) {
+
+	if allergenChild, err := models.GetAllergenChild(allergen); err == nil {
+
+		jsonData, _ := json.Marshal(allergenChild)
+		return string(jsonData)
+	} else {
+		return nil
+	}
 }
