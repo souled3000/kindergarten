@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"kindergarten-service-go/models"
 	"strconv"
 
@@ -53,7 +54,9 @@ func (c *UserPermissionController) Post() {
 func (c *UserPermissionController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	user_id, _ := strconv.Atoi(idStr)
-	v, err := models.GetUserPermissionById(user_id)
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	fmt.Println(kindergarten_id)
+	v, err := models.GetUserPermissionById(user_id, kindergarten_id)
 	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 	} else {
@@ -118,7 +121,6 @@ func (c *UserPermissionController) Put() {
 	group := c.GetString("group")
 	valid := validation.Validation{}
 	valid.Required(user_id, "user_id").Message("用户ID不能为空")
-	valid.Required(permission, "permission").Message("权限不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()

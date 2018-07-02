@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -161,7 +160,6 @@ func Destroy(class_id int) (paginatorMap map[string]interface{}, err error) {
 	if v.IsFixed == 1 {
 		err = errors.New("不能删除")
 		return nil, err
-
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("member_id").From("organizational_member").Where("organizational_id = ?").And("type = 0").String()
@@ -172,7 +170,6 @@ func Destroy(class_id int) (paginatorMap map[string]interface{}, err error) {
 			_, err = o.QueryTable("teacher").Filter("teacher_id", t[key]["member_id"]).Update(orm.Params{
 				"status": 0,
 			})
-			fmt.Println(err)
 		}
 
 	}
@@ -186,7 +183,6 @@ func Destroy(class_id int) (paginatorMap map[string]interface{}, err error) {
 			_, err = o.QueryTable("student").Filter("student_id", s[key]["member_id"]).Update(orm.Params{
 				"status": 0,
 			})
-
 		}
 	}
 
@@ -237,7 +233,6 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 	if max_name[0]["m"] == nil {
 		max_name[0]["m"] = "0"
 	}
-	fmt.Println(max_name)
 	m := max_name[0]["m"].(string)
 	//班级号
 	ml := strings.Replace(m, "班", "", -1)
@@ -259,11 +254,10 @@ func StoreClass(class_type int, kindergarten_id int) (paginatorMap map[string]in
 	sql = "insert into organizational set kindergarten_id = ?,name = ?,level = ?,parent_ids = ?,class_type = ?,type = ?,parent_id = ?,is_fixed =?"
 	res, err := o.Raw(sql, kindergarten_id, ""+name+"班", lev, ""+parent_ids+""+ids+",", class_type, 2, or[0]["id"], or[0]["is_fixed"]).Exec()
 	id, _ := res.LastInsertId()
-
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
 	} else {
-		err = o.Commit()
+		o.Commit()
 	}
 	if err == nil {
 		paginatorMap["class_id"] = id
@@ -337,7 +331,7 @@ func getNext(posts []Organizational, id int) (Organizational []OrganizationalTre
 /*
 添加组织架构
 */
-func AddOrganization(name string, ty int, parent_id int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+func AddOrganization(name string, ty int, parent_id int, kindergarten_id int, class_type int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
 	var kinder []orm.Params
@@ -379,8 +373,8 @@ func AddOrganization(name string, ty int, parent_id int, kindergarten_id int) (p
 			}
 		}
 		qb, _ = orm.NewQueryBuilder("mysql")
-		sql = "insert into organizational set parent_id = ?,name = ?,level = ?,parent_ids = ?,type = ?,kindergarten_id =?"
-		_, err = o.Raw(sql, parent_id, name, le, ""+parent_ids+""+id+",", ty, kindergarten_id).Exec()
+		sql = "insert into organizational set parent_id = ?,name = ?,level = ?,parent_ids = ?,type = ?,kindergarten_id =?,class_type = ?"
+		_, err = o.Raw(sql, parent_id, name, le, ""+parent_ids+""+id+",", ty, kindergarten_id, class_type).Exec()
 	} else {
 		qb, _ = orm.NewQueryBuilder("mysql")
 		sql = "insert into organizational set name = ?,type = ?,kindergarten_id =?"
@@ -406,15 +400,14 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 	sql := qb.Select("*").From("organizational").Where("id = ?").String()
 	_, err = o.Raw(sql, organization_id).Values(&v)
 	is_fixe := v[0]["is_fixed"].(string)
-	is_fixed, _ := strconv.Atoi(is_fixe)
-	if is_fixed == 1 {
+	level := v[0]["level"].(string)
+	if is_fixe == "1" || (is_fixe == "0" && level == "2") {
 		err = errors.New("不能删除")
 		return nil, err
 	}
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("count(*) as num").From("organizational").Where("parent_ids = ?").String()
 	_, err = o.Raw(sql, organization_id).Values(&val)
-	fmt.Println(val)
 	num := val[0]["num"].(string)
 	nums, _ := strconv.Atoi(num)
 	if nums > 0 {
@@ -422,7 +415,6 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 		sql = qb.Select("organizational.*").From("organizational").Where("parent_ids = ?").String()
 		_, err = o.Raw(sql, organization_id).Values(&organ)
 		for key, _ := range organ {
-			fmt.Println(organ[key]["id"])
 			_, err = o.QueryTable("organizational").Filter("id", organ[key]["id"]).Delete()
 			_, err = o.QueryTable("organizational_member").Filter("organizational_id", organ[key]["id"]).Delete()
 		}
@@ -442,7 +434,17 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 */
 func UpOrganization(organization_id int, name string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
+	var v []orm.Params
 	paginatorMap = make(map[string]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("*").From("organizational").Where("id = ?").String()
+	_, err = o.Raw(sql, organization_id).Values(&v)
+	//	level := v[0]["level"].(string)
+	is_fixe := v[0]["is_fixed"].(string)
+	if is_fixe == "1" {
+		err = errors.New("不能编辑")
+		return nil, err
+	}
 	_, err = o.QueryTable("organizational").Filter("id", organization_id).Update(orm.Params{
 		"name": name,
 	})
@@ -528,6 +530,39 @@ func GetClassStudent(class_id int) (paginatorMapmap map[string]interface{}, err 
 	if err == nil && num > 0 {
 		paginatorMap["data"] = v
 		return paginatorMap, nil
+	}
+	return nil, err
+}
+
+/*
+宝宝所在班级
+*/
+func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var v []orm.Params
+	var class []interface{}
+	baby_id := strings.Split(babyIds, ",")
+	for _, s := range baby_id {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("s.name", "s.student_id", "s.baby_id", "o.name as class_name", "o.id as class_id", "class_type").From("student as s").LeftJoin("organizational_member as om").
+			On("s.student_id = om.member_id").LeftJoin("organizational as o").
+			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("status = 1").And("isnull(deleted_at)").String()
+		_, err = o.Raw(sql, s).Values(&v)
+		for key, val := range v {
+			if val["class_type"].(string) == "3" {
+				v[key]["class"] = "大班" + val["class_name"].(string) + ""
+			} else if val["class_type"].(string) == "2" {
+				v[key]["class"] = "中班" + val["class_name"].(string) + ""
+			} else {
+				v[key]["class"] = "小班" + val["class_name"].(string) + ""
+			}
+		}
+		class = append(class, v)
+	}
+	if err == nil {
+		paginatorMapmap = make(map[string]interface{})
+		paginatorMapmap["data"] = class
+		return paginatorMapmap, nil
 	}
 	return nil, err
 }

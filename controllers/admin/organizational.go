@@ -174,6 +174,7 @@ func (o *OrganizationalController) GetOrganization() {
 func (o *OrganizationalController) AddOrganization() {
 	name := o.GetString("name")
 	ty, _ := o.GetInt("type")
+	class_type, _ := o.GetInt("class_type")
 	parent_id, _ := o.GetInt("parent_id")
 	kindergarten_id, _ := o.GetInt("kindergarten_id")
 	valid := validation.Validation{}
@@ -182,7 +183,7 @@ func (o *OrganizationalController) AddOrganization() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		_, err := models.AddOrganization(name, ty, parent_id, kindergarten_id)
+		_, err := models.AddOrganization(name, ty, parent_id, kindergarten_id, class_type)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {

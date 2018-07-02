@@ -3,12 +3,10 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"time"
-
-	"github.com/astaxie/beego"
-	"github.com/hprose/hprose-golang/rpc"
 
 	"github.com/astaxie/beego/orm"
 )
@@ -25,7 +23,7 @@ type Student struct {
 	Address          string    `json:"address" orm:"column(address);size(50)" description:"住址"`
 	Avatar           string    `json:"avatar" orm:"column(avatar);size(150)" description:"头像"`
 	Status           int8      `json:"status" orm:"column(status)" description:"状态 0未分班 1已分班 2离园"`
-	BabyId			 int	   `json:"baby_id" orm:"column(baby_id)"`
+	BabyId           int       `json:"baby_id" orm:"column(baby_id)" description:"宝宝ID"`
 	KindergartenId   int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
 	Phone            string    `json:"phone" orm:"column(phone);size(11)" description:"手机号"`
 	HealthStatus     string    `json:"health_status" orm:"column(health_status);size(150)" description:"健康状况，多个以逗号隔开"`
@@ -33,6 +31,12 @@ type Student struct {
 	CreatedAt        time.Time `json:"Created_at" orm:"auto_now_add"`
 	UpdatedAt        time.Time `json:"updated_at" orm:"auto_now"`
 	DeletedAt        time.Time `json:"deleted_at" orm:"column(deleted_at);type(datetime);null"`
+}
+
+type inviteStudent struct {
+	Name           string `json:"name"`
+	BabyId         int    `json:"baby_id"`
+	KindergartenId int    `json:"kindergarten_id"`
 }
 
 func (t *Student) TableName() string {
@@ -189,15 +193,15 @@ func DeleteStudent(id int, status int, ty int, class_type int) map[string]interf
 */
 func GetStudentInfo(id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	var kinships []orm.Params
+	var kinships []Kinship
 	//学生信息
 	student := Student{Id: id}
 	err = o.Read(&student)
 	//亲属信息
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("kinship").Where("student_id = ?").String()
-	_, err = o.Raw(sql, id).Values(&kinships)
-	if err == nil {
+	num, err := o.Raw(sql, id).QueryRows(&kinships)
+	if err == nil && num > 0 {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["student"] = student
 		paginatorMap["kinship"] = kinships
@@ -250,7 +254,6 @@ func UpdateStudent(id int, student string, kinship string) (paginatorMap map[str
 学生-录入信息
 */
 func AddStudent(student string, kinship string) (paginatorMap map[string]interface{}, err error) {
-	var User *UserService
 	o := orm.NewOrm()
 	o.Begin()
 	paginatorMap = make(map[string]interface{})
@@ -271,19 +274,21 @@ func AddStudent(student string, kinship string) (paginatorMap map[string]interfa
 		k[key].StudentId = kid
 	}
 	id, err = o.InsertMulti(100, &k)
-	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
-	client.UseService(&User)
-
-	//err = User.UpdateUK(s.UserId)
 	if err != nil {
 		o.Rollback()
+		return nil, err
+	}
+	_, err = o.QueryTable("baby_kindergarten").Filter("baby_id", s.BabyId).Update(orm.Params{
+		"actived": 0,
+	})
+	if err != nil {
+		o.Rollback()
+		err = errors.New("保存失败")
 		return nil, err
 	} else {
 		o.Commit()
 		return nil, nil
 	}
-	err = errors.New("保存失败")
-	return nil, err
 }
 
 /*
@@ -305,9 +310,56 @@ func RemoveStudent(class_id int, student_id int) error {
 		return err
 	} else {
 		o.Commit()
-	}
-	if err == nil {
 		return nil
 	}
 	return err
+}
+
+/*
+邀请学生
+*/
+func Invite(student string) error {
+	o := orm.NewOrm()
+	var someError error
+	var baby []orm.Params
+	var s []inviteStudent
+	json.Unmarshal([]byte(student), &s)
+	for _, v := range s {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("*").From("baby_kindergarten").Where("baby_id = ?").String()
+		_, err := o.Raw(sql, v.BabyId).Values(&baby)
+		if err == nil {
+			if baby != nil {
+				someError = errors.New("" + string(v.Name) + "已被邀请过")
+				continue
+			} else {
+				sql = "insert into baby_kindergarten set kindergarten_id = ?,baby_id = ?,baby_name = ?"
+				_, err := o.Raw(sql, v.KindergartenId, v.BabyId, v.Name).Exec()
+				if err != nil {
+					err = errors.New("邀请失败")
+					return err
+				}
+			}
+		}
+	}
+	return someError
+}
+
+/*
+未激活baby
+*/
+func GetBabyInfo(kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var baby []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("baby_id", "baby_name", "kindergarten_id").From("baby_kindergarten").Where("kindergarten_id = ?").And("actived = 1").And("status = 0").String()
+	_, err = o.Raw(sql, kindergarten_id).Values(&baby)
+	fmt.Println(baby)
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = baby
+		return paginatorMap, nil
+	}
+	err = errors.New("获取失败")
+	return nil, err
 }

@@ -34,6 +34,7 @@ type Teacher struct {
 	TeacherCertificationNumber string    `json:"teacher_certification_number" orm:"column(teacher_certification_number);size(20)" description:"教师资格认证编号"`
 	TeacherCertificationStatus int8      `json:"teacher_certification_status" orm:"column(teacher_certification_status)" description:"教师资格证书状态，是否认证"`
 	Status                     int8      `json:"status" orm:"column(status)" description:"状态：0未分班，1已分班，2离职"`
+	Birthday                   time.Time `json:"birthday" orm:"column(birthday)" description:"出生年月日"`
 	CreatedAt                  time.Time `json:"created_at" orm:"auto_now_add"`
 	UpdatedAt                  time.Time `json:"updated_at" orm:"auto_now"`
 	DeletedAt                  time.Time `json:"deleted_at" orm:""`
@@ -53,27 +54,6 @@ func (t *Teacher) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(Teacher))
-}
-
-/*
-教师下拉菜单
-*/
-func GetTeacherById(id int, page, prepage int) map[string]interface{} {
-	var v []Teacher
-	o := orm.NewOrm()
-	qb, _ := orm.NewQueryBuilder("mysql")
-	// 构建查询对象
-	qb.Select("teacher.*").From("teacher").LeftJoin("teachers_show").
-		On("teacher.teacher_id = teachers_show.teacher_id").Where("teacher.kindergarten_id = ?").
-		And("teacher.status != ?").And("isnull(teacher.deleted_at)").And("isnull(teachers_show.id)")
-	sql := qb.String()
-	_, err := o.Raw(sql, id, 2).QueryRows(&v)
-	if err == nil {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = v //返回数据
-		return paginatorMap
-	}
-	return nil
 }
 
 /*
@@ -321,7 +301,6 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]
 			sql := qb.Select("t.name", "t.avatar", "t.teacher_id", "t.number", "t.phone").
 				From("teacher as t").Where("kindergarten_id = ?").And("isnull(deleted_at)").And("status = 0").String()
 			_, err := o.Raw(sql, id).Values(&v)
-
 			if class_id > 0 {
 				where += " AND om.organizational_id = ?"
 				condition = append(condition, class_id)
