@@ -121,7 +121,6 @@ func (c *ExceptionalChildController) Post() {
 func (c *ExceptionalChildController) GetOne() {
 	// 主键ID
 	idStr := c.Ctx.Input.Param(":id")
-	//id, _ := strconv.Atoi(idStr)
 	v, err := models.GetExceptionalChildById(idStr)
 	if err == nil {
 		if v != nil {

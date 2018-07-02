@@ -49,9 +49,13 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 	exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 	exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 	o := orm.NewOrm()
+	o.Begin()
 	if id, err = o.Insert(&exceptionalChild); err == nil && id > 0 {
+
+		o.Commit()
 		return id, err
 	}
+	o.Rollback()
 	return id, err
 }
 
@@ -59,7 +63,6 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 // Id doesn't exist
 func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error) {
 	o := orm.NewOrm()
-	//exceptionalChild = &ExceptionalChild{Id: id}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("exceptional_child").Where("id="+id).String()
 	var maps []orm.Params
@@ -153,6 +156,7 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 // the record to be updated doesn't exist
 func UpdateExceptionalChildById(id int, child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (err error) {
 	o := orm.NewOrm()
+	err = o.Begin()
 	exceptionalChild := ExceptionalChild{Id: id}
 	if err = o.Read(&exceptionalChild); err == nil {
 		exceptionalChild.ChildName = child_name
@@ -164,11 +168,14 @@ func UpdateExceptionalChildById(id int, child_name string, class int, somatotype
 		exceptionalChild.Creator = creator
 		exceptionalChild.StudentId = student_id
 		if _, err := o.Update(&exceptionalChild); err == nil {
-			return nil
+			o.Commit()
+			return err
 		} else {
+			o.Rollback()
 			return err
 		}
 	}
+	o.Rollback()
 	return err
 }
 
@@ -176,14 +183,15 @@ func UpdateExceptionalChildById(id int, child_name string, class int, somatotype
 // the record to be deleted doesn't exist
 func DeleteExceptionalChild(id int) (err error) {
 	o := orm.NewOrm()
+	o.Begin()
 	e := &ExceptionalChild{Id: id}
 	// ascertain id exists in the database
 	if err = o.Read(e); err == nil {
-		if _, err = o.Delete(&ExceptionalChild{Id: id}); err == nil {
-			return  err
-		} else {
-			return err
+		if _, err = o.Delete(&ExceptionalChild{Id: id}); err == nil{
+			o.Commit()
+			return nil
 		}
 	}
+	o.Rollback()
 	return  err
 }

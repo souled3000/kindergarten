@@ -481,13 +481,14 @@ func Principal(class_id int, page int, prepage int) map[string]interface{} {
 /*
 幼儿园所有班级
 */
-func GetkinderClass(kindergarten_id int) (paginatorMapmap map[string]interface{}, err error) {
+func GetkinderClass(kindergarten_id int, user_id int) (paginatorMapmap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
+	var teacher []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
 	paginatorMap := make(map[string]interface{})
 	sql := qb.Select("class_type", "id as class_id", "name as class_name").From("organizational").Where("kindergarten_id = ?").And("type = 2").And("level = 3").String()
-	num, err := o.Raw(sql, kindergarten_id).Values(&v)
+	_, err = o.Raw(sql, kindergarten_id).Values(&v)
 	if v == nil {
 		err = errors.New("未创建班级")
 		return nil, err
@@ -501,8 +502,12 @@ func GetkinderClass(kindergarten_id int) (paginatorMapmap map[string]interface{}
 			v[key]["class"] = "小班" + val["class_name"].(string) + ""
 		}
 	}
-	if err == nil && num > 0 {
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("teacher_id").From("teacher").Where("user_id = ?").String()
+	_, err = o.Raw(sql, user_id).Values(&teacher)
+	if err == nil {
 		paginatorMap["data"] = v
+		paginatorMap["teacher_id"] = teacher[0]["teacher_id"]
 		return paginatorMap, nil
 	}
 	return nil, err
