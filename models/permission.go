@@ -167,7 +167,7 @@ func GetAllPermission(page int, prepage int) map[string]interface{} {
 }
 
 /*
-权限选项
+用户权限选项
 */
 func PermissionOption() interface{} {
 	o := orm.NewOrm()
@@ -197,6 +197,9 @@ func PermissionOption() interface{} {
 	return nil
 }
 
+/*
+用户权限子级
+*/
 func getNexts(posts []Permission, id int) (Permission []PermissionTree) {
 	for _, val := range posts {
 		if val.ParentId == id {
@@ -214,4 +217,61 @@ func getNexts(posts []Permission, id int) (Permission []PermissionTree) {
 		}
 	}
 	return Permission
+}
+
+/*
+圈子权限列表
+*/
+func GetGroupPermission(kindergarten_id int) interface{} {
+	o := orm.NewOrm()
+	qs := o.QueryTable(new(Organizational))
+	var posts []Organizational
+	var Organizational []OrganizationalTree
+	if _, err := qs.Filter("kindergarten_id", kindergarten_id).All(&posts); err == nil {
+		for _, val := range posts {
+			if val.ParentId == 0 {
+				next := getGroupChild(posts, val.Id)
+				var tree OrganizationalTree
+				tree.Id = val.Id
+				tree.KindergartenId = val.KindergartenId
+				tree.ClassType = val.ClassType
+				tree.CreatedAt = val.CreatedAt
+				tree.IsFixed = val.IsFixed
+				tree.Level = val.Level
+				tree.Name = val.Name
+				tree.ParentId = val.ParentId
+				tree.ParentIds = val.ParentIds
+				tree.UpdatedAt = val.UpdatedAt
+				tree.Children = next
+				Organizational = append(Organizational, tree)
+			}
+		}
+		if err == nil {
+			return Organizational[1].Children
+		}
+	}
+	return nil
+}
+
+func getGroupChild(posts []Organizational, id int) (Organizational []OrganizationalTree) {
+	for _, val := range posts {
+		if val.ParentId == id {
+			next := getGroupChild(posts, val.Id)
+			var tree OrganizationalTree
+			tree.Id = val.Id
+			tree.KindergartenId = val.KindergartenId
+			tree.ClassType = val.ClassType
+			tree.CreatedAt = val.CreatedAt
+			tree.IsFixed = val.IsFixed
+			tree.Level = val.Level
+			tree.Name = val.Name
+			tree.ParentId = val.ParentId
+			tree.ParentIds = val.ParentIds
+			tree.UpdatedAt = val.UpdatedAt
+			tree.Type = val.Type
+			tree.Children = next
+			Organizational = append(Organizational, tree)
+		}
+	}
+	return Organizational
 }

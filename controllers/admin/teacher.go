@@ -40,27 +40,6 @@ type OnemoreService struct {
 	Send func(phone string, text string) (map[string]interface{}, error)
 }
 
-// GetTeacherDown ...
-// @Title 教师下拉菜单
-// @Description 教师下拉菜单
-// @Param	id		path 	string	true		"幼儿园ID"
-// @Success 200 {object} models.Teacher
-// @Failure 403 :id is empty
-// @router /teacher_down/:id [get]
-func (c *TeacherController) GetTeacherDown() {
-	prepage, _ := c.GetInt("per_page", 20)
-	page, _ := c.GetInt("page")
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v := models.GetTeacherById(id, page, prepage)
-	if v == nil {
-		c.Data["json"] = JSONStruct{"error", 1005, v, "获取失败"}
-	} else {
-		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
-	}
-	c.ServeJSON()
-}
-
 // GetTeacher ...
 // @Title 全部教师列表
 // @Description 全部教师列表
@@ -198,6 +177,7 @@ func (c *TeacherController) Post() {
 		valid := validation.Validation{}
 		valid.Required(v.KindergartenId, "KindergartenId").Message("幼儿园编号不能为空")
 		valid.Required(v.UserId, "UserId").Message("用户编号不能为空")
+		valid.Required(v.Birthday, "Birthday").Message("出生年月日不能为空")
 		valid.Required(v.Name, "Name").Message("用户名不能为空")
 		valid.Required(v.Number, "Number").Message("教职工编号不能为空")
 		valid.Required(v.NationOrReligion, "NationOrReligion").Message("民族或宗教不能为空")
@@ -305,21 +285,21 @@ func (c *TeacherController) Invite() {
 					text = "【蓝天白云】您已通过系统成功注册蓝天白云平台账号，您的账号为：" + value.Phone + "（手机号），密码为：" + vcode + "，请您登陆APP进行密码修改。"
 					//密码加密
 					password = User.Encrypt(vcode)
-					_, err = User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
+					res, err := Onemore.Send(value.Phone, text)
 					if err == nil {
-						res, err := Onemore.Send(value.Phone, text)
-						if err == nil {
-							if int(res["code"].(float64)) == 0 {
+						if int(res["code"].(float64)) == 0 {
+							_, err = User.Create(value.Phone, value.Name, password, value.KindergartenId, value.Role)
+							if err == nil {
 								c.Data["json"] = JSONStruct{"success", 0, nil, res["msg"].(string)}
-								c.ServeJSON()
-							} else {
-								c.Data["json"] = JSONStruct{"error", 1001, nil, res["msg"].(string)}
 								c.ServeJSON()
 							}
 						} else {
-							c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送有误"}
+							c.Data["json"] = JSONStruct{"error", 1001, nil, res["msg"].(string)}
 							c.ServeJSON()
 						}
+					} else {
+						c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "发送有误"}
+						c.ServeJSON()
 					}
 				}
 			}

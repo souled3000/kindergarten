@@ -9,7 +9,7 @@ import (
 type Kinship struct {
 	Id                 int       `json:"kinship_id" orm:"column(kinship_id);auto" description:"编号"`
 	StudentId          int       `json:"student_id" orm:"column(student_id)" description:"学生序号"`
-	BabyId             int       `json:"baby_id" orm:"column(baby_id)" description:"用户ID"`
+	BabyId             int       `json:"baby_id" orm:"column(baby_id)" description:"宝宝ID"`
 	Type               int8      `json:"type" orm:"column(type)" description:"类型，1紧急联系人，2监护人"`
 	Relation           string    `json:"relation" orm:"column(relation);size(10)" description:"关系"`
 	Name               string    `json:"name" orm:"column(name);size(20)" description:"名字"`

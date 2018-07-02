@@ -79,6 +79,7 @@ func (c *OrganizationalMemberController) OrganizationList() {
 func (c *OrganizationalMemberController) Destroy() {
 	teacher_id, _ := c.GetInt("teacher_id")
 	class_id, _ := c.GetInt("class_id")
+	is_principal, _ := c.GetInt("is_principal")
 	valid := validation.Validation{}
 	valid.Required(teacher_id, "teacher_id").Message("教师ID不能为空")
 	valid.Required(class_id, "class_id").Message("班级ID不能为空")
@@ -86,7 +87,7 @@ func (c *OrganizationalMemberController) Destroy() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		err := models.DestroyMember(teacher_id, class_id)
+		err := models.DestroyMember(teacher_id, class_id, is_principal)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1004, nil, err.Error()}
 		} else {
