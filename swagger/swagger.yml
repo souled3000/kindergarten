@@ -2481,6 +2481,11 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
+    post:
+      tags:
+      - app/special_child
+      description: 过敏食物报备
+      operationId: ExceptionalChildController.过敏食物报备
   /app/visitors/:
     get:
       tags:
