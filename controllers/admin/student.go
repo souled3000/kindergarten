@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"kindergarten-service-go/models"
 	"strconv"
 
@@ -212,14 +211,13 @@ func (c *StudentController) DeleteStudent() {
 
 // GetBaby ...
 // @Title GetBaby
-// @Description 宝贝信息
+// @Description 未激活baby
 // @Param	kindergarten_id       query	 int	 true		"幼儿园id"
 // @Success 200 {object} models.Student
 // @Failure 403 :幼儿园id不能为空
 // @router /baby [get]
 func (c *StudentController) GetBaby() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	fmt.Println(kindergarten_id)
 	v, err := models.GetBabyInfo(kindergarten_id)
 	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
