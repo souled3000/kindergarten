@@ -74,7 +74,7 @@ func (c *ExceptionalChildController) GetAllergenChild() {
 // @param 		kindergarten_id		query  	int    	true		"幼儿园ID"
 // @param 		creator				query  	int    	true		"创建人ID"
 // @param 		student_id			query  	int    	true		"学生ID"
-// @param 		source				query  	int    	true		"来源信息ID"
+// @param 		source				query  	int    	true		"来源信息"
 // @param		child_name			query	string	true		"特殊儿童姓名"
 // @param 		allergen			query  	string 	true		"过敏源，多个过敏源以','分隔"
 // @router / [post]
@@ -99,8 +99,8 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人ID不能为空")
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
-	valid.Required(source, "source").Message("来源信息ID不能为空")
-	valid.Required(allergen, "allergen").Message("过敏源信息不能为空")
+	valid.Required(source, "source").Message("来源信息不能为空")
+	valid.Required(allergen, "allergen").Message("过敏源不能为空")
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
