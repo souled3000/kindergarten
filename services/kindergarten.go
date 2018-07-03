@@ -113,5 +113,4 @@ func (c *KindergartenServer) GetClassName(organizational_id int) (ml map[string]
 		return paginatorMap, nil
 	}
 	return nil, err
->>>>>>> Stashed changes
 }
