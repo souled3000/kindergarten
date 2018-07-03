@@ -91,7 +91,8 @@ func (c *ExceptionalChildController) Post() {
 	valid.Required(child_name, "child_name").Message("儿童姓名不能为空")
 	valid.Required(class, "class").Message("所在班级不能为空")
 	valid.Required(somatotype, "somatotype").Message("体质类型不能为空")
-	valid.Required(allergen, "allergen").Message("信息来源不能为空")
+	valid.Required(allergen, "allergen").Message("过敏源不能为空")
+	valid.Required(source, "source").Message("信息来源不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人不能为空")
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
@@ -141,9 +142,6 @@ func (c *ExceptionalChildController) GetOne() {
 // @Param	class			body 	int		true		"特殊儿童班级"
 // @Param	somatotype		body 	int		true		"体质类型"
 // @Param	allergen		body 	string	true		"过敏源"
-// @Param	source			body 	int		true		"来源信息"
-// @Param	kindergarten_id	body 	int		true		"幼儿园ID"
-// @Param	creator			body 	int		true		"创建人"
 // @Param	student_id		body 	int		true		"学生ID"
 // @Success 0 				{json} 	JSONStruct
 // @Failure 1003			更新失败
@@ -159,30 +157,12 @@ func (c *ExceptionalChildController) Put() {
 	somatotype, _ := c.GetInt8("somatotype")
 
 	allergen := c.GetString("allergen")
-	source, _ := c.GetInt8("source")
-	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	creator, _ := c.GetInt("creator")
 	student_id, _ := c.GetInt("student_id")
 
-	valid := validation.Validation{}
-
-	valid.Required(child_name, "child_name").Message("儿童姓名不能为空")
-	valid.Required(class, "class").Message("所在班级不能为空")
-	valid.Required(somatotype, "somatotype").Message("体质类型不能为空")
-	valid.Required(allergen, "allergen").Message("过敏源不能为空")
-	valid.Required(source, "source").Message("信息来源不能为空")
-	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
-	valid.Required(creator, "creator").Message("创建人不能为空")
-	valid.Required(student_id, "student_id").Message("学生ID不能为空")
-
-	if valid.HasErrors() {
-		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+	if err := models.UpdateExceptionalChildById(id, child_name, class, somatotype, allergen, student_id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
 	} else {
-		if err := models.UpdateExceptionalChildById(id, child_name, class, somatotype, allergen, source, kindergarten_id, creator, student_id); err == nil {
-			c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
-		} else {
-			c.Data["json"] = JSONStruct{"error", 1003, nil, "更新失败"}
-		}
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "更新失败"}
 	}
 	c.ServeJSON()
 }

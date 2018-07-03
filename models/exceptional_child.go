@@ -188,19 +188,33 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 // UpdateExceptionalChild updates ExceptionalChild by Id and returns error if
 // the record to be updated doesn't exist
-func UpdateExceptionalChildById(id int, child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (err error) {
+func UpdateExceptionalChildById(id int, child_name string, class int, somatotype int8, allergen string, student_id int) (err error) {
 	o := orm.NewOrm()
 	err = o.Begin()
 	exceptionalChild := ExceptionalChild{Id: id}
 	if err = o.Read(&exceptionalChild); err == nil {
-		exceptionalChild.ChildName = child_name
-		exceptionalChild.Class = class
-		exceptionalChild.Somatotype = somatotype
-		exceptionalChild.Allergen = allergen
-		exceptionalChild.Source = source
-		exceptionalChild.KindergartenId = kindergarten_id
-		exceptionalChild.Creator = creator
-		exceptionalChild.StudentId = student_id
+		if child_name != "" {
+			exceptionalChild.ChildName = child_name
+		}
+
+		if class != 0 {
+			exceptionalChild.Class = class
+		}
+
+		if somatotype != 0 {
+			exceptionalChild.Somatotype = somatotype
+		}
+
+		if allergen != "" {
+			exceptionalChild.Allergen = allergen
+		}
+
+		exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+
+		if student_id != 0 {
+			exceptionalChild.StudentId = student_id
+		}
+
 		if _, err := o.Update(&exceptionalChild); err == nil {
 			o.Commit()
 			return err
