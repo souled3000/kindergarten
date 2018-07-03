@@ -400,8 +400,7 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 	sql := qb.Select("*").From("organizational").Where("id = ?").String()
 	_, err = o.Raw(sql, organization_id).Values(&v)
 	is_fixe := v[0]["is_fixed"].(string)
-	level := v[0]["level"].(string)
-	if is_fixe == "1" || (is_fixe == "0" && level == "2") {
+	if is_fixe == "1" {
 		err = errors.New("不能删除")
 		return nil, err
 	}
@@ -439,7 +438,6 @@ func UpOrganization(organization_id int, name string) (paginatorMap map[string]i
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("organizational").Where("id = ?").String()
 	_, err = o.Raw(sql, organization_id).Values(&v)
-	//	level := v[0]["level"].(string)
 	is_fixe := v[0]["is_fixed"].(string)
 	if is_fixe == "1" {
 		err = errors.New("不能编辑")
