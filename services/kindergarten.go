@@ -89,3 +89,13 @@ func (c *KindergartenServer) GetClass(kindergarten_id int) (ml map[string]interf
 	ml["data"] = v
 	return ml
 }
+func (c *KindergartenServer) GetAllergenChild(allergen string) (ml interface{}) {
+
+	if allergenChild, err := models.GetAllergenChild(allergen); err == nil {
+
+		jsonData, _ := json.Marshal(allergenChild)
+		return string(jsonData)
+	} else {
+		return nil
+	}
+}
