@@ -91,7 +91,7 @@ func (c *ExceptionalChildController) Post() {
 	valid.Required(child_name, "child_name").Message("儿童姓名不能为空")
 	valid.Required(class, "class").Message("所在班级不能为空")
 	valid.Required(somatotype, "somatotype").Message("体质类型不能为空")
-	valid.Required(allergen, "source").Message("信息来源不能为空")
+	valid.Required(allergen, "allergen").Message("信息来源不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人不能为空")
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
