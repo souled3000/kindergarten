@@ -3,9 +3,11 @@ package healthy
 import (
 	"github.com/astaxie/beego/orm"
 	"time"
+	"strconv"
 	"strings"
 	"encoding/json"
-	"strconv"
+	"fmt"
+	"math"
 )
 
 type Body struct {
@@ -22,6 +24,10 @@ type Body struct {
 	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add" description:"创建时间"`
 }
 
+type Num struct {
+	Num int	`json:"num"`
+}
+
 func (t *Body) TableName() string {
 	return "healthy_body"
 }
@@ -31,6 +37,11 @@ func init() {
 }
 func AddBody(b *Body) (id int64, err error){
 	o := orm.NewOrm()
+	var num Num
+	sql := "select count(student_id) as num from student where kindergarten_id = "+strconv.Itoa(b.KindergartenId)
+	o.Raw(sql).QueryRow(&num)
+	b.Total = num.Num
+	fmt.Println(num.Num)
 	id, err = o.Insert(b)
 	return
 }
@@ -39,27 +50,44 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	o := orm.NewOrm()
 	var b Body
 	b.Id = id
+	var num Num
+	list := make(map[string]interface{})
+	sql := "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)
+	o.Raw(sql).QueryRow(&num)
+	c_num := num.Num
+	list2 := make(map[string]interface{})
+	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and weight is not null"
+	o.Raw(sql).QueryRow(&num)
+	fmt.Println(num.Num)
+	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	list2["column"] = "weight"
+	list["体重"] = list2
+	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and height is not null"
+	o.Raw(sql).QueryRow(&num)
+	fmt.Println(num.Num)
+	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	list2["column"] = "height"
+	list["身高"] = list2
 	if err := o.Read(&b); err == nil {
+
 		project := strings.Split(b.Project,",")
-		var p_str string
-		var p_num int
-		for key,val := range project {
+		for _,val := range project {
+			list1 := make(map[string]interface{})
+			cloumn := strings.Split(val,":")
+			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
+			o.Raw(sql).QueryRow(&num)
+			fmt.Println(num.Num)
+			list1["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
-				p_num++
+				list["视力"] = list1
 			} else {
-				if key == 0 {
-					p_str += val
-				} else {
-					p_str += ","+val
-				}
+				list[string(cloumn[1])] = list1
 			}
-		}
-		if p_num > 0{
-			p_str += ",column:视力"
 		}
 		bjson,_ :=json.Marshal(b)
 		json.Unmarshal(bjson, &ml)
-		ml["h5_project"] = p_str
+		ml["info"] = list
 		return ml, nil
 	}
 	return nil, err
@@ -67,30 +95,46 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 
 func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error){
 	o := orm.NewOrm()
-	sql := "select a.id,a.theme,a.test_time,a.mechanism,a.kindergarten_id,a.types,a.project,b.class_total as total,b.class_actual as actual,b.class_rate as rate from healthy_body a left join healthy_class b on a.id = b.body_id where a.id="+strconv.Itoa(id)+" and b.class_id="+strconv.Itoa(class_id)
+	var num Num
+	list := make(map[string]interface{})
+	sql := "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)
+	o.Raw(sql).QueryRow(&num)
+	c_num := num.Num
+	list2 := make(map[string]interface{})
+	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight is not null"
+	o.Raw(sql).QueryRow(&num)
+	fmt.Println(num.Num)
+	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	list2["column"] = "weight"
+	list["体重"] = list2
+	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and height is not null"
+	o.Raw(sql).QueryRow(&num)
+	fmt.Println(num.Num)
+	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	list2["column"] = "height"
+	list["身高"] = list2
+	sql = "select a.id,a.theme,a.test_time,a.mechanism,a.kindergarten_id,a.types,a.project,b.class_total as total,b.class_actual as actual,b.class_rate as rate from healthy_body a left join healthy_class b on a.id = b.body_id where a.id="+strconv.Itoa(id)+" and b.class_id="+strconv.Itoa(class_id)
 	var b Body
 
 	if err = o.Raw(sql).QueryRow(&b); err == nil {
 		project := strings.Split(b.Project,",")
-		var p_str string
-		var p_num int
-		for key,val := range project {
+		for _,val := range project {
+			list1 := make(map[string]interface{})
+			cloumn := strings.Split(val,":")
+			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where  a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
+			o.Raw(sql).QueryRow(&num)
+			fmt.Println(num.Num)
+			list1["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
-				p_num++
+				list["视力"] = list1
 			} else {
-				if key == 0 {
-					p_str += val
-				} else {
-					p_str += ","+val
-				}
+				list[string(cloumn[1])] = list1
 			}
-		}
-		if p_num > 0{
-			p_str += ",column:视力"
 		}
 		bjson,_ :=json.Marshal(b)
 		json.Unmarshal(bjson, &ml)
-		ml["h5_project"] = p_str
+		ml["info"] = list
 		return ml, nil
 	}
 	return nil, err

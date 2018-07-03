@@ -367,3 +367,64 @@ func (c *InspectController) Abnormal() {
 
 	c.ServeJSON()
 }
+
+// GetAll ...
+// @Title GetAll
+// @Description 项目详情
+// @Param	page			query	int		false		"第几页"
+// @Param	per_page		query	int		true		"页数"
+// @Param	class_id		query	int		false		"班级ID"
+// @Param	role			query	int		true		"身份类型"
+// @Param	date			query	string	true		"餐检时间"
+// @Success 0 {object} 		shanxi.SxWorks
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /project/ [get]
+func (c *InspectController) Project() {
+	var f *healthy.Inspect
+	page, _ := c.GetInt("page")
+	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	class_id, _:= c.GetInt("class_id")
+	perPage, _ := c.GetInt("per_page")
+	body_id, _:= c.GetInt("body_id")
+	student_id, _:= c.GetInt("student_id")
+
+	if works, err := f.Project(page, perPage, kindergarten_id, class_id, body_id,student_id ); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// GetAll ...
+// @Title GetAll
+// @Description 宝宝健康指数
+// @Param	page			query	int		false		"第几页"
+// @Param	per_page		query	int		true		"页数"
+// @Param	class_id		query	int		false		"班级ID"
+// @Param	role			query	int		true		"身份类型"
+// @Param	date			query	string	true		"餐检时间"
+// @Success 0 {object} 		shanxi.SxWorks
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /personal/ [get]
+func (c *InspectController) Personal() {
+	var f *healthy.Inspect
+	baby_id, _:= c.GetInt("baby_id")
+	var personal map[string]interface{}
+
+	if works, err := f.Personal(baby_id); err == nil {
+		if works == nil{
+			personal = nil
+		}else {
+			personal = works[0]
+		}
+		c.Data["json"] = JSONStruct{"success", 0, personal, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}
