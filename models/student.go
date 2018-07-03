@@ -36,6 +36,8 @@ type Student struct {
 type inviteStudent struct {
 	Name           string `json:"name"`
 	BabyId         int    `json:"baby_id"`
+	Birthdaty      string `json:"birthdaty"`
+	Nickname       string `json:"nickname"`
 	KindergartenId int    `json:"kindergarten_id"`
 }
 
@@ -319,12 +321,19 @@ func RemoveStudent(class_id int, student_id int) error {
 邀请学生
 */
 func Invite(student string) error {
+	fmt.Println(student)
 	o := orm.NewOrm()
 	var someError error
 	var baby []orm.Params
 	var s []inviteStudent
 	json.Unmarshal([]byte(student), &s)
+	timeLayout := "2006-01-02 15:04:05" //转化所需模板
+	loc, _ := time.LoadLocation("")
+	timenow := time.Now().Format("2006-01-02 15:04:05")
+	createTime, _ := time.ParseInLocation(timeLayout, timenow, loc)
 	for _, v := range s {
+		fmt.Println(v.Birthdaty)
+		t, _ := time.Parse("2006-01-02 15:04:05", "2014-06-15 08:37:18")
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("*").From("baby_kindergarten").Where("baby_id = ?").String()
 		_, err := o.Raw(sql, v.BabyId).Values(&baby)
@@ -333,8 +342,8 @@ func Invite(student string) error {
 				someError = errors.New("" + string(v.Name) + "已被邀请过")
 				continue
 			} else {
-				sql = "insert into baby_kindergarten set kindergarten_id = ?,baby_id = ?,baby_name = ?"
-				_, err := o.Raw(sql, v.KindergartenId, v.BabyId, v.Name).Exec()
+				sql = "insert into baby_kindergarten set kindergarten_id = ?,baby_id = ?,baby_name = ?,created_at = ?,birthday = ?,nickname = ?"
+				_, err := o.Raw(sql, v.KindergartenId, v.BabyId, v.Name, createTime, t, v.Nickname).Exec()
 				if err != nil {
 					err = errors.New("邀请失败")
 					return err
@@ -358,6 +367,35 @@ func GetBabyInfo(kindergarten_id int) (paginatorMap map[string]interface{}, err 
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = baby
+		return paginatorMap, nil
+	}
+	err = errors.New("获取失败")
+	return nil, err
+}
+
+/*
+学生名字获取班级
+*/
+func GetNameClass(name string) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var class []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "class_type").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("s.name = ?").And("om.type = 1").String()
+	_, err = o.Raw(sql, name).Values(&class)
+	for key, val := range class {
+		if val["class_type"].(string) == "3" {
+			class[key]["class"] = "大班" + val["class_name"].(string) + ""
+		} else if val["class_type"].(string) == "2" {
+			class[key]["class"] = "中班" + val["class_name"].(string) + ""
+		} else {
+			class[key]["class"] = "小班" + val["class_name"].(string) + ""
+		}
+	}
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = class
 		return paginatorMap, nil
 	}
 	err = errors.New("获取失败")

@@ -28,7 +28,7 @@ func AddClass(b *Class,body_id int, class_id int,types int) (err error){
 	o := orm.NewOrm()
 	o.Begin()
 	var some_err []interface{}
-	if _, _, err = o.ReadOrCreate(&b, "BodyId","ClassId"); err != nil {
+	if _, _, err = o.ReadOrCreate(b, "BodyId","ClassId"); err != nil {
 		some_err = append(some_err,err)
 	}
 	var inspect []Inspect

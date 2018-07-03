@@ -47,7 +47,7 @@ func (c *ExceptionalChildController) GetAll() {
 		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
 
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	}
 	c.ServeJSON()
 }
@@ -99,16 +99,14 @@ func (c *ExceptionalChildController) Post() {
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
-		c.ServeJSON()
 	} else {
 		if _, err := models.AddExceptionalChild(child_name, class, somatotype, allergen, source, kindergarten_id, creator, student_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "新增成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "新增失败"}
 		}
-		c.ServeJSON()
 	}
-
+	c.ServeJSON()
 }
 
 // GetOne ...
@@ -126,10 +124,10 @@ func (c *ExceptionalChildController) GetOne() {
 		if v != nil {
 			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 		} else {
-			c.Data["json"] = JSONStruct{"error", 1002, err, "没有相关数据"}
+			c.Data["json"] = JSONStruct{"error", 1002, nil, "没有相关数据"}
 		}
 	} else {
-			c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	}
 	c.ServeJSON()
 }
@@ -180,10 +178,9 @@ func (c *ExceptionalChildController) Put() {
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
-		c.ServeJSON()
 	} else {
 		if err := models.UpdateExceptionalChildById(id, child_name, class, somatotype, allergen, source, kindergarten_id, creator, student_id); err == nil {
-			c.Data["json"] = JSONStruct{"success", 0, err, "更新成功"}
+			c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "更新失败"}
 		}
