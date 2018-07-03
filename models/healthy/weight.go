@@ -23,7 +23,7 @@ func (t *Weight) TableName() string {
 	return "healthy_weight"
 }
 
-func (w *Weight) Compare(sex int,age,weight float64)  (types string,err error) {
+func CompareWeight(sex int,age,weight float64)  (types string,err error) {
 
 	o := orm.NewOrm()
 	var status string

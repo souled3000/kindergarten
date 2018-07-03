@@ -1868,6 +1868,36 @@
                 }
             }
         },
+        "/admin/student/baby": {
+            "get": {
+                "tags": [
+                    "admin/student"
+                ],
+                "description": "宝贝信息",
+                "operationId": "StudentController.GetBaby",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ":幼儿园id不能为空"
+                    }
+                }
+            }
+        },
         "/admin/student/class": {
             "get": {
                 "tags": [
@@ -1920,6 +1950,36 @@
                 }
             }
         },
+        "/admin/student/get_class": {
+            "get": {
+                "tags": [
+                    "admin/student"
+                ],
+                "description": "学生名字获取班级",
+                "operationId": "StudentController.GetNameClass",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "description": "学生姓名",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ":幼儿园id不能为空"
+                    }
+                }
+            }
+        },
         "/admin/student/invite": {
             "post": {
                 "tags": [
@@ -1930,13 +1990,6 @@
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "phone",
-                        "description": "手机号(json)",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
                         "name": "name",
                         "description": "学生姓名(json)",
                         "required": true,
@@ -1945,8 +1998,8 @@
                     },
                     {
                         "in": "body",
-                        "name": "role",
-                        "description": "身份(json)",
+                        "name": "baby_id",
+                        "description": "宝宝id(json)",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -1954,7 +2007,7 @@
                     {
                         "in": "body",
                         "name": "kindergarten_id",
-                        "description": "幼儿园ID(json)",
+                        "description": "幼儿园id(json)",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -2375,35 +2428,6 @@
                     },
                     "403": {
                         "description": "teacher_id is empty"
-                    }
-                }
-            }
-        },
-        "/admin/teacher/teacher_down/{id}": {
-            "get": {
-                "tags": [
-                    "admin/teacher"
-                ],
-                "description": "教师下拉菜单",
-                "operationId": "TeacherController.教师下拉菜单",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "幼儿园ID",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Teacher"
-                        }
-                    },
-                    "403": {
-                        "description": ":id is empty"
                     }
                 }
             }
@@ -4932,6 +4956,36 @@
                 }
             }
         },
+        "/organizational/class_baby": {
+            "get": {
+                "tags": [
+                    "organizational"
+                ],
+                "description": "宝宝所在班级",
+                "operationId": "OrganizationalController.宝宝所在班级",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "baby_id",
+                        "description": "宝宝ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organizational"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/organizational/class_kinder": {
             "get": {
                 "tags": [
@@ -4942,8 +4996,16 @@
                 "parameters": [
                     {
                         "in": "query",
+                        "name": "user_id",
+                        "description": "用户id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
                         "name": "kindergarten_id",
-                        "description": "幼儿园ID",
+                        "description": "幼儿园id",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -6077,8 +6139,13 @@
                     "type": "string"
                 },
                 "baby_id": {
+                    "description": "宝宝ID",
                     "type": "integer",
                     "format": "int64"
+                },
+                "birthday": {
+                    "description": "生日",
+                    "type": "string"
                 },
                 "class_info": {
                     "description": "所在班级",
@@ -6157,6 +6224,11 @@
                 "avatar": {
                     "description": "头像",
                     "type": "string"
+                },
+                "birthday": {
+                    "description": "出生年月日",
+                    "type": "string",
+                    "format": "string"
                 },
                 "class_info": {
                     "description": "班级信息",

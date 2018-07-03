@@ -24,6 +24,7 @@ type Student struct {
 	Avatar           string    `json:"avatar" orm:"column(avatar);size(150)" description:"头像"`
 	Status           int8      `json:"status" orm:"column(status)" description:"状态 0未分班 1已分班 2离园"`
 	BabyId           int       `json:"baby_id" orm:"column(baby_id)" description:"宝宝ID"`
+	Birthday		 string	   `json:"birthday" orm:"column(birthday)" description:"生日"`
 	KindergartenId   int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
 	Phone            string    `json:"phone" orm:"column(phone);size(11)" description:"手机号"`
 	HealthStatus     string    `json:"health_status" orm:"column(health_status);size(150)" description:"健康状况，多个以逗号隔开"`
