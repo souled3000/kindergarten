@@ -24,7 +24,7 @@ func (t *Height) TableName() string {
 }
 
 //根据年龄判断身高
-func (w *Height) Compare(sex int,age,weight float64)  (types string,err error) {
+func CompareHeight(sex int,age,weight float64)  (types string,err error) {
 
 	o := orm.NewOrm()
 	var status string

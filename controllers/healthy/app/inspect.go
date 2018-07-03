@@ -328,3 +328,42 @@ func (c *InspectController) Situation() {
 
 	c.ServeJSON()
 }
+
+// GetAll ...
+// @Title GetAll
+// @Description 异常档案列表
+// @Param	page			query	int		false		"第几页"
+// @Param	kindergarten_id	query	int		true		"幼儿园ID"
+// @Param	per_page		query	int		true		"页数"
+// @Param	class_id		query	int		false		"班级ID"
+// @Param	role			query	int		true		"身份类型"
+// @Param	date			query	string	true		"餐检时间"
+// @Success 0 {object} 		shanxi.SxWorks
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /archives/ [get]
+func (c *InspectController) Abnormal() {
+	var f *healthy.Inspect
+	page, _ := c.GetInt("page")
+	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	class_id, _:= c.GetInt("class_id")
+	perPage, _ := c.GetInt("per_page")
+	date := c.GetString("time")
+	search := c.GetString("search")
+
+	//验证参数是否为空
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors(){
+		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+		c.ServeJSON()
+		c.StopRun()
+	}
+	if works, err := f.Abnormals(page, perPage, kindergarten_id, class_id, date, search ); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}

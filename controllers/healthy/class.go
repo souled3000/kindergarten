@@ -22,7 +22,7 @@ func (c *ClassController) URLMapping() {
 // Post ...
 // @Title
 // @Description 添加主题
-// @Param	body_name			query	string	false	"主题名"
+// @Param	bodyname			query	string	false	"主题名"
 // @Param	kindergarten_id		query	int	false	"幼儿园id"
 // @Param	test_time			query	string	false	"年-月-日"
 // @Param	types		query	int	false	"类型"
