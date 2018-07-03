@@ -89,6 +89,7 @@ func (c *KindergartenServer) GetClass(kindergarten_id int) (ml map[string]interf
 	ml["data"] = v
 	return ml
 }
+
 func (c *KindergartenServer) GetAllergenChild(allergen string) (ml interface{}) {
 
 	if allergenChild, err := models.GetAllergenChild(allergen); err == nil {
@@ -98,4 +99,19 @@ func (c *KindergartenServer) GetAllergenChild(allergen string) (ml interface{}) 
 	} else {
 		return nil
 	}
+
+//班级成员
+func (c *KindergartenServer) GetClassName(organizational_id int) (ml map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var class []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("o.name as class_name").From("organizational as o").Where("o.id = ?").String()
+	_, err = o.Raw(sql, organizational_id).Values(&class)
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = class
+		return paginatorMap, nil
+	}
+	return nil, err
+>>>>>>> Stashed changes
 }

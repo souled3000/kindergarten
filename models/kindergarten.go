@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strconv"
 	"time"
 
 	"github.com/astaxie/beego"
@@ -34,6 +35,10 @@ func (t *Kindergarten) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(Kindergarten))
+}
+
+type OnemoreService struct {
+	Tenant func(tenant_id int, kindergarten_id int) error
 }
 
 /*
@@ -248,4 +253,85 @@ func StudentClass(page int, prepage int, name string) map[string]interface{} {
 		}
 	}
 	return nil
+}
+
+/*
+添加幼儿园
+*/
+func AddKindergarten(name string, license_no int, kinder_grade string, kinder_child_no int, address string, tenant_id int) error {
+	o := orm.NewOrm()
+	o.Begin()
+	var Onemore *OnemoreService
+	timeLayout := "2006-01-02 15:04:05" //转化所需模板
+	loc, _ := time.LoadLocation("")
+	timenow := time.Now().Format("2006-01-02 15:04:05")
+	createTime, _ := time.ParseInLocation(timeLayout, timenow, loc)
+	sql := "insert into kindergarten set name = ?,license_no = ?,kinder_grade = ?,kinder_child_no = ?,address = ?,tenant_id = ?,created_at = ?"
+	id, err := o.Raw(sql, name, license_no, kinder_grade, kinder_child_no, address, tenant_id, createTime).Exec()
+	kindergartern_id, _ := id.LastInsertId()
+	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_SMS_SERVER"))
+	client.UseService(&Onemore)
+	kid := strconv.FormatInt(kindergartern_id, 10)
+	kId, _ := strconv.Atoi(kid)
+	err = Onemore.Tenant(tenant_id, kId)
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	sql = "insert into organizational set kindergarten_id = ?,parent_id = ?,name = ?,is_fixed = ?,level = ?,parent_ids = ?,type = ?"
+	id, err = o.Raw(sql, kindergartern_id, 0, "管理层", 1, 1, 0, 1).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	organizational_id, err := id.LastInsertId()
+	oid := strconv.FormatInt(organizational_id, 10)
+	oid = oid + ","
+	if err == nil {
+		sql = "insert into organizational set kindergarten_id = ?,parent_id = ?,name = ?,is_fixed = ?,level = ?,parent_ids = ?,type = ?"
+		id, err = o.Raw(sql, kindergartern_id, organizational_id, "园长", 1, 2, oid, 1).Exec()
+		if err != nil {
+			o.Rollback()
+			return err
+		}
+	}
+	//年级组
+	sql = "insert into organizational set kindergarten_id = ?,parent_id = ?,name = ?,is_fixed = ?,level = ?,parent_ids = ?,type = ?"
+	id, err = o.Raw(sql, kindergartern_id, 0, "年级组", 1, 1, 0, 2).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	organizationalId, err := id.LastInsertId()
+	o_id := strconv.FormatInt(organizationalId, 10)
+	o_id = o_id + ","
+	if err == nil {
+		sql = "insert into organizational set kindergarten_id = ?,parent_id = ?,name = ?,is_fixed = ?,level = ?,parent_ids = ?,type = ?,class_type = ?"
+		_, err = o.Raw(sql, kindergartern_id, organizationalId, "大班", 1, 2, o_id, 2, 3).Exec()
+		if err != nil {
+			o.Rollback()
+			return err
+		}
+		if err == nil {
+			sql = "insert into organizational set kindergarten_id = ?,parent_id = ?,name = ?,is_fixed = ?,level = ?,parent_ids = ?,type = ?,class_type = ?"
+			_, err = o.Raw(sql, kindergartern_id, organizationalId, "中班", 1, 2, o_id, 2, 2).Exec()
+			if err != nil {
+				o.Rollback()
+				return err
+			}
+			if err == nil {
+				sql = "insert into organizational set kindergarten_id = ?,parent_id = ?,name = ?,is_fixed = ?,level = ?,parent_ids = ?,type = ?,class_type = ?"
+				_, err = o.Raw(sql, kindergartern_id, organizationalId, "小班", 1, 2, o_id, 2, 1).Exec()
+				if err != nil {
+					o.Rollback()
+					return err
+				}
+			}
+		}
+	}
+	if err == nil {
+		o.Commit()
+		return nil
+	}
+	return err
 }

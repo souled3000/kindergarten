@@ -113,3 +113,43 @@ func (c *KindergartenController) StudentClass() {
 		c.ServeJSON()
 	}
 }
+
+// SetKindergarten ...
+// @Title 添加幼儿园
+// @Description 添加幼儿园
+// @Param	name		                path 	int	true		"幼儿园名称"
+// @Param	license_no   		        path 	int	true		"执照号"
+// @Param	kinder_grade		        path 	int	true		"幼儿园级别"
+// @Param	kinder_child_no		        path 	int	true		"分校数"
+// @Param	address      		        path 	int	true		"地址"
+// @Param	tenant_id    		        path 	int	true		"租户，企业编号"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router /set_kindergarten [post]
+func (c *KindergartenController) SetKindergarten() {
+	name := c.GetString("name")
+	license_no, _ := c.GetInt("license_no")
+	kinder_grade := c.GetString("kinder_grade")
+	kinder_child_no, _ := c.GetInt("kinder_child_no")
+	address := c.GetString("address")
+	tenant_id, _ := c.GetInt("tenant_id")
+	valid := validation.Validation{}
+	valid.Required(name, "name").Message("幼儿园名称不能为空")
+	valid.Required(license_no, "license_no").Message("执照号不能为空")
+	valid.Required(kinder_grade, "kinder_grade").Message("幼儿园级别不能为空")
+	valid.Required(kinder_child_no, "kinder_child_no").Message("分校数")
+	valid.Required(address, "address").Message("地址不能为空")
+	valid.Required(tenant_id, "tenant_id").Message("企业编号不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		err := models.AddKindergarten(name, license_no, kinder_grade, kinder_child_no, address, tenant_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err, "保存失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+		}
+		c.ServeJSON()
+	}
+}

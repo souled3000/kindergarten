@@ -29,6 +29,9 @@ type Student struct {
 	Phone            string    `json:"phone" orm:"column(phone);size(11)" description:"手机号"`
 	HealthStatus     string    `json:"health_status" orm:"column(health_status);size(150)" description:"健康状况，多个以逗号隔开"`
 	Hobby            string    `json:"hobby" orm:"column(hobby);size(150)" description:"兴趣爱好，多个以逗号隔开"`
+	IsMuslim         int       `json:"is_muslim" orm:"column(is_muslim)"`
+	BabyName         string    `json:"baby_name" orm:"column(baby_name)"`
+	Birthday         time.Time `json:"birthday" orm:"column(birthday)"`
 	CreatedAt        time.Time `json:"Created_at" orm:"auto_now_add"`
 	UpdatedAt        time.Time `json:"updated_at" orm:"auto_now"`
 	DeletedAt        time.Time `json:"deleted_at" orm:"column(deleted_at);type(datetime);null"`
@@ -36,9 +39,9 @@ type Student struct {
 
 type inviteStudent struct {
 	Name           string `json:"name"`
+	Phone          string `json:"phone"`
 	BabyId         int    `json:"baby_id"`
-	Birthdaty      string `json:"birthdaty"`
-	Nickname       string `json:"nickname"`
+	Birthday       string `json:"birthday"`
 	KindergartenId int    `json:"kindergarten_id"`
 }
 
@@ -257,6 +260,8 @@ func UpdateStudent(id int, student string, kinship string) (paginatorMap map[str
 学生-录入信息
 */
 func AddStudent(student string, kinship string) (paginatorMap map[string]interface{}, err error) {
+	fmt.Println(student, 111)
+	fmt.Println(kinship, 222)
 	o := orm.NewOrm()
 	o.Begin()
 	paginatorMap = make(map[string]interface{})
@@ -322,7 +327,6 @@ func RemoveStudent(class_id int, student_id int) error {
 邀请学生
 */
 func Invite(student string) error {
-	fmt.Println(student)
 	o := orm.NewOrm()
 	var someError error
 	var baby []orm.Params
@@ -333,18 +337,18 @@ func Invite(student string) error {
 	timenow := time.Now().Format("2006-01-02 15:04:05")
 	createTime, _ := time.ParseInLocation(timeLayout, timenow, loc)
 	for _, v := range s {
-		fmt.Println(v.Birthdaty)
-		t, _ := time.Parse("2006-01-02 15:04:05", "2014-06-15 08:37:18")
+		fmt.Println(v.Birthday, 111)
+		t, _ := time.Parse("2006-01-02 15:04:05", v.Birthday)
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("*").From("baby_kindergarten").Where("baby_id = ?").String()
+		sql := qb.Select("*").From("baby_kindergarten").Where("baby_id = ?").And("status = 0").String()
 		_, err := o.Raw(sql, v.BabyId).Values(&baby)
 		if err == nil {
 			if baby != nil {
 				someError = errors.New("" + string(v.Name) + "已被邀请过")
 				continue
 			} else {
-				sql = "insert into baby_kindergarten set kindergarten_id = ?,baby_id = ?,baby_name = ?,created_at = ?,birthday = ?,nickname = ?"
-				_, err := o.Raw(sql, v.KindergartenId, v.BabyId, v.Name, createTime, t, v.Nickname).Exec()
+				sql = "insert into baby_kindergarten set kindergarten_id = ?,baby_id = ?,baby_name = ?,created_at = ?,birthday = ?,phone = ?"
+				_, err := o.Raw(sql, v.KindergartenId, v.BabyId, v.Name, createTime, t, v.Phone).Exec()
 				if err != nil {
 					err = errors.New("邀请失败")
 					return err
@@ -362,9 +366,8 @@ func GetBabyInfo(kindergarten_id int) (paginatorMap map[string]interface{}, err 
 	o := orm.NewOrm()
 	var baby []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("baby_id", "baby_name", "kindergarten_id").From("baby_kindergarten").Where("kindergarten_id = ?").And("actived = 1").And("status = 0").String()
+	sql := qb.Select("baby_id", "baby_name", "kindergarten_id", "birthday", "phone").From("baby_kindergarten").Where("kindergarten_id = ?").And("actived = 1").And("status = 0").String()
 	_, err = o.Raw(sql, kindergarten_id).Values(&baby)
-	fmt.Println(baby)
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = baby
