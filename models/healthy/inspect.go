@@ -267,10 +267,7 @@ func AddlistInspect(data string) (some_err []interface{}) {
 		timestamp := time.Now().Unix()
 		ptime := tm2.Unix()
 		yue := float64((timestamp-ptime)/int64(30*24*3600))
-
 		fmt.Println(yue)
-
-
 		types,_ := CompareHeight(int(s.Sex),yue,val.Height)
 		v.AbnormalHeight = types
 		weight, _:=CompareWeight(int(s.Sex),yue,val.Weight)
@@ -291,7 +288,7 @@ func AddlistInspect(data string) (some_err []interface{}) {
 		v.Date = val.Date
 		v.Url = val.Url
 		tmp_i := v
-		if create, id, err := o.ReadOrCreate(&v, "StudentId","ClassId","KindergartenId","Types","BodyId"); err != nil {
+		if create, id, err := o.ReadOrCreate(&v, "StudentId","ClassId","KindergartenId","BodyId"); err != nil {
 			some_err = append(some_err,err)
 		} else {
 			if !create {
@@ -312,6 +309,29 @@ func AddlistInspect(data string) (some_err []interface{}) {
 		}
 	}
 
+	b := Body{Id:i[0].BodyId}
+	if err := o.Read(&b); err == nil {
+		var num Num
+		sql := "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(i[0].BodyId)
+		o.Raw(sql).QueryRow(&num)
+		b.Actual = num.Num
+		b.Rate = int(math.Ceil(float64(num.Num)/float64(b.Total)*100.0))
+		o.Update(&b)
+	} else {
+		some_err = append(some_err,err)
+	}
+	var c Class
+	if err := o.QueryTable("healthy_class").Filter("class_id", i[0].ClassId).Filter("body_id",i[0].BodyId).One(&c); err == nil{
+		var num Num
+		sql := "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(i[0].BodyId)+" and class_id="+strconv.Itoa(i[0].ClassId)
+		o.Raw(sql).QueryRow(&num)
+		c.ClassActual = num.Num
+		c.ClassRate = int(math.Ceil(float64(num.Num)/float64(c.ClassTotal)*100.0))
+		o.Update(&c)
+	} else {
+		some_err = append(some_err,err)
+	}
+
 	if len(some_err) > 0 {
 		o.Rollback()
 	} else {
@@ -324,16 +344,28 @@ func AddlistInspect(data string) (some_err []interface{}) {
 
 func (f *Inspect) Baby(baby_id int) (Page, error) {
 	o := orm.NewOrm()
-	var con []interface{}
+	//var con []interface{}
 	where := " (height != 0 Or weight !=0) "
 	where += " AND (types = 5 Or types = 4) "
 	var sxWords []orm.Params
 
+	if baby_id != 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil{
+			student_id = 0
+		}else {
+			student_id = student.Id
+		}
 
+		where += " AND student_id = "+ strconv.Itoa(student_id)
+
+	}
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("date,height,weight").From(f.TableName()).Where(where).Limit(5).Offset(0).String()
+	sql := qb.Select("date,height,weight").From(f.TableName()).Where(where).Limit(6).Offset(0).String()
 
-	if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+	if _, err := o.Raw(sql).Values(&sxWords); err == nil {
 
 		return Page{0, 0, 0, sxWords}, nil
 	}
@@ -411,4 +443,107 @@ func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, 
 	}
 
 	return Page{}, nil
+}
+
+//体检详情
+func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id,student_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND healthy_inspect.types = 5 "
+
+	if class_id > 0{
+		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
+	}
+	if body_id > 0 {
+		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
+	}
+	if student_id > 0{
+		where += " AND healthy_inspect.student_id = "+strconv.Itoa(student_id)
+	}
+	if kindergarten_id > 0{
+		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+
+	var total int
+	err := o.Raw(sql, con).QueryRow(&total)
+	if err == nil {
+		var sxWords []orm.Params
+
+		limit := 10
+		if perPage != 0 {
+			limit = perPage
+		}
+		if page <= 0 {
+			page = 1
+		}
+		start := (page - 1) * limit
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.avatar,healthy_column.*").From(f.TableName()).
+			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+			LeftJoin("healthy_column").On("healthy_inspect.student_id = healthy_column.student_id").
+			Where(where).
+			Limit(limit).Offset(start).String()
+
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+
+			pageNum := int(math.Ceil(float64(total) / float64(limit)))
+			return Page{pageNum, limit, total, sxWords}, nil
+		}
+	}
+
+	return Page{}, nil
+}
+
+//宝宝健康指数
+func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND ( healthy_inspect.types = 1 Or healthy_inspect.types = 2 Or healthy_inspect.types = 3 ) "
+	day_time := time.Now().Format("2006-01-02")
+	wheres := " left(date,10) = '"+day_time+"'"
+	wheres += " AND abnormal is not null "
+	wheres += " AND ( types = 1 Or types = 2 Or types = 3 ) "
+	if baby_id != 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil{
+			student_id = 0
+		}else {
+			student_id = student.Id
+		}
+
+		where += " AND healthy_inspect.student_id = ? "
+		con = append(con, student_id)
+		wheres += " AND student_id = "+strconv.Itoa(student_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(wheres).String()
+
+	var total int
+	err := o.Raw(sql).QueryRow(&total)
+
+	fmt.Println(total)
+	if err == nil {
+		var sxWords []orm.Params
+
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.avatar").From(f.TableName()).
+			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+			Where(where).
+			OrderBy("id").Desc().
+			Limit(1).Offset(0).String()
+
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+			sxWords[0]["index"] = 100 - total *20
+
+			return sxWords, nil
+		}
+	}
+
+	return nil, nil
 }

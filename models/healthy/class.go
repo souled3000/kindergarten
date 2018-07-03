@@ -26,13 +26,18 @@ func init() {
 }
 func AddClass(b *Class,body_id int, class_id int,types int) (err error){
 	o := orm.NewOrm()
+	var num Num
+	sql := "select count(id) as num from organizational_member where type = 1 and organizational_id = "+strconv.Itoa(b.ClassId)
+	o.Raw(sql).QueryRow(&num)
+	b.ClassTotal = num.Num
 	o.Begin()
+
 	var some_err []interface{}
 	if _, _, err = o.ReadOrCreate(b, "BodyId","ClassId"); err != nil {
 		some_err = append(some_err,err)
 	}
 	var inspect []Inspect
-	sql := "select b.student_id,a.organizational_id as class_id,b.kindergarten_id,c.name as class_name from organizational_member a left join student b on b.student_id=a.member_id left join organizational c on c.id=a.organizational_id where a.type=1 and a.organizational_id="+strconv.Itoa(class_id)
+	sql = "select b.student_id,a.organizational_id as class_id,b.kindergarten_id,c.name as class_name from organizational_member a left join student b on b.student_id=a.member_id left join organizational c on c.id=a.organizational_id where a.type=1 and a.organizational_id="+strconv.Itoa(class_id)
 	if _,err = o.Raw(sql).QueryRows(&inspect); err != nil{
 		some_err = append(some_err,err)
 	}
