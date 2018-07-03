@@ -54,7 +54,7 @@ type Inspect_add struct {
 	Date		   string		`json:"date" orm:"column(date)" description:"参检时间"`
 	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
 	BodyId         int			`json:"body_id" orm:"column(body_id)" description:"班级ID"`
-	Info			Column		`json:"info"`
+	Info		   Column		`json:"info" orm:""`
 }
 
 func (t *Inspect) TableName() string {
@@ -104,7 +104,7 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
-
+	where += "AND ( healthy_inspect.types = 1 Or healthy_inspect.types = 2 Or healthy_inspect.types = 3 ) "
 	if kindergarten_id != 0 {
 		where += "AND healthy_inspect.kindergarten_id = ? "
 		con = append(con, kindergarten_id)
@@ -139,7 +139,6 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		where += "AND healthy_inspect.student_id = ? "
 		con = append(con, student_id)
 	}
-
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
 
@@ -262,11 +261,20 @@ func AddlistInspect(data string) (some_err []interface{}) {
 	json.Unmarshal([]byte(data),&i)
 	for key,val := range i{
 		var v Inspect
-		/*s := models.Student{Id:val.StudentId}
-		if err := o.Read(&s); err == nil {
+		s := models.Student{Id:val.StudentId}
+		o.Read(&s)
+		tm2, _ := time.Parse("2006-01-02", s.Birthday)
+		timestamp := time.Now().Unix()
+		ptime := tm2.Unix()
+		yue := float64((timestamp-ptime)/int64(30*24*3600))
 
-		}*/
+		fmt.Println(yue)
 
+
+		types,_ := CompareHeight(int(s.Sex),yue,val.Height)
+		v.AbnormalHeight = types
+		weight, _:=CompareWeight(int(s.Sex),yue,val.Weight)
+		v.AbnormalWeight = weight
 		v.StudentId = val.StudentId
 		v.Weight = val.Weight
 		v.Height = val.Height
@@ -282,13 +290,24 @@ func AddlistInspect(data string) (some_err []interface{}) {
 		v.Abnormal = val.Abnormal
 		v.Date = val.Date
 		v.Url = val.Url
-		if _, id, err := o.ReadOrCreate(&v, "StudentId","ClassId","KindergartenId","Types","BodyId"); err != nil {
+		tmp_i := v
+		if create, id, err := o.ReadOrCreate(&v, "StudentId","ClassId","KindergartenId","Types","BodyId"); err != nil {
 			some_err = append(some_err,err)
 		} else {
+			if !create {
+				tmp_i.Id = int(id)
+				o.Update(&tmp_i)
+			}
 			i[key].Info.StudentId = val.StudentId
 			i[key].Info.InspectId = int(id)
-			if _, _, err := o.ReadOrCreate(&i[key].Info, "StudentId","InspectId"); err != nil {
+			temp_c := i[key].Info
+			if created, ide, err := o.ReadOrCreate(&i[key].Info, "StudentId","InspectId"); err != nil {
 				some_err = append(some_err,err)
+			} else {
+				if !created {
+					temp_c.Id = int(ide)
+					o.Update(&temp_c)
+				}
 			}
 		}
 	}
@@ -341,4 +360,55 @@ func (f *Inspect) Situation(baby_id int) (map[string]interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+//健康异常档案
+func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, search string) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+
+	if kindergarten_id != 0 {
+		where += "AND healthy_inspect.kindergarten_id = ? "
+		con = append(con, kindergarten_id)
+	}
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+
+	var total int
+	err := o.Raw(sql, con).QueryRow(&total)
+	if err == nil {
+		if search != "" {
+			where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
+			con = append(con, "%"+search+"%")
+			con = append(con, "%"+search+"%")
+			con = append(con, "%"+search+"%")
+		}
+		var sxWords []orm.Params
+
+		limit := 10
+		if perPage != 0 {
+			limit = perPage
+		}
+		if page <= 0 {
+			page = 1
+		}
+		start := (page - 1) * limit
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.avatar,teacher.name as teacher_name").From(f.TableName()).
+			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+			LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+			Where(where).
+			OrderBy("id").Desc().
+			Limit(limit).Offset(start).String()
+
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+
+			pageNum := int(math.Ceil(float64(total) / float64(limit)))
+			return Page{pageNum, limit, total, sxWords}, nil
+		}
+	}
+
+	return Page{}, nil
 }
