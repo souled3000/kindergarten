@@ -99,6 +99,7 @@ func (c *KindergartenServer) GetAllergenChild(allergen string) (ml interface{}) 
 	} else {
 		return nil
 	}
+}
 
 //班级成员
 func (c *KindergartenServer) GetClassName(organizational_id int) (ml map[string]interface{}, err error) {
