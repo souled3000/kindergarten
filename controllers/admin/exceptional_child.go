@@ -42,7 +42,6 @@ func (c *ExceptionalChildController) GetAll() {
 
 	// limit
 	limit, _ := c.GetInt64("per_page")
-
 	if info, err := models.GetAllExceptionalChild(child_name, somatotype, page, limit, keyword); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
 

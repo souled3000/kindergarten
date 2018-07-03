@@ -78,7 +78,9 @@ func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		var newMaps []orm.Params
 		for _, v := range maps {
-			if v["class_type"].(string) == "3" {
+			if v["class_type"] == nil {
+				v["class_name"] = nil
+			} else if v["class_type"].(string) == "3" {
 				v["class_name"] = "大班" + v["name"].(string) + ""
 
 			} else if v["class_type"].(string) == "2" {
@@ -102,8 +104,6 @@ func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error
 // no records exist
 func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limit int64, keyword string) (Page, error) {
 	o := orm.NewOrm()
-
-	var maps []orm.Params
 	where := "1=1 "
 
 	if child_name != "" {
@@ -128,6 +128,7 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 	var total int64
 	err := o.Raw(tatolsql).QueryRow(&total)
+
 	if err == nil {
 		if page <= 0 {
 			page = 1
@@ -140,12 +141,16 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 		offset := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where(where).OrderBy("ex.id").Desc().Limit(int(limit)).Offset(int(offset)).String()
+		var maps []orm.Params
 		if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
+
 			var newMap []orm.Params
 			for _, v := range maps {
-				if v["class_type"].(string) == "3" {
-					v["class_name"] = "大班" + v["name"].(string) + ""
 
+				if v["class_type"] == nil {
+					v["class_name"] = nil
+				} else if v["class_type"].(string) == "3" {
+					v["class_name"] = "大班" + v["name"].(string) + ""
 				} else if v["class_type"].(string) == "2" {
 					v["class_name"] = "中班" + v["name"].(string) + ""
 				} else {
@@ -172,12 +177,13 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 				newMap = append(newMap, v)
 			}
 			pageNum := int(math.Ceil(float64(total) / float64(limit)))
+
 			return Page{newMap, total, pageNum}, nil
 		} else {
-			return Page{}, nil
+			return Page{}, err
 		}
 	}
-	return Page{}, nil
+	return Page{}, err
 }
 
 // UpdateExceptionalChild updates ExceptionalChild by Id and returns error if
