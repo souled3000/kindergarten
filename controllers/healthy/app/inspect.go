@@ -387,9 +387,9 @@ func (c *InspectController) Project() {
 	class_id, _:= c.GetInt("class_id")
 	perPage, _ := c.GetInt("per_page")
 	body_id, _:= c.GetInt("body_id")
-	student_id, _:= c.GetInt("student_id")
+	baby_id, _:= c.GetInt("baby_id")
 
-	if works, err := f.Project(page, perPage, kindergarten_id, class_id, body_id,student_id ); err == nil {
+	if works, err := f.Project(page, perPage, kindergarten_id, class_id, body_id,baby_id ); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}

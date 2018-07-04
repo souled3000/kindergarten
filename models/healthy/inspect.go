@@ -446,7 +446,7 @@ func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, 
 }
 
 //体检详情
-func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id,student_id int) (Page, error) {
+func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id,baby_id int) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -455,11 +455,19 @@ func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id,stud
 	if class_id > 0{
 		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
 	}
-	if body_id > 0 {
-		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
-	}
-	if student_id > 0{
+	if baby_id > 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil{
+			student_id = 0
+		}else {
+			student_id = student.Id
+		}
 		where += " AND healthy_inspect.student_id = "+strconv.Itoa(student_id)
+	}
+	if body_id > 0{
+		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
 	}
 	if kindergarten_id > 0{
 		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
