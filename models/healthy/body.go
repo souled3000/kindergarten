@@ -189,7 +189,16 @@ func GetAllBody(page int,per_page int,types int,theme string) (ml map[string]int
 	ml = make(map[string]interface{})
 	if _,err = qs.Limit(per_page,(page-1)*per_page).OrderBy("-id").All(&d); err == nil {
 		num,_ := qs.Count()
-		ml["data"] = d
+		var dd []map[string]interface{}
+		djson,_ := json.Marshal(d)
+		json.Unmarshal(djson,&dd)
+		for i,_:= range dd {
+			dd[i]["name"] = i +1
+ 			fmt.Println(i)
+
+		}
+
+		ml["data"] = dd
 		ml["total"] = num
 		return ml,nil
 	}
