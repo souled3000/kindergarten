@@ -205,7 +205,7 @@ func (o *OrganizationalController) AddOrganization() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		_, err := models.AddOrganization(name, ty, parent_id, kindergarten_id, class_type)
+		err := models.AddOrganization(name, ty, parent_id, kindergarten_id, class_type)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {
@@ -231,7 +231,7 @@ func (o *OrganizationalController) DelOrganization() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		_, err := models.DelOrganization(organization_id)
+		err := models.DelOrganization(organization_id)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1004, nil, err.Error()}
 		} else {
@@ -259,7 +259,7 @@ func (o *OrganizationalController) UpOrganization() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		_, err := models.UpOrganization(organization_id, name)
+		err := models.UpOrganization(organization_id, name)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {

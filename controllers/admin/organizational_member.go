@@ -33,7 +33,7 @@ func (c *OrganizationalMemberController) Post() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		_, err := models.AddMembers(ty, member_ids, organizational_id, is_principal)
+		err := models.AddMembers(ty, member_ids, organizational_id, is_principal)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1006, nil, err.Error()}
 		} else {

@@ -21,13 +21,6 @@ type JSONStruct struct {
 	Msg    string      `json:"msg";`
 }
 
-// URLMapping ...
-func (c *NoticeController) URLMapping() {
-	c.Mapping("Store", c.Store)
-	c.Mapping("GetNoticeList", c.GetNoticeList)
-	c.Mapping("Delete", c.Delete)
-}
-
 // Store ...
 // @Title 保存公告
 // @Description Web-保存公告

@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math"
 	"strconv"
 	"time"
@@ -259,8 +258,6 @@ func UpdateStudent(id int, student string, kinship string) (paginatorMap map[str
 学生-录入信息
 */
 func AddStudent(student string, kinship string) (paginatorMap map[string]interface{}, err error) {
-	fmt.Println(student, 111)
-	fmt.Println(kinship, 222)
 	o := orm.NewOrm()
 	o.Begin()
 	paginatorMap = make(map[string]interface{})
@@ -336,7 +333,6 @@ func Invite(student string) error {
 	timenow := time.Now().Format("2006-01-02 15:04:05")
 	createTime, _ := time.ParseInLocation(timeLayout, timenow, loc)
 	for _, v := range s {
-		fmt.Println(v.Birthday, 111)
 		t, _ := time.Parse("2006-01-02 15:04:05", v.Birthday)
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("*").From("baby_kindergarten").Where("baby_id = ?").And("status = 0").String()

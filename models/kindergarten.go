@@ -70,7 +70,7 @@ func GetKindergartenById(id int, page, prepage int) map[string]interface{} {
 }
 
 /*
-oms-设置园长
+oms-设置园长/教师
 */
 func AddPrincipal(user_id int, kindergarten_id int, role int) error {
 	o := orm.NewOrm()
@@ -104,7 +104,7 @@ func AddPrincipal(user_id int, kindergarten_id int, role int) error {
 			return err
 		}
 	}
-	if role == 1 || role == 5 || role == 6 {
+	if role == 1 || role == 5 {
 		userInfo, err := User.GetOneByUserId(user_id)
 		if err != nil {
 			return err
@@ -112,13 +112,6 @@ func AddPrincipal(user_id int, kindergarten_id int, role int) error {
 		userinfo, _ := json.Marshal(userInfo)
 		var user map[string]interface{}
 		json.Unmarshal(userinfo, &user)
-		_, err = o.QueryTable("student").Filter("user_id", user_id).Filter("status", 0).Update(orm.Params{
-			"status": 1,
-		})
-		if err != nil {
-			o.Rollback()
-			return err
-		}
 		if err == nil {
 			o.QueryTable("teacher").Filter("user_id", user_id).Filter("status", 0).Update(orm.Params{
 				"status": 1,
@@ -152,15 +145,8 @@ func AddPrincipal(user_id int, kindergarten_id int, role int) error {
 					}
 				}
 			}
-		} else if role == 5 {
-			sql := "insert into teacher set user_id = ?,name = ?,phone = ?,sex = ?,age = ?,address = ?,kindergarten_id = ?,avatar = ?"
-			_, err := o.Raw(sql, user_id, user["name"].(string), user["phone"].(string), user["sex"], user["age"], user["address"].(string), kindergarten_id, user["avatar"].(string)).Exec()
-			if err != nil {
-				o.Rollback()
-				return err
-			}
 		} else {
-			sql := "insert into student set user_id = ?,name = ?,phone = ?,sex = ?,age = ?,address = ?,kindergarten_id = ?,avatar = ?"
+			sql := "insert into teacher set user_id = ?,name = ?,phone = ?,sex = ?,age = ?,address = ?,kindergarten_id = ?,avatar = ?"
 			_, err := o.Raw(sql, user_id, user["name"].(string), user["phone"].(string), user["sex"], user["age"], user["address"].(string), kindergarten_id, user["avatar"].(string)).Exec()
 			if err != nil {
 				o.Rollback()

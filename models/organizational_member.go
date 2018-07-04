@@ -26,23 +26,22 @@ func init() {
 /*
 添加成员
 */
-func AddMembers(ty int, member_ids string, organizational_id int, is_principal int) (paginatorMap map[string]interface{}, err error) {
+func AddMembers(ty int, member_ids string, organizational_id int, is_principal int) error {
 	o := orm.NewOrm()
 	o.Begin()
 	var v []orm.Params
-	paginatorMap = make(map[string]interface{})
 	s := strings.Split(member_ids, ",")
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("o.*").From("organizational as o").Where("id = ?").String()
-	_, err = o.Raw(sql, organizational_id).Values(&v)
+	_, err := o.Raw(sql, organizational_id).Values(&v)
 	if v == nil {
 		err = errors.New("没有该班级")
-		return nil, err
+		return err
 	}
 	//组织架构为园长不能添加
 	if v[0]["type"] == "1" && v[0]["is_fixed"] == "1" {
 		err = errors.New("不能添加")
-		return nil, err
+		return err
 	} else {
 		for _, value := range s {
 			if value == "" {
@@ -59,7 +58,7 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 						})
 						if err != nil {
 							o.Rollback()
-							return nil, err
+							return err
 						}
 					} else {
 						if v[0]["class_type"] == "3" {
@@ -69,7 +68,7 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 							})
 							if err != nil {
 								o.Rollback()
-								return nil, err
+								return err
 							}
 						} else if v[0]["class_type"] == "2" {
 							class_info := "中班" + v[0]["name"].(string) + ""
@@ -78,7 +77,7 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 							})
 							if err != nil {
 								o.Rollback()
-								return nil, err
+								return err
 							}
 						} else {
 							class_info := "小班" + v[0]["name"].(string) + ""
@@ -87,7 +86,7 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 							})
 							if err != nil {
 								o.Rollback()
-								return nil, err
+								return err
 							}
 						}
 					}
@@ -96,11 +95,11 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 		}
 		if err == nil {
 			o.Commit()
-			return nil, err
+			return nil
 		}
 	}
 	err = errors.New("保存失败")
-	return nil, err
+	return err
 }
 
 /*

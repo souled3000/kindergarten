@@ -110,8 +110,8 @@ func (c *TeacherController) Delete() {
 	status, _ := c.GetInt("status")
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.DeleteTeacher(id, status, class_type)
-	if v == nil {
+	err := models.DeleteTeacher(id, status, class_type)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
@@ -151,8 +151,8 @@ func (c *TeacherController) Put() {
 	id, _ := strconv.Atoi(idStr)
 	v := models.Teacher{Id: id}
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		v := models.UpdateTeacher(&v)
-		if v == nil {
+		err := models.UpdateTeacher(&v)
+		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "编辑失败"}
 		} else {
 			c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
@@ -194,8 +194,8 @@ func (c *TeacherController) Post() {
 			c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 			c.ServeJSON()
 		} else {
-			v := models.AddTeacher(&v)
-			if v == nil {
+			err := models.AddTeacher(&v)
+			if err != nil {
 				c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "保存失败"}
 			} else {
 				c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
@@ -226,9 +226,9 @@ func (c *TeacherController) RemoveTeacher() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v := models.RemoveTeacher(teacher_id, class_id)
-		if v == nil {
-			c.Data["json"] = JSONStruct{"error", 1004, nil, "移除失败"}
+		err := models.RemoveTeacher(teacher_id, class_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1004, err.Error(), "移除失败"}
 		} else {
 			c.Data["json"] = JSONStruct{"success", 0, nil, "移除成功"}
 		}
