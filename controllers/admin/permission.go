@@ -34,7 +34,7 @@ func (c *PermissionController) Post() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		_, err := models.AddPermission(name, identification, parent_id, route)
+		err := models.AddPermission(name, identification, parent_id, route)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {

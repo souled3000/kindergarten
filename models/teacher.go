@@ -171,7 +171,7 @@ func GetClass(id int, class_type int, page int, prepage int) map[string]interfac
 /*
 删除教师
 */
-func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
+func DeleteTeacher(id int, status int, class_type int) error {
 	o := orm.NewOrm()
 	v := Teacher{Id: id}
 	timeLayout := "2006-01-02 15:04:05" //转化所需模板
@@ -189,10 +189,8 @@ func DeleteTeacher(id int, status int, class_type int) map[string]interface{} {
 		if _, err = o.Update(&v); err == nil {
 			_, err = o.QueryTable("teachers_show").Filter("teacher_id", id).Delete()
 			_, err = o.QueryTable("organizational_member").Filter("member_id", id).Delete()
-			if err == nil {
-				paginatorMap := make(map[string]interface{})
-				paginatorMap["data"] = nil //返回数据
-				return paginatorMap
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -217,18 +215,15 @@ func GetTeacherInfo(id int) map[string]interface{} {
 /*
 教师编辑
 */
-func UpdateTeacher(m *Teacher) map[string]interface{} {
+func UpdateTeacher(m *Teacher) error {
 	o := orm.NewOrm()
 	v := Teacher{Id: m.Id}
 	if m.Post == "" {
 		m.Post = "普通教师"
 	}
 	if err := o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Update(m); err == nil {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["data"] = num //返回数据
-			return paginatorMap
+		if _, err = o.Update(m); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -237,20 +232,18 @@ func UpdateTeacher(m *Teacher) map[string]interface{} {
 /*
 教师-录入信息
 */
-func AddTeacher(m *Teacher) map[string]interface{} {
+func AddTeacher(m *Teacher) error {
 	var User *UserService
 	o := orm.NewOrm()
 	if m.Post == "" {
 		m.Post = "普通教师"
 	}
-	id, err := o.Insert(m)
+	_, err := o.Insert(m)
 	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
 	client.UseService(&User)
 	err = User.UpdateUK(m.UserId)
-	if err == nil {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = id //返回数据
-		return paginatorMap
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -258,31 +251,29 @@ func AddTeacher(m *Teacher) map[string]interface{} {
 /*
 组织框架移除教师
 */
-func RemoveTeacher(teacher_id int, class_id int) map[string]interface{} {
+func RemoveTeacher(teacher_id int, class_id int) error {
 	o := orm.NewOrm()
-	err := o.Begin()
-	_, err = o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
+	o.Begin()
+	_, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", teacher_id).Delete()
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return err
 	}
-	num, err := o.QueryTable("teacher").Filter("teacher_id", teacher_id).Update(orm.Params{
+	_, err = o.QueryTable("teacher").Filter("teacher_id", teacher_id).Update(orm.Params{
 		"status": 0,
 	})
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return err
 	}
 	_, err = o.QueryTable("teachers_show").Filter("teacher_id", teacher_id).Delete()
 	if err != nil {
-		err = o.Rollback()
+		o.Rollback()
+		return err
 	} else {
-		err = o.Commit()
+		o.Commit()
+		return nil
 	}
-	if err == nil && num > 0 {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = num //返回数据
-		return paginatorMap
-	}
-	return nil
 }
 
 /*
