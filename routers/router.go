@@ -15,6 +15,7 @@ import (
 	"github.com/astaxie/beego/plugins/cors"
 	"kindergarten-service-go/controllers/healthy"
 	"kindergarten-service-go/controllers/healthy/app"
+	"kindergarten-service-go/controllers/task"
 )
 
 func init() {
@@ -210,6 +211,13 @@ func init() {
 				&admin.ExceptionalChildController{},
 			),
 		),
+
+		beego.NSNamespace("/task/work_tasks",
+			beego.NSInclude(
+				&task.WorkTaskController{},
+			),
+		),
+
 		// 根据过敏源获取过敏儿童
 		beego.NSRouter("/app/allergen_child", &controllers.ExceptionalChildController{}, "get:GetAllergenChild"),
 	)
