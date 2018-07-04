@@ -42,20 +42,18 @@ func init() {
 /*
 保存权限
 */
-func AddPermission(name string, identification string, parent_id int, route string) (paginatorMap map[string]interface{}, err error) {
+func AddPermission(name string, identification string, parent_id int, route string) error {
 	o := orm.NewOrm()
 	var v []orm.Params
 	var ident []orm.Params
 	var r map[string]interface{}
 	json.Unmarshal([]byte(route), &r)
-	paginatorMap = make(map[string]interface{})
-
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("p.*").From("permission as p").Where("p.identification = ?").String()
 	num, err := o.Raw(sql, identification).Values(&ident)
 	if num > 0 {
 		err = errors.New("标识已存在")
-		return nil, err
+		return err
 	}
 	if parent_id > -1 {
 		qb, _ := orm.NewQueryBuilder("mysql")
@@ -63,14 +61,14 @@ func AddPermission(name string, identification string, parent_id int, route stri
 		num, err := o.Raw(sql, parent_id).Values(&v)
 		if num < 0 {
 			err = errors.New("上一级不存在")
-			return nil, err
+			return err
 		}
 		le := v[0]["level"].(string)
 		leve, _ := strconv.Atoi(le)
 		lev := leve + 1
 		if leve >= 2 {
 			err = errors.New("最多两级")
-			return nil, err
+			return err
 		}
 		qb, _ = orm.NewQueryBuilder("mysql")
 		sql = "insert into permission set parent_id = ?,name = ?,level = ?,identification = ?"
@@ -82,7 +80,7 @@ func AddPermission(name string, identification string, parent_id int, route stri
 			_, _ = o.Raw(sql, id, v).Exec()
 		}
 		if err == nil {
-			return nil, nil
+			return nil
 		}
 	} else {
 		qb, _ = orm.NewQueryBuilder("mysql")
@@ -95,11 +93,11 @@ func AddPermission(name string, identification string, parent_id int, route stri
 			_, _ = o.Raw(sql, id, v).Exec()
 		}
 		if err == nil {
-			return nil, nil
+			return nil
 		}
 	}
 	err = errors.New("保存失败")
-	return nil, err
+	return err
 }
 
 /*

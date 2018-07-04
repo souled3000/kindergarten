@@ -331,17 +331,16 @@ func getNext(posts []Organizational, id int) (Organizational []OrganizationalTre
 /*
 添加组织架构
 */
-func AddOrganization(name string, ty int, parent_id int, kindergarten_id int, class_type int) (paginatorMap map[string]interface{}, err error) {
+func AddOrganization(name string, ty int, parent_id int, kindergarten_id int, class_type int) error {
 	o := orm.NewOrm()
 	var v []orm.Params
 	var kinder []orm.Params
-	paginatorMap = make(map[string]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("kindergarten").Where("kindergarten_id = ?").String()
 	num, err := o.Raw(sql, kindergarten_id).Values(&kinder)
 	if num == 0 {
 		err = errors.New("幼儿园不存在")
-		return nil, err
+		return err
 	}
 	if parent_id != 0 {
 		qb, _ = orm.NewQueryBuilder("mysql")
@@ -349,7 +348,7 @@ func AddOrganization(name string, ty int, parent_id int, kindergarten_id int, cl
 		num, err = o.Raw(sql, parent_id).Values(&v)
 		if num == 0 {
 			err = errors.New("上一级架构不存在")
-			return nil, err
+			return err
 		}
 		//interface 转 int
 		parent_ids := v[0]["parent_ids"].(string)
@@ -364,12 +363,12 @@ func AddOrganization(name string, ty int, parent_id int, kindergarten_id int, cl
 		if typ == 1 {
 			if leve >= 2 {
 				err = errors.New("管理层不能超过2级")
-				return nil, err
+				return err
 			}
 		} else {
 			if leve >= 3 {
 				err = errors.New("管理层不能超过3级")
-				return nil, err
+				return err
 			}
 		}
 		qb, _ = orm.NewQueryBuilder("mysql")
@@ -381,28 +380,26 @@ func AddOrganization(name string, ty int, parent_id int, kindergarten_id int, cl
 		_, err = o.Raw(sql, name, ty, kindergarten_id).Exec()
 	}
 	if err == nil {
-		paginatorMap["data"] = nil
-		return paginatorMap, nil
+		return nil
 	}
-	return nil, err
+	return err
 }
 
 /*
 删除组织架构
 */
-func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, err error) {
+func DelOrganization(organization_id int) error {
 	o := orm.NewOrm()
 	var v []orm.Params
 	var val []orm.Params
 	var organ []orm.Params
-	paginatorMap = make(map[string]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("organizational").Where("id = ?").String()
-	_, err = o.Raw(sql, organization_id).Values(&v)
+	_, err := o.Raw(sql, organization_id).Values(&v)
 	is_fixe := v[0]["is_fixed"].(string)
 	if is_fixe == "1" {
 		err = errors.New("不能删除")
-		return nil, err
+		return err
 	}
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("count(*) as num").From("organizational").Where("parent_ids = ?").String()
@@ -422,36 +419,33 @@ func DelOrganization(organization_id int) (paginatorMap map[string]interface{}, 
 		_, err = o.QueryTable("teacher").Filter("teacher_id", organization_id).Delete()
 	}
 	if err == nil {
-		paginatorMap["data"] = nil
-		return paginatorMap, nil
+		return nil
 	}
-	return nil, err
+	return err
 }
 
 /*
 编辑组织架构
 */
-func UpOrganization(organization_id int, name string) (paginatorMap map[string]interface{}, err error) {
+func UpOrganization(organization_id int, name string) error {
 	o := orm.NewOrm()
 	var v []orm.Params
-	paginatorMap = make(map[string]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From("organizational").Where("id = ?").String()
-	_, err = o.Raw(sql, organization_id).Values(&v)
+	_, err := o.Raw(sql, organization_id).Values(&v)
 	is_fixe := v[0]["is_fixed"].(string)
 	if is_fixe == "1" {
 		err = errors.New("不能编辑")
-		return nil, err
+		return err
 	}
 	_, err = o.QueryTable("organizational").Filter("id", organization_id).Update(orm.Params{
 		"name": name,
 	})
 	if err == nil {
-		paginatorMap["data"] = nil
-		return paginatorMap, nil
+		return nil
 	}
 	err = errors.New("编辑组织架构失败")
-	return nil, err
+	return err
 }
 
 /*
@@ -549,7 +543,7 @@ func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err e
 		qb, _ := orm.NewQueryBuilder("mysql")
 		sql := qb.Select("s.name", "s.student_id", "s.baby_id", "o.name as class_name", "o.id as class_id", "class_type").From("student as s").LeftJoin("organizational_member as om").
 			On("s.student_id = om.member_id").LeftJoin("organizational as o").
-			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("s.status = 1").And("om.type = 1").And("om.is_principal = 1").And("isnull(s.deleted_at)").String()
+			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("s.status = 1").And("om.type = 1").And("om.is_principal = 0").And("isnull(s.deleted_at)").String()
 		_, err = o.Raw(sql, s).Values(&v)
 		for key, val := range v {
 			if val["class_type"].(string) == "3" {
