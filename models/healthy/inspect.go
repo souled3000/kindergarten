@@ -504,6 +504,7 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 	where := "1 "
 	where += "AND ( healthy_inspect.types = 1 Or healthy_inspect.types = 2 Or healthy_inspect.types = 3 ) "
 	day_time := time.Now().Format("2006-01-02")
+	where += " AND left(date,10) = '"+day_time+"'"
 	wheres := " left(date,10) = '"+day_time+"'"
 	wheres += " AND abnormal is not null "
 	wheres += " AND ( types = 1 Or types = 2 Or types = 3 ) "
@@ -527,7 +528,6 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 	var total int
 	err := o.Raw(sql).QueryRow(&total)
 
-	fmt.Println(err)
 	if err == nil {
 		var sxWords []orm.Params
 
@@ -537,11 +537,11 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 			Where(where).
 			OrderBy("id").Desc().
 			Limit(1).Offset(0).String()
-
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
-			return sxWords, nil
-			if sxWords != nil{
+			if len(sxWords) != 0{
 				sxWords[0]["index"] = 100 - total *20
+
+				return sxWords, nil
 			}
 		}
 	}
