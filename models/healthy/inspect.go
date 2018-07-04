@@ -527,7 +527,7 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 	var total int
 	err := o.Raw(sql).QueryRow(&total)
 
-	fmt.Println(total)
+	fmt.Println(err)
 	if err == nil {
 		var sxWords []orm.Params
 
@@ -539,9 +539,10 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 			Limit(1).Offset(0).String()
 
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
-			sxWords[0]["index"] = 100 - total *20
-
 			return sxWords, nil
+			if sxWords != nil{
+				sxWords[0]["index"] = 100 - total *20
+			}
 		}
 	}
 

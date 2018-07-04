@@ -28,7 +28,7 @@ func CompareWeight(sex int,age,weight float64)  (types string,err error) {
 	o := orm.NewOrm()
 	var status string
 	var info Weight
-	err = o.QueryTable("healthy_weight").Filter("type",sex).Filter("age", age).One(&info)
+	err = o.QueryTable("healthy_weight").Filter("type",sex).Filter("age__gte", age).One(&info)
 	if err == nil{
 		if weight < info.Small {
 			status = "1" //矮小
