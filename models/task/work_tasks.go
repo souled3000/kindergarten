@@ -28,7 +28,7 @@ type WorkTasksOperator struct {
 	OperatorName string `json:"operator_name"`
 	CoursewareId int `json:"courseware_id"`
 	CoursewareName string `json:"courseware_name"`
-	UploadTime time.Time `json:"upload_time"`
+	UploadTime time.Time `json:"upload_time" orm:"auto_now_add"`
 	WorkTasksId int `json:"work_tasks_id"`
 	Status int `json:"status"`
 	CreatedAt time.Time `json:"created_at" orm:"auto_now_add"`
@@ -171,4 +171,41 @@ func (wt *WorkTasks) GetInfoById() (map[string]interface{}, error) {
 	res["cc"] = wtc
 
 	return res, nil
+}
+
+func (wt *WorkTasks) Complete(operator, coursewareId int, coursewareName, uploadTime string) error {
+	o := orm.NewOrm()
+
+	wto := WorkTasksOperator{Operator:operator, WorkTasksId:wt.Id}
+	if err := o.Read(&wto); err != nil {
+		return err
+	}
+	wto.CoursewareId = coursewareId
+	wto.CoursewareName = coursewareName
+	if uploadTime != "" {
+		ut, _ := time.Parse("2006-01-02 15:04:05", uploadTime)
+		wto.UploadTime = ut
+	}
+	o.Update(&wto)
+
+	o.QueryTable(wt.TableName()).Filter("id", wt.Id).Update(orm.Params{
+		"finish_num": orm.ColValue(orm.ColAdd, 1),
+	})
+
+	if err := o.Read(wt); err != nil {
+		return err
+	}
+	if wt.TaskNum == wt.FinishNum {
+		wt.Status = 0
+		o.Update(wt)
+	}
+
+	return nil
+}
+
+func (wto *WorkTasksOperator) Schedule() ([]WorkTasksOperator, error) {
+	var wtos []WorkTasksOperator
+	_, err := orm.NewOrm().QueryTable(wto).Filter("work_tasks_id", wto.WorkTasksId).Filter("status", wto.Status).All(&wtos)
+
+	return wtos, err
 }

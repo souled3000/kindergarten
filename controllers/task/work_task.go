@@ -22,6 +22,9 @@ type JSONStruct struct {
 func (c *WorkTaskController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("Get", c.Get)
+	c.Mapping("GetInfo", c.GetInfo)
+	c.Mapping("Complete", c.Complete)
+	c.Mapping("Schedule", c.Schedule)
 }
 
 // @Title 发布任务
@@ -134,6 +137,77 @@ func (c *WorkTaskController) GetInfo() {
 	c.ServeJSON()
 }
 
+// @Title 完成任务
+// @Description 完成任务
+// @Param   task_id     			formData    int  	true        "任务ID"
+// @Param   operator     			formData    int	    true        "操作人"
+// @Param   courseware_id     		formData    int     false       "课件ID"
+// @Param   courseware_name     	formData    string  false       "课件名称"
+// @Param   upload_time     		formData    time    false       "上传课件时间"
+// @Success 0 {int} models.Feedback.Id
+// @Failure 1001 参数验证
+// @Failure 1003 操作失败
+// @router /complete [put]
 func (c *WorkTaskController) Complete() {
+	taskId, _ := c.GetInt("task_id")
+	operator, _ := c.GetInt("operator")
+	coursewareId, _ := c.GetInt("courseware_id")
+	coursewareName := c.GetString("courseware_name")
+	uploadTimeS := c.GetString("upload_time")
 
+	valid := validation.Validation{}
+	valid.Required(taskId, "task_id").Message("任务ID不能为空")
+	valid.Required(operator, "operator").Message("操作人不能为空")
+	if uploadTimeS != "" {
+		if _, err := time.Parse("2006-01-02 15:04:05", uploadTimeS); err != nil {
+			valid.SetError("upload_time", "上传时间格式不正确")
+		}
+	}
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
+
+		c.StopRun()
+		c.ServeJSON()
+	}
+
+	wt := task.WorkTasks{Id:taskId}
+
+	if err := wt.Complete(operator, coursewareId, coursewareName, uploadTimeS); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, "", "操作成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, "", "操作失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// @Title 获取任务进度
+// @Description 获取任务进度
+// @Param   task_id     			query    int  	true        "任务ID"
+// @Param   status     				query    int  	true        "任务状态"
+// @Success 0 {int} models.Feedback.Id
+// @Failure 1005 获取失败
+// @router /schedule [get]
+func (c *WorkTaskController) Schedule() {
+	taskId, _ := c.GetInt("task_id")
+	status, _ := c.GetInt("status")
+
+	valid := validation.Validation{}
+	valid.Required(taskId, "task_id").Message("任务ID不能为空")
+	valid.Range(status, 0, 1, "status").Message("状态格式不正确")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
+
+		c.StopRun()
+		c.ServeJSON()
+	}
+
+	wto := task.WorkTasksOperator{WorkTasksId:taskId, Status:status}
+	if res, err := wto.Schedule(); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
+	}
+
+	c.ServeJSON()
 }
