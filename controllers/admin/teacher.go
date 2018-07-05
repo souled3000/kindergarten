@@ -129,8 +129,8 @@ func (c *TeacherController) Delete() {
 func (c *TeacherController) GetTeacherInfo() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.GetTeacherInfo(id)
-	if v == nil {
+	v, err := models.GetTeacherInfo(id)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
@@ -328,8 +328,8 @@ func (c *TeacherController) OrganizationalTeacher() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v := models.OrganizationalTeacher(kindergarten_id, ty, person, class_id)
-		if v == nil {
+		v, err := models.OrganizationalTeacher(kindergarten_id, ty, person, class_id)
+		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 		} else {
 			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}

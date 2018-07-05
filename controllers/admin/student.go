@@ -143,7 +143,6 @@ func (c *StudentController) Post() {
 	kinship := c.GetString("kinship")
 	valid := validation.Validation{}
 	valid.Required(student, "student").Message("学生信息不能为空")
-	valid.Required(kinship, "kinship").Message("亲属信息不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
@@ -200,8 +199,8 @@ func (c *StudentController) DeleteStudent() {
 	ty, _ := c.GetInt("type")
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.DeleteStudent(id, status, ty, class_type)
-	if v == nil {
+	err := models.DeleteStudent(id, status, ty, class_type)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
