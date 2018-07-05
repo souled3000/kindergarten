@@ -110,27 +110,31 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error){
 	o := orm.NewOrm()
 	var num Num
-	list := make(map[string]interface{})
+	var list []map[string]interface{}
 	sql := "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)
 	o.Raw(sql).QueryRow(&num)
 	c_num := num.Num
 	list2 := make(map[string]interface{})
+	list3 := make(map[string]interface{})
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
 	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 	list2["column"] = "weight"
-	list["体重"] = list2
+	list2["name"] = "体重"
+	list = append(list,list2)
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and height is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
-	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
-	list2["column"] = "height"
-	list["身高"] = list2
+	list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	list3["column"] = "height"
+	list3["name"] = "身高"
+	list = append(list,list3)
 	sql = "select a.id,a.theme,a.test_time,a.mechanism,a.kindergarten_id,a.types,a.project,b.class_total as total,b.class_actual as actual,b.class_rate as rate from healthy_body a left join healthy_class b on a.id = b.body_id where a.id="+strconv.Itoa(id)+" and b.class_id="+strconv.Itoa(class_id)
 	var b Body
 
 	if err = o.Raw(sql).QueryRow(&b); err == nil {
+		var c string
 		project := strings.Split(b.Project,",")
 		for _,val := range project {
 			list1 := make(map[string]interface{})
@@ -141,9 +145,17 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 			list1["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
-				list["视力"] = list1
+				if c == "" {
+					c =  cloumn[0]
+				}else {
+					list1["columnx"] = c
+					list1["name"] = "视力"
+					list = append(list,list1)
+				}
+
 			} else {
-				list[string(cloumn[1])] = list1
+				list1["name"] = string(cloumn[1])
+				list = append(list,list1)
 			}
 		}
 		bjson,_ :=json.Marshal(b)
