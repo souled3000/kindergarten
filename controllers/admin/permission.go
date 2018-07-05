@@ -54,8 +54,8 @@ func (c *PermissionController) Post() {
 func (c *PermissionController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	v := models.GetPermissionById(id)
-	if v == nil {
+	v, err := models.GetPermissionById(id)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
@@ -72,16 +72,10 @@ func (c *PermissionController) GetOne() {
 // @Failure 403
 // @router / [get]
 func (c *PermissionController) GetAll() {
-	var prepage int = 20
-	var page int
-	if v, err := c.GetInt("per_page"); err == nil {
-		prepage = v
-	}
-	if v, err := c.GetInt("page"); err == nil {
-		page = v
-	}
-	v := models.GetAllPermission(page, prepage)
-	if v == nil {
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	v, err := models.GetAllPermission(page, prepage)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}

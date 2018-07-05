@@ -116,7 +116,7 @@ func (o *OrganizationalController) Destroy() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		_, err := models.Destroy(class_id)
+		err := models.Destroy(class_id)
 		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1003, nil, err.Error()}
 		} else {
@@ -173,8 +173,8 @@ func (o *OrganizationalController) GetOrganization() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		v := models.GetOrganization(kindergarten_id, page, prepage)
-		if v == nil {
+		v, err := models.GetOrganization(kindergarten_id, page, prepage)
+		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取组织架构失败"}
 		} else {
 			o.Data["json"] = JSONStruct{"success", 0, v, "获取组织架构成功"}
@@ -289,8 +289,8 @@ func (o *OrganizationalController) Principal() {
 		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		o.ServeJSON()
 	} else {
-		v := models.Principal(class_id, page, prepage)
-		if v == nil {
+		v, err := models.Principal(class_id, page, prepage)
+		if err != nil {
 			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 		} else {
 			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
