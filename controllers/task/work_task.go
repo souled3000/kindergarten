@@ -190,11 +190,9 @@ func (c *WorkTaskController) Complete() {
 // @router /schedule [get]
 func (c *WorkTaskController) Schedule() {
 	taskId, _ := c.GetInt("task_id")
-	status, _ := c.GetInt("status")
 
 	valid := validation.Validation{}
 	valid.Required(taskId, "task_id").Message("任务ID不能为空")
-	valid.Range(status, 0, 1, "status").Message("状态格式不正确")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
 
@@ -202,9 +200,18 @@ func (c *WorkTaskController) Schedule() {
 		c.ServeJSON()
 	}
 
-	wto := task.WorkTasksOperator{WorkTasksId:taskId, Status:status}
+	wto := task.WorkTasksOperator{WorkTasksId:taskId}
 	if res, err := wto.Schedule(); err == nil {
-		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}
+		var result []map[string]interface{}
+		for _, value := range res {
+			var maps map[string]interface{}
+			jsons, _ := json.Marshal(&value)
+			json.Unmarshal(jsons, &maps)
+			maps["upload_time"] = value.UploadTime.Format("2006-01-02 15:04:05")
+
+			result = append(result, maps)
+		}
+		c.Data["json"] = JSONStruct{"success", 0, result, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
 	}
