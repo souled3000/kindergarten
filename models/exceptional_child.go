@@ -1,14 +1,13 @@
 package models
 
-import(
+import (
 	"math"
-	"github.com/astaxie/beego/orm"
-	"time"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/astaxie/beego/orm"
 )
-
-
 
 type ExceptionalChild struct {
 	Id             int    `json:"id";orm:"column(id);auto"`
@@ -31,9 +30,6 @@ func (t *ExceptionalChild) TableName() string {
 func init() {
 	orm.RegisterModel(new(ExceptionalChild))
 }
-
-
-
 
 // AddExceptionalChild insert a new ExceptionalChild into database and returns
 // last inserted Id on success.
@@ -65,7 +61,7 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 		}
 	}
 	o.Commit()
-	return id,nil
+	return id, nil
 }
 
 // GetExceptionalChildById retrieves ExceptionalChild by Id. Returns error if
@@ -73,7 +69,7 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where("ex.id="+id).String()
+	sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where("ex.id=" + id).String()
 	var maps []orm.Params
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		var newMaps []orm.Params
@@ -235,34 +231,31 @@ func DeleteExceptionalChild(id int) (err error) {
 	e := &ExceptionalChild{Id: id}
 	// ascertain id exists in the database
 	if err = o.Read(e); err == nil {
-		if _, err = o.Delete(&ExceptionalChild{Id: id}); err == nil{
+		if _, err = o.Delete(&ExceptionalChild{Id: id}); err == nil {
 			o.Commit()
 			return nil
 		}
 	}
 	o.Rollback()
-	return  err
+	return err
 }
-
-
 
 // 根据过敏源获取过敏儿童
 func GetAllergenChild(allergen string) (allergenChild []map[string]interface{}, err error) {
 	param := strings.Split(allergen, ",")
-	where := "1=1 "
-	qb, _ := orm.NewQueryBuilder("mysql")
 	o := orm.NewOrm()
 	var allergens []orm.Params
 	for _, v := range param {
 		if v != "" {
 			maps := make(map[string]interface{})
-			where += " AND allergen like \"%" + string(v) + "%\""
-			sql := qb.Select("allergen").From("exceptional_child").Where(where).String()
-			if num, err := o.Raw(sql).Values(&allergens); err == nil && num > 0 {
+
+			where := " allergen like \"%" + string(v) + "%\""
+			if _, err := o.Raw("SELECT allergen FROM `exceptional_child` WHERE " + where).Values(&allergens); err == nil {
 				if childName, err := GetChildName(where); err == nil {
 					maps["allergen"] = v
 					maps["child_name"] = childName
 					allergenChild = append(allergenChild, maps)
+				} else {
 					return allergenChild, err
 				}
 			} else {
@@ -270,11 +263,9 @@ func GetAllergenChild(allergen string) (allergenChild []map[string]interface{}, 
 			}
 		}
 	}
-	return
+
+	return allergenChild, nil
 }
-
-
-
 
 // 获取过敏儿童名称
 func GetChildName(where string) (childName string, err error) {
@@ -285,9 +276,26 @@ func GetChildName(where string) (childName string, err error) {
 		for _, row := range lists {
 			str += row[0].(string) + ","
 			s := []rune(str)
-			childName = string(s[:len(s) - 1])
+			childName = string(s[:len(s)-1])
 		}
 		return childName, err
 	}
-	return  childName ,err
+	return childName, err
+}
+
+// 根据baby_id获取过敏源
+func GetAllergen(id int) (allergen []interface{}, err error) {
+	o := orm.NewOrm()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	idStr := strconv.Itoa(id)
+	where := " stu.baby_id=" + idStr
+	var maps []orm.Params
+	sql := qb.Select("ex.id, ex.allergen").From("student as stu").LeftJoin("exceptional_child as ex").On("ex.student_id = stu.student_id").Where(where).String()
+	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
+		for _, row := range maps {
+			allergen = append(allergen, row)
+		}
+		return allergen, err
+	}
+	return nil, err
 }

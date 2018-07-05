@@ -11,11 +11,12 @@ import (
 	"kindergarten-service-go/controllers"
 	"kindergarten-service-go/controllers/admin"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/plugins/cors"
 	"kindergarten-service-go/controllers/healthy"
 	"kindergarten-service-go/controllers/healthy/app"
 	"kindergarten-service-go/controllers/task"
+
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/plugins/cors"
 )
 
 func init() {
@@ -220,6 +221,8 @@ func init() {
 
 		// 根据过敏源获取过敏儿童
 		beego.NSRouter("/app/allergen_child", &controllers.ExceptionalChildController{}, "get:GetAllergenChild"),
+		// 根据宝宝ID获取过敏源
+		beego.NSRouter("/app/get_allergen", &controllers.ExceptionalChildController{}, "get:GetAllergen"),
 	)
 	beego.AddNamespace(ns)
 }
