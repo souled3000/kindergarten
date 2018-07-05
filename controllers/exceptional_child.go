@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"kindergarten-service-go/models"
+	"strconv"
+
 	"github.com/astaxie/beego/validation"
 )
 
@@ -12,8 +14,6 @@ type ExceptionalChildController struct {
 func (c *ExceptionalChildController) URLMapping() {
 	c.Mapping("Get", c.Get)
 }
-
-
 
 // @Title 特殊儿童列表/搜索特殊儿童
 // @Description 特殊儿童列表/搜索特殊儿童
@@ -39,9 +39,6 @@ func (c *ExceptionalChildController) GetSearch() {
 	c.ServeJSON()
 }
 
-
-
-
 // GetAll ...
 // @Title 根据过敏源获取特殊儿童
 // @Description 根据过敏源获取特殊儿童
@@ -65,8 +62,6 @@ func (c *ExceptionalChildController) GetAllergenChild() {
 	}
 	c.ServeJSON()
 }
-
-
 
 // @Title 过敏食物报备
 // @Description 过敏食物报备
@@ -110,6 +105,41 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存成功"}
 		}
+	}
+	c.ServeJSON()
+}
+
+// GetAllergen ...
+// @Title 			根据宝宝ID过敏源
+// @Description 		根据宝宝ID过敏源
+// @Param	id		query 	int		true		"宝宝IDxs"
+// @Success 0 		{json} 	JSONStruct
+// @Failure 1004		删除失败
+func (c *ExceptionalChildController) GetAllergen() {
+	// 宝宝ID
+	id, _ := c.GetInt("baby_id")
+	if info, err := models.GetAllergen(id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+	}
+	c.ServeJSON()
+}
+
+// DelAllergen ...
+// @Title 			删除过敏源
+// @Description 		删除过敏源
+// @Param	id		path 	string	true		"特殊儿童ID"
+// @Success 0 		{json} 	JSONStruct
+// @Failure 1004		删除失败
+// @router /:id [delete]
+func (c *ExceptionalChildController) DelAllergen() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	if err := models.DeleteExceptionalChild(id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, err, "删除成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	}
 	c.ServeJSON()
 }

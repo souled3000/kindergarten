@@ -103,14 +103,14 @@ func AddPermission(name string, identification string, parent_id int, route stri
 /*
 权限详情
 */
-func GetPermissionById(id int) map[string]interface{} {
+func GetPermissionById(id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
 	var permission_route []orm.Params
 	var parent []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("p.*").From("permission as p").Where("p.id = ?").String()
-	_, err := o.Raw(sql, id).Values(&v)
+	_, err = o.Raw(sql, id).Values(&v)
 
 	qb, _ = orm.NewQueryBuilder("mysql")
 	sql = qb.Select("pr.route_id").From("permission_route as pr").Where("pr.permission_id = ?").String()
@@ -124,21 +124,21 @@ func GetPermissionById(id int) map[string]interface{} {
 		paginatorMap["data"] = v
 		paginatorMap["route"] = permission_route
 		paginatorMap["parent"] = parent
-		return paginatorMap
+		return paginatorMap, nil
 	}
-	return nil
+	return nil, err
 }
 
 /*
 权限列表
 */
-func GetAllPermission(page int, prepage int) map[string]interface{} {
+func GetAllPermission(page int, prepage int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	// 构建查询对象
 	sql := qb.Select("count(*)").From("permission").String()
 	var total int64
-	err := o.Raw(sql).QueryRow(&total)
+	err = o.Raw(sql).QueryRow(&total)
 	if err == nil {
 		var v []orm.Params
 		//根据nums总数，和prepage每页数量 生成分页总数
@@ -158,10 +158,10 @@ func GetAllPermission(page int, prepage int) map[string]interface{} {
 			paginatorMap["total"] = total         //总条数
 			paginatorMap["data"] = v              //分页数据
 			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap
+			return paginatorMap, nil
 		}
 	}
-	return nil
+	return nil, err
 }
 
 /*

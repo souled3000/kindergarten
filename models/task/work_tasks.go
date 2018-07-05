@@ -140,6 +140,7 @@ func (wt *WorkTasks) Get() ([]map[string]interface{}, error) {
 		var maps map[string]interface{}
 		jsons, _ := json.Marshal(value)
 		json.Unmarshal(jsons, &maps)
+		maps["deadline"] = value.Deadline.Format("2006-01-02 15:04:05")
 		maps["operator"] = op
 		maps["cc"] = oc
 		res = append(res, maps)
@@ -157,6 +158,7 @@ func (wt *WorkTasks) GetInfoById() (map[string]interface{}, error) {
 	}
 	jsons, _ := json.Marshal(wt)
 	json.Unmarshal(jsons, &res)
+	res["deadline"] = wt.Deadline.Format("2006-01-02 15:04:05")
 
 	var wto []WorkTasksOperator
 	if _, err := o.QueryTable(new(WorkTasksOperator)).Filter("work_tasks_id", wt.Id).All(&wto); err != nil {
@@ -205,7 +207,7 @@ func (wt *WorkTasks) Complete(operator, coursewareId int, coursewareName, upload
 
 func (wto *WorkTasksOperator) Schedule() ([]WorkTasksOperator, error) {
 	var wtos []WorkTasksOperator
-	_, err := orm.NewOrm().QueryTable(wto).Filter("work_tasks_id", wto.WorkTasksId).Filter("status", wto.Status).All(&wtos)
+	_, err := orm.NewOrm().QueryTable(wto).Filter("work_tasks_id", wto.WorkTasksId).All(&wtos)
 
 	return wtos, err
 }

@@ -200,16 +200,16 @@ func DeleteTeacher(id int, status int, class_type int) error {
 /*
 教师详情
 */
-func GetTeacherInfo(id int) map[string]interface{} {
+func GetTeacherInfo(id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	v := &Teacher{Id: id}
 	if err := o.Read(v); err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = v
-		return paginatorMap
+		return paginatorMap, nil
 	}
 
-	return nil
+	return nil, err
 }
 
 /*
@@ -279,13 +279,13 @@ func RemoveTeacher(teacher_id int, class_id int) error {
 /*
 教师列表
 */
-func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]interface{} {
+func OrganizationalTeacher(id int, ty int, person int, class_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var v []orm.Params
 	var teacher []orm.Params
 	var condition []interface{}
 	where := "1=1 "
-	paginatorMap := make(map[string]interface{})
+	paginatorMap = make(map[string]interface{})
 	if ty == 1 {
 		if person == 1 {
 			qb, _ := orm.NewQueryBuilder("mysql")
@@ -305,7 +305,7 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]
 			}
 			if err == nil {
 				paginatorMap["data"] = v
-				return paginatorMap
+				return paginatorMap, nil
 			}
 		} else {
 			qb, _ := orm.NewQueryBuilder("mysql")
@@ -314,7 +314,7 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]
 			num, err := o.Raw(sql, id).Values(&v)
 			if err == nil && num > 0 {
 				paginatorMap["data"] = v
-				return paginatorMap
+				return paginatorMap, nil
 			}
 		}
 	} else {
@@ -324,8 +324,8 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) map[string]
 		num, err := o.Raw(sql, id).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap["data"] = v
-			return paginatorMap
+			return paginatorMap, nil
 		}
 	}
-	return nil
+	return nil, err
 }

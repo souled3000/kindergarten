@@ -27,7 +27,7 @@ func init() {
 */
 func AddUserPermission(user_id int, role string, permission string, group string) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
-	err = o.Begin()
+	o.Begin()
 	var r map[string]interface{}
 	json.Unmarshal([]byte(role), &r)
 	var p map[string]interface{}
@@ -74,7 +74,6 @@ func AddUserPermission(user_id int, role string, permission string, group string
 查看用户权限
 */
 func GetUserPermissionById(user_id int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
-
 	o := orm.NewOrm()
 	var r []orm.Params
 	var p []orm.Params

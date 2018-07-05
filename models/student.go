@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"time"
@@ -166,8 +167,9 @@ func GetStudentClass(id int, class_type int, page int, prepage int) map[string]i
 /*
 删除学生
 */
-func DeleteStudent(id int, status int, ty int, class_type int) map[string]interface{} {
+func DeleteStudent(id int, status int, ty int, class_type int) error {
 	o := orm.NewOrm()
+	o.Begin()
 	v := Student{Id: id}
 	timeLayout := "2006-01-02 15:04:05" //转化所需模板
 	loc, _ := time.LoadLocation("")
@@ -184,9 +186,15 @@ func DeleteStudent(id int, status int, ty int, class_type int) map[string]interf
 		}
 		if _, err = o.Update(&v); err == nil {
 			_, err = o.QueryTable("organizational_member").Filter("member_id", id).Delete()
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["data"] = nil //返回数据
-			return paginatorMap
+			if err != nil {
+				o.Rollback()
+				return err
+			}
+			_, err = o.QueryTable("exceptional_child").Filter("student_id", id).Delete()
+			if err != nil {
+				o.Rollback()
+				return err
+			}
 		}
 	}
 	return nil
@@ -228,18 +236,18 @@ func UpdateStudent(id int, student string, kinship string) (paginatorMap map[str
 	if err := o.Read(&v); err == nil {
 		s.Id = v.Id
 		if _, err = o.Update(s); err == nil {
+			//写入亲属表
+			_, err = o.QueryTable("kinship").Filter("student_id", id).Delete()
 			if err == nil {
-				//写入亲属表
-				_, err = o.QueryTable("kinship").Filter("student_id", id).Delete()
-				if err == nil {
-					var k []Kinship
-					json.Unmarshal([]byte(kinship), &k)
-					_, err = o.InsertMulti(100, &k)
-					if err != nil {
-						o.Rollback()
-					} else {
-						o.Commit()
-					}
+				var k []Kinship
+				json.Unmarshal([]byte(kinship), &k)
+				_, err = o.InsertMulti(100, &k)
+				if err != nil {
+					o.Rollback()
+					return nil, nil
+				} else {
+					o.Commit()
+					return nil, err
 				}
 			}
 		} else {
@@ -265,22 +273,25 @@ func AddStudent(student string, kinship string) (paginatorMap map[string]interfa
 	var s Student
 	json.Unmarshal([]byte(student), &s)
 	id, err := o.Insert(&s)
+	fmt.Println(id)
 	if err != nil {
 		o.Rollback()
 		return nil, err
 	}
-	ids := strconv.FormatInt(id, 10)
-	kid, _ := strconv.Atoi(ids)
-	//写入亲属表
-	var k []Kinship
-	json.Unmarshal([]byte(kinship), &k)
-	for key, _ := range k {
-		k[key].StudentId = kid
-	}
-	id, err = o.InsertMulti(100, &k)
-	if err != nil {
-		o.Rollback()
-		return nil, err
+	if kinship != "" {
+		ids := strconv.FormatInt(id, 10)
+		kid, _ := strconv.Atoi(ids)
+		//写入亲属表
+		var k []Kinship
+		json.Unmarshal([]byte(kinship), &k)
+		for key, _ := range k {
+			k[key].StudentId = kid
+		}
+		id, err = o.InsertMulti(100, &k)
+		if err != nil {
+			o.Rollback()
+			return nil, err
+		}
 	}
 	_, err = o.QueryTable("baby_kindergarten").Filter("baby_id", s.BabyId).Update(orm.Params{
 		"actived": 0,
@@ -302,6 +313,11 @@ func RemoveStudent(class_id int, student_id int) error {
 	o := orm.NewOrm()
 	o.Begin()
 	_, err := o.QueryTable("organizational_member").Filter("organizational_id", class_id).Filter("member_id", student_id).Delete()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	_, err = o.QueryTable("exceptional_child").Filter("student_id", student_id).Delete()
 	if err != nil {
 		o.Rollback()
 		return err
