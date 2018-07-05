@@ -3,6 +3,7 @@ package admin
 import (
 	"kindergarten-service-go/models"
 	"strconv"
+
 	"github.com/astaxie/beego/validation"
 )
 
@@ -18,8 +19,6 @@ func (c *ExceptionalChildController) URLMapping() {
 	c.Mapping("Delete", c.Delete)
 	c.Mapping("Get", c.Get)
 }
-
-
 
 // GetAll ...
 // @Title 特殊儿童列表/搜索特殊儿童
@@ -50,9 +49,6 @@ func (c *ExceptionalChildController) GetAll() {
 	}
 	c.ServeJSON()
 }
-
-
-
 
 // Post ...
 // @Title 						新增特殊儿童
@@ -127,22 +123,20 @@ func (c *ExceptionalChildController) GetOne() {
 			c.Data["json"] = JSONStruct{"error", 1002, nil, "没有相关数据"}
 		}
 	} else {
-			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	}
 	c.ServeJSON()
 }
 
-
-
 // Put ...
 // @Title 					更新特殊儿童
-// @Description 			更新特殊儿童
-// @Param	id				path 	string	true		"特殊儿童主键自增ID"
-// @Param	child_name		body 	string	true		"特殊儿童姓名"
-// @Param	class			body 	int		true		"特殊儿童班级"
-// @Param	somatotype		body 	int		true		"体质类型"
-// @Param	allergen		body 	string	true		"过敏源"
-// @Param	student_id		body 	int		true		"学生ID"
+// @Description 				更新特殊儿童
+// @Param	id				path 	string	false		"特殊儿童主键自增ID"
+// @Param	child_name		body 	string	false		"特殊儿童姓名"
+// @Param	class			body 	int		false		"特殊儿童班级"
+// @Param	somatotype		body 	int		false		"体质类型"
+// @Param	allergen			body 	string	false		"过敏源"
+// @Param	student_id		body 	int		false		"学生ID"
 // @Success 0 				{json} 	JSONStruct
 // @Failure 1003			更新失败
 // @router /:id [put]
