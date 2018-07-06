@@ -33,27 +33,35 @@ func init() {
 
 // AddExceptionalChild insert a new ExceptionalChild into database and returns
 // last inserted Id on success.
-func AddExceptionalChild(child_name string, class int, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
+func AddExceptionalChild(child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
 	var exceptionalChild ExceptionalChild
 	o := orm.NewOrm()
 	o.Begin()
-	exceptionalChild.ChildName = child_name
-	exceptionalChild.Class = class
-	exceptionalChild.Somatotype = somatotype
-	exceptionalChild.Allergen = allergens
-	exceptionalChild.Source = source
-	exceptionalChild.KindergartenId = kindergarten_id
-	exceptionalChild.Creator = creator
-	exceptionalChild.StudentId = student_id
-	exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-	exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-	if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
+	var infos []orm.Params
+	where := " allergen like \"%" + string(allergen) + "%\" AND student_id = ? AND kindergarten_id = ? "
+	if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
 		o.Rollback()
-		return id, err
+		return 0, err
+	} else {
+		exceptionalChild.ChildName = child_name
+		exceptionalChild.Class = class
+		exceptionalChild.Somatotype = somatotype
+		exceptionalChild.Allergen = allergen
+		exceptionalChild.Source = source
+		exceptionalChild.KindergartenId = kindergarten_id
+		exceptionalChild.Creator = creator
+		exceptionalChild.StudentId = student_id
+		exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+		exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+		if id, err := o.Insert(&exceptionalChild); err != nil && id <= 0 {
+			o.Rollback()
+			return id, err
+		} else {
+			o.Commit()
+			return id, nil
+		}
 	}
-
-	o.Commit()
-	return id, nil
+	return
 }
 
 // GetExceptionalChildById retrieves ExceptionalChild by Id. Returns error if
@@ -143,6 +151,19 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 					v["class_name"] = "中班" + v["name"].(string) + ""
 				} else {
 					v["class_name"] = "小班" + v["name"].(string) + ""
+				}
+
+				if v["somatotype"] == nil {
+					v["somatot_info"] = nil
+					v["allergen"] = "无"
+				} else if v["somatotype"].(string) == "3" {
+					v["somatot_info"] = v["allergen"].(string) + "过敏"
+				} else if v["somatotype"].(string) == "2" {
+					v["somatot_info"] = "肥胖"
+					v["allergen"] = "无"
+				} else {
+					v["somatot_info"] = "瘦小"
+					v["allergen"] = "无"
 				}
 
 				t := time.Now()
@@ -307,20 +328,27 @@ func AllergenPreparation(child_name string, somatotype int8, allergens string, s
 		class, _ := strconv.Atoi(maps[0]["member_id"].(string))
 		for _, v := range allergen {
 			if v != "" {
-				exceptionalChild.Id = 0
-				exceptionalChild.ChildName = child_name
-				exceptionalChild.Class = class
-				exceptionalChild.Somatotype = somatotype
-				exceptionalChild.Allergen = v
-				exceptionalChild.Source = source
-				exceptionalChild.KindergartenId = kindergarten_id
-				exceptionalChild.Creator = creator
-				exceptionalChild.StudentId = student_id
-				exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-				exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-				if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
+				var infos []orm.Params
+				where := " allergen like \"%" + string(v) + "%\" AND student_id = ? AND kindergarten_id = ? "
+				if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
 					o.Rollback()
-					return id, err
+				} else {
+
+					exceptionalChild.Id = 0
+					exceptionalChild.ChildName = child_name
+					exceptionalChild.Class = class
+					exceptionalChild.Somatotype = somatotype
+					exceptionalChild.Allergen = v
+					exceptionalChild.Source = source
+					exceptionalChild.KindergartenId = kindergarten_id
+					exceptionalChild.Creator = creator
+					exceptionalChild.StudentId = student_id
+					exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+					exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+					if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
+						o.Rollback()
+						return id, err
+					}
 				}
 			} else {
 				o.Rollback()
