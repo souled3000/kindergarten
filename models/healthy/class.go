@@ -36,19 +36,24 @@ func AddClass(b *Class,body_id int, class_id int,types int) (err error){
 	if _, _, err = o.ReadOrCreate(b, "BodyId","ClassId"); err != nil {
 		some_err = append(some_err,err)
 	}
-	var inspect []Inspect
-	sql = "select b.student_id,a.organizational_id as class_id,b.kindergarten_id,c.name as class_name from organizational_member a left join student b on b.student_id=a.member_id left join organizational c on c.id=a.organizational_id where a.type=1 and a.organizational_id="+strconv.Itoa(class_id)
-	if _,err = o.Raw(sql).QueryRows(&inspect); err != nil{
-		some_err = append(some_err,err)
+	cnt, _ := o.QueryTable("healthy_inspect").Filter("body_id",b.BodyId).Filter("class_id",b.ClassId).Count()
+	//判断班级是否添加
+	if cnt == 0{
+		var inspect []Inspect
+		sql = "select b.student_id,a.organizational_id as class_id,b.kindergarten_id,c.name as class_name from organizational_member a left join student b on b.student_id=a.member_id left join organizational c on c.id=a.organizational_id where a.type=1 and a.organizational_id="+strconv.Itoa(class_id)
+		if _,err = o.Raw(sql).QueryRows(&inspect); err != nil{
+			some_err = append(some_err,err)
+		}
+
+		for key,_ := range inspect {
+			inspect[key].BodyId = body_id
+			inspect[key].Types = types
+		}
+		if _,err = o.InsertMulti(len(inspect),inspect); err != nil {
+			some_err = append(some_err,err)
+		}
 	}
 
-	for key,_ := range inspect {
-		inspect[key].BodyId = body_id
-		inspect[key].Types = types
-	}
-	if _,err = o.InsertMulti(len(inspect),inspect); err != nil {
-		some_err = append(some_err,err)
-	}
 	if len(some_err) > 0 {
 		o.Rollback()
 	} else {

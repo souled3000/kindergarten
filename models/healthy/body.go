@@ -38,6 +38,7 @@ func init() {
 func AddBody(b *Body) (id int64, err error){
 	o := orm.NewOrm()
 	var num Num
+
 	sql := "select count(student_id) as num from student where kindergarten_id = "+strconv.Itoa(b.KindergartenId)
 	o.Raw(sql).QueryRow(&num)
 	b.Total = num.Num
@@ -56,21 +57,22 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	o.Raw(sql).QueryRow(&num)
 	c_num := num.Num
 	list2 := make(map[string]interface{})
-	list3 := make(map[string]interface{})
+	//list3 := make(map[string]interface{})
 	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and weight is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
 	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
-	list2["column"] = "weight"
-	list2["name"] = "体重"
+	list2["columnw"] = "weight"
+	list2["columnh"] = "height"
+	list2["name"] = "体重体重"
 	list = append(list,list2)
 	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and height is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
-	list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
-	list3["column"] = "height"
-	list3["name"] = "身高"
-	list = append(list,list3)
+	//list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	//
+	//list3["name"] = "身高"
+	//list = append(list,list3)
 	if err := o.Read(&b); err == nil {
 		var c string
 		project := strings.Split(b.Project,",")
@@ -115,21 +117,21 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	o.Raw(sql).QueryRow(&num)
 	c_num := num.Num
 	list2 := make(map[string]interface{})
-	list3 := make(map[string]interface{})
+	//list3 := make(map[string]interface{})
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
 	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 	list2["column"] = "weight"
-	list2["name"] = "体重"
+	list2["columnh"] = "height"
+	list2["name"] = "身高体重"
 	list = append(list,list2)
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and height is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
-	list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
-	list3["column"] = "height"
-	list3["name"] = "身高"
-	list = append(list,list3)
+	//list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	//list3["name"] = "身高"
+	//list = append(list,list3)
 	sql = "select a.id,a.theme,a.test_time,a.mechanism,a.kindergarten_id,a.types,a.project,b.class_total as total,b.class_actual as actual,b.class_rate as rate from healthy_body a left join healthy_class b on a.id = b.body_id where a.id="+strconv.Itoa(id)+" and b.class_id="+strconv.Itoa(class_id)
 	var b Body
 
@@ -235,6 +237,7 @@ func CrBody(theme string, kindergarten_id int,test_time string, types int)(id in
 	o := orm.NewOrm()
 	body := Body{Theme: theme, KindergartenId:kindergarten_id,TestTime:test_time,Types:types}
 	// 三个返回参数依次为：是否新创建的，对象 Id 值，错误
+	body.Project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿"
 	if _, id, err := o.ReadOrCreate(&body, "Theme","KindergartenId","TestTime"); err == nil {
 		return  id,nil
 	}
