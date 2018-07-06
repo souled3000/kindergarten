@@ -1754,21 +1754,18 @@
                         "in": "path",
                         "name": "id",
                         "description": "特殊儿童主键自增ID",
-                        "required": true,
                         "type": "string"
                     },
                     {
                         "in": "body",
                         "name": "child_name",
                         "description": "特殊儿童姓名",
-                        "required": true,
                         "type": "string"
                     },
                     {
                         "in": "body",
                         "name": "class",
                         "description": "特殊儿童班级",
-                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     },
@@ -1776,7 +1773,6 @@
                         "in": "body",
                         "name": "somatotype",
                         "description": "体质类型",
-                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     },
@@ -1784,14 +1780,12 @@
                         "in": "body",
                         "name": "allergen",
                         "description": "过敏源",
-                        "required": true,
                         "type": "string"
                     },
                     {
                         "in": "body",
                         "name": "student_id",
                         "description": "学生ID",
-                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     }
@@ -3971,6 +3965,32 @@
                 ],
                 "description": "过敏食物报备",
                 "operationId": "ExceptionalChildController.过敏食物报备"
+            }
+        },
+        "/app/special_child/{id}": {
+            "delete": {
+                "tags": [
+                    "app/special_child"
+                ],
+                "description": "删除过敏源",
+                "operationId": "ExceptionalChildController.删除过敏源",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "特殊儿童ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1004": {
+                        "description": "删除失败"
+                    }
+                }
             }
         },
         "/app/visitors/": {

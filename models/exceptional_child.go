@@ -36,30 +36,22 @@ func init() {
 func AddExceptionalChild(child_name string, class int, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
 	var exceptionalChild ExceptionalChild
 	o := orm.NewOrm()
-	allergen := strings.Split(allergens, ",")
 	o.Begin()
-	for _, v := range allergen {
-		if v != "" {
-			exceptionalChild.Id = 0
-			exceptionalChild.ChildName = child_name
-			exceptionalChild.Class = class
-			exceptionalChild.Somatotype = somatotype
-			exceptionalChild.Allergen = v
-			exceptionalChild.Source = source
-			exceptionalChild.KindergartenId = kindergarten_id
-			exceptionalChild.Creator = creator
-			exceptionalChild.StudentId = student_id
-			exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-			exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-			if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
-				o.Rollback()
-				return id, err
-			}
-		} else {
-			o.Rollback()
-			return id, err
-		}
+	exceptionalChild.ChildName = child_name
+	exceptionalChild.Class = class
+	exceptionalChild.Somatotype = somatotype
+	exceptionalChild.Allergen = allergens
+	exceptionalChild.Source = source
+	exceptionalChild.KindergartenId = kindergarten_id
+	exceptionalChild.Creator = creator
+	exceptionalChild.StudentId = student_id
+	exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
+		o.Rollback()
+		return id, err
 	}
+
 	o.Commit()
 	return id, nil
 }
@@ -293,9 +285,48 @@ func GetAllergen(id int) (allergen []interface{}, err error) {
 	sql := qb.Select("ex.id, ex.allergen").From("student as stu").LeftJoin("exceptional_child as ex").On("ex.student_id = stu.student_id").Where(where).String()
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		for _, row := range maps {
-			allergen = append(allergen, row)
+			if row["allergen"] != nil {
+				allergen = append(allergen, row)
+			}
 		}
 		return allergen, err
 	}
 	return nil, err
+}
+
+// 过敏食物报备
+func AllergenPreparation(child_name string, class int, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, baby_id int) (id int64, err error) {
+	var exceptionalChild ExceptionalChild
+	o := orm.NewOrm()
+	allergen := strings.Split(allergens, ",")
+	o.Begin()
+	var maps []orm.Params
+	if num, err := o.Raw("SELECT student_id FROM student WHERE baby_id = ? LIMIT 1", baby_id).Values(&maps); err == nil && num > 0 {
+		student_id, _ := strconv.Atoi(maps[0]["student_id"].(string))
+		for _, v := range allergen {
+			if v != "" {
+				exceptionalChild.Id = 0
+				exceptionalChild.ChildName = child_name
+				exceptionalChild.Class = class
+				exceptionalChild.Somatotype = somatotype
+				exceptionalChild.Allergen = v
+				exceptionalChild.Source = source
+				exceptionalChild.KindergartenId = kindergarten_id
+				exceptionalChild.Creator = creator
+				exceptionalChild.StudentId = student_id
+				exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+				exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+				if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
+					o.Rollback()
+					return id, err
+				}
+			} else {
+				o.Rollback()
+				return id, err
+			}
+		}
+		o.Commit()
+		return id, nil
+	}
+	return id, err
 }

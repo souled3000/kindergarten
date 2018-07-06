@@ -68,8 +68,9 @@ func (c *ExceptionalChildController) GetAllergenChild() {
 // @param 		class				query  	int    	true		"班级ID"
 // @param 		kindergarten_id		query  	int    	true		"幼儿园ID"
 // @param 		creator				query  	int    	true		"创建人ID"
-// @param 		student_id			query  	int    	true		"学生ID"
+// @param 		student_id			query  	int    	true		"宝宝ID"
 // @param 		source				query  	int    	true		"来源信息"
+// @param 		somatotype			query  	int    	true		"体质类型"
 // @param		child_name			query	string	true		"特殊儿童姓名"
 // @param 		allergen			query  	string 	true		"过敏源，多个过敏源以','分隔"
 // @router / [post]
@@ -80,10 +81,12 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	// 创建人ID
 	creator, _ := c.GetInt("creator")
-	// 学生ID
-	student_id, _ := c.GetInt("student_id")
+	// 宝宝ID
+	baby_id, _ := c.GetInt("baby_id")
 	// 来源信息
 	source, _ := c.GetInt8("source")
+	// 体质类型
+	somatotype, _ := c.GetInt8("somatotype")
 	// 特殊儿童姓名
 	child_name := c.GetString("child_name")
 	// 过敏源
@@ -93,14 +96,15 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 	valid.Required(class, "class").Message("班级ID不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人ID不能为空")
-	valid.Required(student_id, "student_id").Message("学生ID不能为空")
+	valid.Required(baby_id, "baby_id").Message("宝宝ID不能为空")
 	valid.Required(source, "source").Message("来源信息不能为空")
+	valid.Required(somatotype, "somatotype").Message("体质类型不能为空")
 	valid.Required(allergen, "allergen").Message("过敏源不能为空")
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if _, err := models.AddExceptionalChild(child_name, class, 3, allergen, source, kindergarten_id, creator, student_id); err == nil {
+		if _, err := models.AllergenPreparation(child_name, class, somatotype, allergen, source, kindergarten_id, creator, baby_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存成功"}
