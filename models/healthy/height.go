@@ -33,15 +33,15 @@ func CompareHeight(sex int,age,weight float64)  (types string,err error) {
 	if err == nil{
 
 		if weight < info.Small {
-			status = "1" //矮小
+			status = "矮小" //矮小
 		}else if weight >= info.Small && weight<info.SdOne {
-			status = "2" //偏矮
+			status = "偏矮" //偏矮
 		}else if weight >= info.SdOne && weight < info.SdThree{
-			status = "3" //正常
+			status = "正常" //正常
 		}else if weight >= info.SdThree && weight < info.Large{
-			status = "4" //偏胖
+			status = "偏高" //偏胖
 		}else if weight >= info.Large {
-			status = "5"
+			status = "超高"
 		}
 	}else {
 		return "",err

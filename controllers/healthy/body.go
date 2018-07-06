@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"kindergarten-service-go/models/healthy"
 	"strconv"
+	"fmt"
 )
 
 // BodyController operations for Body
@@ -43,9 +44,12 @@ func (c *BodyController) Post() {
 	kindergarten_id,_ := c.GetInt("kindergarten_id")
 	types,_ := c.GetInt("types")
 	project := c.GetString("project")
+	fmt.Println(project)
 	if project == ""{
-		project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿"
+		project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿,column5:体脂率"
+		fmt.Println(project)
 	}
+	fmt.Println(project)
 	var b healthy.Body
 	b.Theme = theme
 	b.Total = total

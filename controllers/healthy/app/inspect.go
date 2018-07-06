@@ -112,7 +112,6 @@ func (c *InspectController) GetAll() {
 	role, _:= c.GetInt("role")
 	date := c.GetString("time")
 	baby_id, _:= c.GetInt("baby_id")
-
 	//验证参数是否为空
 	valid := validation.Validation{}
 	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
@@ -388,8 +387,41 @@ func (c *InspectController) Project() {
 	perPage, _ := c.GetInt("per_page")
 	body_id, _:= c.GetInt("body_id")
 	baby_id, _:= c.GetInt("baby_id")
+	column := c.GetString("column")
 
-	if works, err := f.Project(page, perPage, kindergarten_id, class_id, body_id,baby_id ); err == nil {
+	if works, err := f.Project(page, perPage, kindergarten_id, class_id, body_id,baby_id, column ); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// GetAll ...
+// @Title GetAll
+// @Description 项目详情
+// @Param	page			query	int		false		"第几页"
+// @Param	per_page		query	int		true		"页数"
+// @Param	class_id		query	int		false		"班级ID"
+// @Param	role			query	int		true		"身份类型"
+// @Param	date			query	string	true		"餐检时间"
+// @Success 0 {object} 		shanxi.SxWorks
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /projectNew/ [get]
+func (c *InspectController) ProjectNew() {
+	var f *healthy.Inspect
+	page, _ := c.GetInt("page")
+	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	class_id, _:= c.GetInt("class_id")
+	perPage, _ := c.GetInt("per_page")
+	body_id, _:= c.GetInt("body_id")
+	baby_id, _:= c.GetInt("baby_id")
+	column := c.GetString("column")
+
+
+	if works, err := f.ProjectNew(page, perPage, kindergarten_id, class_id, body_id,baby_id, column); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
