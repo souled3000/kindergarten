@@ -92,7 +92,8 @@ func (m Inspect) Save() error {
 
 	var drug []Drug
 	_, err := o.Raw("SELECT id FROM healthy_drug "+where).QueryRows(&drug)
-	if err == nil {
+
+	if err == nil && len(drug) != 0 {
 		m.DrugId = drug[0].Id
 	}
 	o.Insert(&m);
@@ -275,6 +276,7 @@ func AddlistInspect(data string) (some_err []interface{}) {
 		v.Weight = val.Weight//体重
 		v.Height = val.Height//身高
 		v.Types = val.Types
+		v.Date = time.Now().Format("2006-01-02")
 		v.Content = val.Content
 		v.Evaluate = val.Evaluate
 		v.ClassId = val.ClassId//班级ID
