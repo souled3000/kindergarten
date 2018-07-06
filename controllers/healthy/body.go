@@ -46,7 +46,7 @@ func (c *BodyController) Post() {
 	project := c.GetString("project")
 	fmt.Println(project)
 	if project == ""{
-		project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿,column5:体脂率"
+		project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿"
 		fmt.Println(project)
 	}
 	fmt.Println(project)
