@@ -368,11 +368,10 @@ func (o *OrganizationalController) GetBabyClass() {
 	} else {
 		v, err := models.GetBabyClass(babyIds)
 		if err != nil {
-			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+			o.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
 		} else {
 			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 		}
 		o.ServeJSON()
 	}
-
 }

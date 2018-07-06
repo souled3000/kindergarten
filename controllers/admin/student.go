@@ -235,7 +235,8 @@ func (c *StudentController) GetBaby() {
 // @router /get_class [get]
 func (c *StudentController) GetNameClass() {
 	name := c.GetString("name")
-	v, err := models.GetNameClass(name)
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	v, err := models.GetNameClass(name, kindergarten_id)
 	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
 	} else {

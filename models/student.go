@@ -391,14 +391,18 @@ func GetBabyInfo(kindergarten_id int) (paginatorMap map[string]interface{}, err 
 /*
 学生名字获取班级
 */
-func GetNameClass(name string) (paginatorMap map[string]interface{}, err error) {
+func GetNameClass(name string, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var class []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "class_type").From("student as s").LeftJoin("organizational_member as om").
 		On("s.student_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where("s.name = ?").And("om.type = 1").String()
-	_, err = o.Raw(sql, name).Values(&class)
+		On("om.organizational_id = o.id").Where("s.name = ?").And("om.type = 1").And("s.kindergarten_id = ?").String()
+	_, err = o.Raw(sql, name, kindergarten_id).Values(&class)
+	if class == nil || class[0]["class_id"] == nil {
+		err = errors.New("该同学未分班")
+		return nil, err
+	}
 	for key, val := range class {
 		if val["class_type"].(string) == "3" {
 			class[key]["class"] = "大班" + val["class_name"].(string) + ""
