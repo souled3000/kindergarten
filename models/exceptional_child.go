@@ -285,7 +285,9 @@ func GetAllergen(id int) (allergen []interface{}, err error) {
 	sql := qb.Select("ex.id, ex.allergen").From("student as stu").LeftJoin("exceptional_child as ex").On("ex.student_id = stu.student_id").Where(where).String()
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		for _, row := range maps {
-			allergen = append(allergen, row)
+			if row["allergen"] != nil {
+				allergen = append(allergen, row)
+			}
 		}
 		return allergen, err
 	}
