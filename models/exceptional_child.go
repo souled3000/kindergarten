@@ -282,10 +282,11 @@ func GetAllergen(id int) (allergen []interface{}, err error) {
 	idStr := strconv.Itoa(id)
 	where := " stu.baby_id=" + idStr
 	var maps []orm.Params
-	sql := qb.Select("ex.id, ex.allergen").From("student as stu").LeftJoin("exceptional_child as ex").On("ex.student_id = stu.student_id").Where(where).String()
+	sql := qb.Select("ex.allergen, ex.id, COUNT(DISTINCT ex.allergen) as field").From("student as stu").LeftJoin("exceptional_child as ex").On("ex.student_id = stu.student_id").Where(where).GroupBy("ex.`allergen`").String()
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		for _, row := range maps {
 			if row["allergen"] != nil {
+				delete(row, "field")
 				allergen = append(allergen, row)
 			}
 		}
@@ -295,14 +296,15 @@ func GetAllergen(id int) (allergen []interface{}, err error) {
 }
 
 // 过敏食物报备
-func AllergenPreparation(child_name string, class int, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, baby_id int) (id int64, err error) {
+func AllergenPreparation(child_name string, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, baby_id int) (id int64, err error) {
 	var exceptionalChild ExceptionalChild
 	o := orm.NewOrm()
 	allergen := strings.Split(allergens, ",")
 	o.Begin()
 	var maps []orm.Params
-	if num, err := o.Raw("SELECT student_id FROM student WHERE baby_id = ? LIMIT 1", baby_id).Values(&maps); err == nil && num > 0 {
+	if num, err := o.Raw("SELECT stu.student_id,org.member_id FROM student as stu LEFT JOIN organizational_member as org ON stu.student_id = org.member_id WHERE baby_id = ? LIMIT 1", baby_id).Values(&maps); err == nil && num > 0 {
 		student_id, _ := strconv.Atoi(maps[0]["student_id"].(string))
+		class, _ := strconv.Atoi(maps[0]["member_id"].(string))
 		for _, v := range allergen {
 			if v != "" {
 				exceptionalChild.Id = 0
