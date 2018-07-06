@@ -559,19 +559,28 @@ func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err e
 			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("s.status = 1").And("om.type = 1").And("om.is_principal = 0").And("isnull(s.deleted_at)").String()
 		_, err = o.Raw(sql, s).Values(&v)
 		for key, val := range v {
-			if val["class_type"].(string) == "3" {
-				v[key]["class"] = "大班" + val["class_name"].(string) + ""
-			} else if val["class_type"].(string) == "2" {
-				v[key]["class"] = "中班" + val["class_name"].(string) + ""
+			if val["class_type"] == 3 {
+				if val["class_name"] != nil {
+					v[key]["class"] = "大班" + val["class_name"].(string) + ""
+				}
+			} else if val["class_type"] == 2 {
+				if val["class_name"] != nil {
+					v[key]["class"] = "中班" + val["class_name"].(string) + ""
+				}
 			} else {
-				v[key]["class"] = "小班" + val["class_name"].(string) + ""
+				if val["class_name"] != nil {
+					v[key]["class"] = "小班" + val["class_name"].(string) + ""
+				}
+			}
+			if v[key]["class"] != nil {
+				class = append(class, v)
 			}
 		}
-		class = append(class, v)
 	}
 	if err == nil {
 		paginatorMapmap["data"] = class
 		return paginatorMapmap, nil
 	}
+
 	return nil, err
 }
