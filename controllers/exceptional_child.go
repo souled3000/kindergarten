@@ -75,8 +75,6 @@ func (c *ExceptionalChildController) GetAllergenChild() {
 // @param 		allergen			query  	string 	true		"过敏源，多个过敏源以','分隔"
 // @router / [post]
 func (c *ExceptionalChildController) AllergenPreparation() {
-	// 班级ID
-	class, _ := c.GetInt("class")
 	// 幼儿园ID
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	// 创建人ID
@@ -93,7 +91,6 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 	allergen := c.GetString("allergen")
 
 	valid := validation.Validation{}
-	valid.Required(class, "class").Message("班级ID不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人ID不能为空")
 	valid.Required(baby_id, "baby_id").Message("宝宝ID不能为空")
@@ -104,7 +101,7 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if _, err := models.AllergenPreparation(child_name, class, somatotype, allergen, source, kindergarten_id, creator, baby_id); err == nil {
+		if _, err := models.AllergenPreparation(child_name, somatotype, allergen, source, kindergarten_id, creator, baby_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存成功"}
