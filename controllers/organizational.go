@@ -63,7 +63,6 @@ func (o *OrganizationalController) GetClass() {
 		}
 		o.ServeJSON()
 	}
-
 }
 
 // Member ...
