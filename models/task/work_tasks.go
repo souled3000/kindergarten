@@ -26,7 +26,8 @@ type WorkTasksOperator struct {
 	Id int `json:"id"`
 	Operator int `json:"operator"`
 	OperatorName string `json:"operator_name"`
-	CoursewareId int `json:"courseware_id"`
+	OperatorAvatar string `json:"operator_avatar"`
+	CoursewareId string `json:"courseware_id"`
 	CoursewareName string `json:"courseware_name"`
 	UploadTime time.Time `json:"upload_time" orm:"auto_now_add"`
 	WorkTasksId int `json:"work_tasks_id"`
@@ -73,7 +74,12 @@ func (wt *WorkTasks) Save(operator, cc []map[string]interface{}) error {
 	var wtos []WorkTasksOperator
 	for _, value := range operator {
 		recipientId := int(value["id"].(float64))
-		wtr := WorkTasksOperator{Operator:recipientId, OperatorName:value["name"].(string), WorkTasksId:wt.Id}
+		wtr := WorkTasksOperator{
+			Operator:recipientId,
+			OperatorName:value["name"].(string),
+			OperatorAvatar:value["avatar"].(string),
+			WorkTasksId:wt.Id,
+		}
 		wtos = append(wtos, wtr)
 	}
 	if _, err := o.InsertMulti(len(wtos), wtos); err != nil {
@@ -101,13 +107,21 @@ func (wt *WorkTasks) Save(operator, cc []map[string]interface{}) error {
 	return nil
 }
 
-func (wt *WorkTasks) Get() ([]map[string]interface{}, error) {
+func (wt *WorkTasks) Get(uId int) ([]map[string]interface{}, error) {
 	var res []map[string]interface{}
 	var tasks []*WorkTasks
 
 	o := orm.NewOrm()
 
-	if num, err := o.QueryTable(wt).All(&tasks); err != nil {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("wt.*").
+		From("work_tasks as wt").
+		LeftJoin("work_tasks_cc as wtc").On("wt.id = wtc.work_tasks_id").
+		LeftJoin("work_tasks_operator as wto").On("wt.id = wto.work_tasks_id").
+		Where("wt.publisher = ? or wto.operator = ? or wtc.cc = ?").
+		GroupBy("wt.id").String()
+
+	if num, err := o.Raw(sql, uId, uId, uId).QueryRows(&tasks); err != nil {
 		return res, err
 	} else if num <= 0 {
 		return res, err
@@ -175,7 +189,7 @@ func (wt *WorkTasks) GetInfoById() (map[string]interface{}, error) {
 	return res, nil
 }
 
-func (wt *WorkTasks) Complete(operator, coursewareId int, coursewareName, uploadTime string) error {
+func (wt *WorkTasks) Complete(operator int, coursewareId, coursewareName, uploadTime string) error {
 	o := orm.NewOrm()
 
 	wto := WorkTasksOperator{Operator:operator, WorkTasksId:wt.Id}

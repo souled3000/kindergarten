@@ -131,7 +131,8 @@ func (c *BodyController) GetAll() {
 	}
 	types,_ := c.GetInt("type")
 	theme := c.GetString("theme")
-	if l,err := healthy.GetAllBody(page,per_page,types,theme); err == nil {
+	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	if l,err := healthy.GetAllBody(kindergarten_id,page,per_page,types,theme); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}

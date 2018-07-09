@@ -6164,8 +6164,7 @@
                         "in": "formData",
                         "name": "courseware_id",
                         "description": "课件ID",
-                        "type": "integer",
-                        "format": "int64"
+                        "type": "string"
                     },
                     {
                         "in": "formData",
