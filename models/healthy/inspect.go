@@ -122,6 +122,11 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		con = append(con, types)
 	}
 
+	if class_id != 0{
+		where += "AND healthy_inspect.class_id = ? "
+		con = append(con, class_id)
+	}
+
 	if date == "" {
 		day_time := time.Now().Format("2006-01-02")
 		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
@@ -202,6 +207,8 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	where := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
 	day_time := time.Now().Format("2006-01-02")
 	where += " AND left(created_at,10) = '"+day_time+"'"
+	where += " AND (types = 1 Or types = 2 Or types = 3)"
+	where += " AND abnormal != '' "
 	type Counts struct {
 		Num       int
 	}
@@ -213,6 +220,8 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	//实际检查人数
 	where1 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
 	where1 += " AND left(created_at,10) = '"+day_time+"'"
+	where1 += " AND (types = 1 Or types = 2 Or types = 3)"
+	where1 += " AND abnormal != '' "
 	day_actual, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1 ).QueryRows(&count)
 	if err == nil{
 		fmt.Println(day_actual)
@@ -222,6 +231,8 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	month_time := time.Now().Format("2006-01")
 	where2 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
 	where2 += " AND left(created_at,7) = '"+month_time+"'"
+	where2 += " AND (types = 1 Or types = 2 Or types = 3)"
+	where2 += " AND abnormal != '' "
 	month, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where2 ).QueryRows(&count)
 	if err == nil{
 		fmt.Println(month)
@@ -232,14 +243,23 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	date := time.Now().Unix() - 24 * 60 * 60 *(numbers[t.Weekday().String()])
 	tm := time.Unix(date, 0)
 	startTime := tm.Format("2006-01-02 00:00:00")
-	week, err := o.QueryTable("healthy_inspect").Filter("created_at__gte",startTime).Filter("kindergarten_id",kindergarten_id).Filter("abnormal__isnull", false).Count()
+
+	where3 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	where3 += " AND (types = 1 Or types = 2 Or types = 3) "
+	where3 += " AND abnormal != '' "
+	where3 += " AND created_at >= '"+startTime+"'"
+	week, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where3 ).QueryRows(&count)
 	if err == nil{
-		counts["week"] = week
+		fmt.Println(week)
+		counts["week"] = count[0].Num
 	}
 	//全部统计
-	all, err := o.QueryTable("healthy_inspect").Filter("kindergarten_id",kindergarten_id).Filter("abnormal__isnull", false).Count()
+	where4 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	where4 += " AND types = 1 Or types = 2 Or types = 3"
+	all, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where4 ).QueryRows(&count)
 	if err == nil{
-		counts["all"] = all
+		fmt.Println(all)
+		counts["all"] = count[0].Num
 	}
 
 	return counts
