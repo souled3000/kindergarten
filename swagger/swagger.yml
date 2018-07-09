@@ -4225,8 +4225,7 @@ paths:
       - in: formData
         name: courseware_id
         description: 课件ID
-        type: integer
-        format: int64
+        type: string
       - in: formData
         name: courseware_name
         description: 课件名称

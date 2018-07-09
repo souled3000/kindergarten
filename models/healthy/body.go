@@ -65,7 +65,7 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	if bili < 0{
 		list2["bili"] = 0
 	}
-	list2["columnw"] = "weight"
+	list2["column"] = "weight"
 	list2["columnh"] = "height"
 	list2["name"] = "体重体重"
 	list = append(list,list2)
@@ -215,7 +215,7 @@ func UpdataByIdBody(b *Body) (err error) {
 	return err
 }
 
-func GetAllBody(page int,per_page int,types int,theme string) (ml map[string]interface{}, err error){
+func GetAllBody(kindergarten_id, page int,per_page int,types int,theme string) (ml map[string]interface{}, err error){
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Body))
 	if types > 0 {
@@ -223,6 +223,9 @@ func GetAllBody(page int,per_page int,types int,theme string) (ml map[string]int
 	}
 	if theme != "" {
 		qs = qs.Filter("theme", theme)
+	}
+	if kindergarten_id != 0 {
+		qs = qs.Filter("kindergarten_id",kindergarten_id)
 	}
 	var d []Body
 

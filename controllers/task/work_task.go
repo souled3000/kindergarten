@@ -107,8 +107,9 @@ func (c *WorkTaskController) Post() {
 // @router / [get]
 func (c *WorkTaskController) Get() {
 	var wt task.WorkTasks
+	uId, _ := c.GetInt("u_id")
 
-	if res, err := wt.Get(); err == nil {
+	if res, err := wt.Get(uId); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
@@ -127,8 +128,18 @@ func (c *WorkTaskController) GetInfo() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
 	wt := task.WorkTasks{Id:id}
+	uId, _ := c.GetInt("u_id")
 
 	if res, err := wt.GetInfoById(); err == nil {
+		for _, v := range res["operator"].([]task.WorkTasksOperator) {
+			if v.Operator == uId {
+				res["operate_status"] = v.Status
+
+				break
+			} else {
+				res["operate_status"] = -1
+			}
+		}
 		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
@@ -141,7 +152,7 @@ func (c *WorkTaskController) GetInfo() {
 // @Description 完成任务
 // @Param   task_id     			formData    int  	true        "任务ID"
 // @Param   operator     			formData    int	    true        "操作人"
-// @Param   courseware_id     		formData    int     false       "课件ID"
+// @Param   courseware_id     		formData    string  false       "课件ID"
 // @Param   courseware_name     	formData    string  false       "课件名称"
 // @Param   upload_time     		formData    time    false       "上传课件时间"
 // @Success 0 {int} models.Feedback.Id
@@ -151,7 +162,7 @@ func (c *WorkTaskController) GetInfo() {
 func (c *WorkTaskController) Complete() {
 	taskId, _ := c.GetInt("task_id")
 	operator, _ := c.GetInt("operator")
-	coursewareId, _ := c.GetInt("courseware_id")
+	coursewareId := c.GetString("courseware_id")
 	coursewareName := c.GetString("courseware_name")
 	uploadTimeS := c.GetString("upload_time")
 
