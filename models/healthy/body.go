@@ -64,6 +64,8 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 	if bili < 0{
 		list2["bili"] = 0
+	}else {
+		list2["bili"] = bili
 	}
 	list2["column"] = "weight"
 	list2["columnh"] = "height"
@@ -89,6 +91,8 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 			if bili < 0{
 				list1["bili"] = 0
+			}else {
+				list1["bili"] = bili
 			}
 			list1["column"] = cloumn[0]
 
@@ -130,6 +134,8 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 	if bili < 0{
 		list2["bili"] = 0
+	}else{
+		list2["bili"] = bili
 	}
 	list2["column"] = "weight"
 	list2["columnh"] = "height"
@@ -154,8 +160,10 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 			o.Raw(sql).QueryRow(&num)
 			fmt.Println(num.Num)
 			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
-			if  bili < 0{
+			if bili < 0{
 				list1["bili"] = 0
+			}else{
+				list1["bili"]  = bili
 			}
 			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
@@ -251,6 +259,10 @@ func GetAllBody(kindergarten_id, page int,per_page int,types int,theme string) (
 func CrBody(theme string, kindergarten_id int,test_time string, types int)(id int64, err error){
 	o := orm.NewOrm()
 	body := Body{Theme: theme, KindergartenId:kindergarten_id,TestTime:test_time,Types:types}
+	var num Num
+	sql := "select count(student_id) as num from student where kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	o.Raw(sql).QueryRow(&num)
+	body.Total = num.Num
 	// 三个返回参数依次为：是否新创建的，对象 Id 值，错误
 	body.Project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿"
 	if _, id, err := o.ReadOrCreate(&body, "Theme","KindergartenId","TestTime"); err == nil {
