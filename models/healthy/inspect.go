@@ -102,7 +102,7 @@ func (m Inspect) Save() error {
 }
 
 //晨、午、晚列表
-func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, baby_id int, date string) (Page, error) {
+func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, baby_id int, date,search string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -130,6 +130,12 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 	if date == "" {
 		day_time := time.Now().Format("2006-01-02")
 		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
+	}
+	if search != "" {
+		where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
+		con = append(con, "%"+search+"%")
+		con = append(con, "%"+search+"%")
+		con = append(con, "%"+search+"%")
 	}
 
 	if baby_id != 0 {
