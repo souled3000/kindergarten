@@ -104,7 +104,7 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 		if _, err := models.AllergenPreparation(child_name, somatotype, allergen, source, kindergarten_id, creator, baby_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
-			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存成功"}
+			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
 		}
 	}
 	c.ServeJSON()
