@@ -22,7 +22,7 @@ func (c *DrugController) URLMapping() {
 
 // @Title 添加喂药申请
 // @Description 添加喂药申请
-// @Param   student_id     			formData    int  	true        "学生ID"
+// @Param   baby_id     			formData    int  	true        "宝宝ID"
 // @Param   drug     				formData    string  true        "药品"
 // @Param   explain     			formData    string  true        "用量说明"
 // @Param   symptom     			formData    string  true        "症状"

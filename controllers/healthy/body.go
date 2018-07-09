@@ -170,3 +170,22 @@ func (c *BodyController) GetOne() {
 
 	c.ServeJSON()
 }
+
+// Delete ...
+// @Title Delete
+// @Description 删除
+// @Param	id		path 	string	true		"自增ID"
+// @Success 0 {string} delete success!
+// @Failure 1003 id is empty
+// @router /:id [delete]
+func (c *BodyController) Delete() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := healthy.Delete(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "删除失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+	}
+	c.ServeJSON()
+}
