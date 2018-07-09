@@ -41,7 +41,6 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 	if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
 		return 0, err
 	} else {
-		o.Begin()
 		exceptionalChild.ChildName = child_name
 		exceptionalChild.Class = class
 		exceptionalChild.Somatotype = somatotype
@@ -53,10 +52,8 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 		exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 		exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 		if id, err := o.Insert(&exceptionalChild); err != nil && id <= 0 {
-			o.Rollback()
 			return id, err
 		} else {
-			o.Commit()
 			return id, nil
 		}
 	}
@@ -198,7 +195,6 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 // the record to be updated doesn't exist
 func UpdateExceptionalChildById(id int, child_name string, class int, somatotype int8, allergen string, student_id int) (err error) {
 	o := orm.NewOrm()
-	err = o.Begin()
 	exceptionalChild := ExceptionalChild{Id: id}
 	if err = o.Read(&exceptionalChild); err == nil {
 		if child_name != "" {
@@ -224,14 +220,11 @@ func UpdateExceptionalChildById(id int, child_name string, class int, somatotype
 		}
 
 		if _, err := o.Update(&exceptionalChild); err == nil {
-			o.Commit()
 			return err
 		} else {
-			o.Rollback()
 			return err
 		}
 	}
-	o.Rollback()
 	return err
 }
 
@@ -239,16 +232,13 @@ func UpdateExceptionalChildById(id int, child_name string, class int, somatotype
 // the record to be deleted doesn't exist
 func DeleteExceptionalChild(id int) (err error) {
 	o := orm.NewOrm()
-	o.Begin()
 	e := &ExceptionalChild{Id: id}
 	// ascertain id exists in the database
 	if err = o.Read(e); err == nil {
 		if _, err = o.Delete(&ExceptionalChild{Id: id}); err == nil {
-			o.Commit()
 			return nil
 		}
 	}
-	o.Rollback()
 	return err
 }
 
@@ -317,42 +307,42 @@ func GetAllergen(id int) (allergen []interface{}, err error) {
 
 // 过敏食物报备
 func AllergenPreparation(child_name string, somatotype int8, allergens string, source int8, kindergarten_id int, creator int, baby_id int) (id int64, err error) {
-	var exceptionalChild ExceptionalChild
+	var exceptionalChildList []ExceptionalChild
 	o := orm.NewOrm()
 	allergen := strings.Split(allergens, ",")
-	o.Begin()
 	var maps []orm.Params
 	if num, err := o.Raw("SELECT stu.student_id,org.member_id FROM student as stu LEFT JOIN organizational_member as org ON stu.student_id = org.member_id WHERE baby_id = ? LIMIT 1", baby_id).Values(&maps); err == nil && num > 0 {
-		student_id, _ := strconv.Atoi(maps[0]["student_id"].(string))
-		class, _ := strconv.Atoi(maps[0]["member_id"].(string))
-		for _, v := range allergen {
-			if v != "" {
-				var infos []orm.Params
-				where := " allergen like \"%" + string(v) + "%\" AND student_id = ? AND kindergarten_id = ? "
-				if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er != nil || n == 0 {
-					exceptionalChild.Id = 0
-					exceptionalChild.ChildName = child_name
-					exceptionalChild.Class = class
-					exceptionalChild.Somatotype = somatotype
-					exceptionalChild.Allergen = v
-					exceptionalChild.Source = source
-					exceptionalChild.KindergartenId = kindergarten_id
-					exceptionalChild.Creator = creator
-					exceptionalChild.StudentId = student_id
-					exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
-					exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-					if id, err = o.Insert(&exceptionalChild); err != nil && id <= 0 {
-						o.Rollback()
-						return id, err
+		if maps[0]["student_id"] != nil && maps[0]["member_id"] != nil {
+			student_id, _ := strconv.Atoi(maps[0]["student_id"].(string))
+			class, _ := strconv.Atoi(maps[0]["member_id"].(string))
+			for _, v := range allergen {
+				if v != "" {
+					var infos []orm.Params
+					where := " allergen like \"%" + string(v) + "%\" AND student_id = ? AND kindergarten_id = ? "
+					if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er != nil || n == 0 {
+						var exceptionalChild ExceptionalChild
+						exceptionalChild.Id = 0
+						exceptionalChild.ChildName = child_name
+						exceptionalChild.Class = class
+						exceptionalChild.Somatotype = somatotype
+						exceptionalChild.Allergen = v
+						exceptionalChild.Source = source
+						exceptionalChild.KindergartenId = kindergarten_id
+						exceptionalChild.Creator = creator
+						exceptionalChild.StudentId = student_id
+						exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+						exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+						exceptionalChildList = append(exceptionalChildList, exceptionalChild)
 					}
 				}
+			}
+			if id, err = o.InsertMulti(1, exceptionalChildList); err != nil && id <= 0 {
+				return id, err
 			} else {
-				o.Rollback()
 				return id, err
 			}
 		}
-		o.Commit()
-		return id, nil
+		return id, err
 	}
 	return id, err
 }
