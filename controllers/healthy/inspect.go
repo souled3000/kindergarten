@@ -108,6 +108,7 @@ func (c *InspectController) GetAll() {
 	role, _:= c.GetInt("role")
 	date := c.GetString("time")
 	bady_id, _:= c.GetInt("baby_id")
+	search := c.GetString("search")
 
 	//验证参数是否为空
 	valid := validation.Validation{}
@@ -118,7 +119,7 @@ func (c *InspectController) GetAll() {
 		c.ServeJSON()
 		c.StopRun()
 	}
-	if works, err := f.GetAll(page, perPage, kindergarten_id, class_id, types, role, bady_id, date ); err == nil {
+	if works, err := f.GetAll(page, perPage, kindergarten_id, class_id, types, role, bady_id, date,search ); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
