@@ -368,3 +368,36 @@ func (c *InspectController) ProjectNew() {
 
 	c.ServeJSON()
 }
+
+// GetAll ...
+// @Title GetAll
+// @Description 体重健康统计
+// @Param	kindergarten_id		query	int		true		"幼儿园ID"
+// @Param	types				query	string	true		"类型"
+// @Success 0 {object} 			shanxi.SxWorks
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /chart/ [get]
+func (c *InspectController) Chart() {
+	var f *healthy.Inspect
+
+	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	types, _:= c.GetInt("types")
+
+	//验证参数是否为空
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors(){
+		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+		c.ServeJSON()
+		c.StopRun()
+	}
+	if works, err :=f.Chart(kindergarten_id, types); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+
+}

@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// ClassController operations for Class
+//体检主题班级
 type ClassController struct {
 	beego.Controller
 }
