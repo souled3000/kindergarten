@@ -36,12 +36,12 @@ func init() {
 func AddExceptionalChild(child_name string, class int, somatotype int8, allergen string, source int8, kindergarten_id int, creator int, student_id int) (id int64, err error) {
 	var exceptionalChild ExceptionalChild
 	o := orm.NewOrm()
-	o.Begin()
 	var infos []orm.Params
 	where := " allergen like \"%" + string(allergen) + "%\" AND student_id = ? AND kindergarten_id = ? "
 	if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
 		return 0, err
 	} else {
+		o.Begin()
 		exceptionalChild.ChildName = child_name
 		exceptionalChild.Class = class
 		exceptionalChild.Somatotype = somatotype
