@@ -186,14 +186,16 @@ func DeleteStudent(id int, status int, ty int, class_type int) error {
 		}
 		if _, err = o.Update(&v); err == nil {
 			_, err = o.QueryTable("organizational_member").Filter("member_id", id).Delete()
-			if err != nil {
-				o.Rollback()
-				return err
-			}
-			_, err = o.QueryTable("exceptional_child").Filter("student_id", id).Delete()
-			if err != nil {
-				o.Rollback()
-				return err
+			if err == nil {
+				fmt.Println(id)
+				_, err = o.QueryTable("exceptional_child").Filter("student_id", id).Delete()
+				if err != nil {
+					o.Rollback()
+					return err
+				} else {
+					o.Commit()
+					return nil
+				}
 			}
 		}
 	}
