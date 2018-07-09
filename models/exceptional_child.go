@@ -40,7 +40,6 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 	var infos []orm.Params
 	where := " allergen like \"%" + string(allergen) + "%\" AND student_id = ? AND kindergarten_id = ? "
 	if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
-		o.Rollback()
 		return 0, err
 	} else {
 		exceptionalChild.ChildName = child_name
@@ -330,10 +329,7 @@ func AllergenPreparation(child_name string, somatotype int8, allergens string, s
 			if v != "" {
 				var infos []orm.Params
 				where := " allergen like \"%" + string(v) + "%\" AND student_id = ? AND kindergarten_id = ? "
-				if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
-					o.Rollback()
-				} else {
-
+				if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er != nil || n == 0 {
 					exceptionalChild.Id = 0
 					exceptionalChild.ChildName = child_name
 					exceptionalChild.Class = class
