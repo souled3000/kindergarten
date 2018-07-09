@@ -98,6 +98,7 @@ func (c *InspectController) Post() {
 // @Param	class_id		query	int		false		"班级ID"
 // @Param	role			query	int		true		"身份类型"
 // @Param	date			query	string	true		"餐检时间"
+// @Param	types			query	string	false		"(1，早餐，2午餐，3晚餐)"
 // @Success 0 {object} 		shanxi.SxWorks
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
@@ -182,7 +183,7 @@ func (c *InspectController) Counts() {
 // GetAll ...
 // @Title GetAll
 // @Description 详情
-// @Param	kindergarten_id	query	int	true		"幼儿园ID"
+// @Param	id	query	int	true		"自增ID"
 // @Success 0 {object} 	healthy.Counts
 // @Failure 1001 		参数不能为空
 // @Failure 1003 		获取失败
@@ -208,6 +209,7 @@ func (c *InspectController) Inspect() {
 // @Param   handel     				formData    string  true        "处理方式"
 // @Param   url     				formData    string  true        "照片留档"
 // @Param   infect     				formData    string  true        "是否传染（1，否2，是）"
+// @Param   types     				formData    string  true        "(1，早餐，2午餐，3晚餐)"
 // @Success 0 {int} models.Drug.Id
 // @Failure 1001 补全信息
 // @Failure 1003 保存失败

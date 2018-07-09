@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// BodyController operations for Body
+// 前端体检主题
 type BodyController struct {
 	beego.Controller
 }

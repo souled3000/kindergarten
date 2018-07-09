@@ -3261,8 +3261,8 @@
                 "parameters": [
                     {
                         "in": "formData",
-                        "name": "student_id",
-                        "description": "学生ID",
+                        "name": "baby_id",
+                        "description": "宝宝ID",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -3394,6 +3394,12 @@
                         "name": "date",
                         "description": "餐检时间",
                         "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "(1，早餐，2午餐，3晚餐)",
                         "type": "string"
                     }
                 ],
@@ -3742,6 +3748,68 @@
                 }
             }
         },
+        "/app/healthy/inspect/projectNew/": {
+            "get": {
+                "tags": [
+                    "app/healthy/inspect"
+                ],
+                "description": "项目详情",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "第几页",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "页数",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "role",
+                        "description": "身份类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "餐检时间",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
         "/app/healthy/inspect/situation": {
             "get": {
                 "tags": [
@@ -3782,8 +3850,8 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园ID",
+                        "name": "id",
+                        "description": "自增ID",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -3860,6 +3928,13 @@
                         "in": "formData",
                         "name": "infect",
                         "description": "是否传染（1，否2，是）",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "types",
+                        "description": "(1，早餐，2午餐，3晚餐)",
                         "required": true,
                         "type": "string"
                     }
@@ -4228,6 +4303,30 @@
                     },
                     "403": {
                         "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "healthy/body"
+                ],
+                "description": "删除",
+                "operationId": "BodyController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "自增ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{string} delete success!"
+                    },
+                    "1003": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -4752,6 +4851,116 @@
                 }
             }
         },
+        "/healthy/inspect/archives/": {
+            "get": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "异常档案列表",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "第几页",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "页数",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "role",
+                        "description": "身份类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "餐检时间",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/healthy/inspect/chart/": {
+            "get": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "体重健康统计",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "类型",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
         "/healthy/inspect/counts/": {
             "get": {
                 "tags": [
@@ -4780,6 +4989,130 @@
                         "description": "参数不能为空"
                     },
                     "1003": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/healthy/inspect/project/": {
+            "get": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "项目详情",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "第几页",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "页数",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "role",
+                        "description": "身份类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "餐检时间",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/healthy/inspect/projectNew/": {
+            "get": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "项目详情",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "第几页",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "页数",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "role",
+                        "description": "身份类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "餐检时间",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
                         "description": "获取失败"
                     }
                 }
@@ -6866,7 +7199,7 @@
         },
         {
             "name": "app/healthy/body",
-            "description": "BodyController operations for Body\n"
+            "description": "前端体检主题\n"
         },
         {
             "name": "healthy/class",
@@ -6874,7 +7207,7 @@
         },
         {
             "name": "app/healthy/class",
-            "description": "ClassController operations for Class\n"
+            "description": "体检主题班级\n"
         },
         {
             "name": "healthy/situation",
@@ -6890,7 +7223,7 @@
         },
         {
             "name": "app/healthy/column",
-            "description": "ColumnController operations for Column\n"
+            "description": "体检项目\n"
         },
         {
             "name": "admin/kindergarten",

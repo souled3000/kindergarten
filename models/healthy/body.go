@@ -61,7 +61,10 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and weight is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
-	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	if bili < 0{
+		list2["bili"] = 0
+	}
 	list2["columnw"] = "weight"
 	list2["columnh"] = "height"
 	list2["name"] = "体重体重"
@@ -83,7 +86,10 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
 			o.Raw(sql).QueryRow(&num)
 			fmt.Println(num.Num)
-			list1["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			if bili < 0{
+				list1["bili"] = 0
+			}
 			list1["column"] = cloumn[0]
 
 			if strings.Contains(val, "眼") {
@@ -121,7 +127,10 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight is not null"
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
-	list2["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	if bili < 0{
+		list2["bili"] = 0
+	}
 	list2["column"] = "weight"
 	list2["columnh"] = "height"
 	list2["name"] = "身高体重"
@@ -144,7 +153,10 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where  a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
 			o.Raw(sql).QueryRow(&num)
 			fmt.Println(num.Num)
-			list1["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			if  bili < 0{
+				list1["bili"] = 0
+			}
 			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
 				if c == "" {
@@ -242,4 +254,18 @@ func CrBody(theme string, kindergarten_id int,test_time string, types int)(id in
 		return  id,nil
 	}
 	return  id,err
+}
+
+//删除
+func Delete(id int) map[string]interface{} {
+	o := orm.NewOrm()
+	v := Body{Id: id}
+	if err := o.Read(&v); err == nil {
+		if num, err := o.Delete(&Body{Id: id}); err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["data"] = num
+			return paginatorMap
+		}
+	}
+	return nil
 }

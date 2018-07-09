@@ -199,21 +199,33 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	numbers["Saturday"] = 5
 	numbers["Sunday"] = 6
 	//每天统计
+	where := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
 	day_time := time.Now().Format("2006-01-02")
-	day, err := o.QueryTable("healthy_inspect").Filter("created_at__contains", day_time).Filter("kindergarten_id",kindergarten_id).Filter("abnormal__isnull", false).Count()
+	where += " AND left(created_at,10) = '"+day_time+"'"
+	type Counts struct {
+		Num       int
+	}
+	var count []Counts
+	_, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where ).QueryRows(&count)
 	if err == nil{
-		counts["day"] = day
+		counts["day"] = count[0].Num
 	}
 	//实际检查人数
-	day_actual, err := o.QueryTable("healthy_inspect").Filter("created_at__contains", day_time).Filter("kindergarten_id",kindergarten_id).Count()
+	where1 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	where1 += " AND left(created_at,10) = '"+day_time+"'"
+	day_actual, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1 ).QueryRows(&count)
 	if err == nil{
-		counts["day_actual"] = day_actual
+		fmt.Println(day_actual)
+		counts["day_actual"] = count[0].Num
 	}
 	//每月统计
 	month_time := time.Now().Format("2006-01")
-	month, err := o.QueryTable("healthy_inspect").Filter("created_at__contains", month_time).Filter("kindergarten_id",kindergarten_id).Filter("abnormal__isnull", false).Count()
+	where2 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	where2 += " AND left(created_at,7) = '"+month_time+"'"
+	month, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where2 ).QueryRows(&count)
 	if err == nil{
-		counts["month"] = month
+		fmt.Println(month)
+		counts["month"] = count[0].Num
 	}
 	//每周统计
 	t := time.Now()
@@ -710,4 +722,19 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 	}
 
 	return nil, nil
+}
+
+func (f *Inspect) Chart(kindergarten_id, types int) ([]orm.Params, error)  {
+	type Counts struct {
+		Num       int
+	}
+	o := orm.NewOrm()
+	var counts []Counts
+	wheres := "1"
+	wheres += " AND group by body_id "
+	_, err := o.Raw("SELECT count(body_id) FROM healthy_inspect WHERE " + wheres).QueryRows(&counts)
+	if err == nil{
+
+	}
+	return nil , nil
 }

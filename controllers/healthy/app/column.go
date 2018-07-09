@@ -4,7 +4,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-// ColumnController operations for Column
+// 体检项目
 type ColumnController struct {
 	beego.Controller
 }
