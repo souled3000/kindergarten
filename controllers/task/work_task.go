@@ -79,8 +79,8 @@ func (c *WorkTaskController) Post() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
 
-		c.StopRun()
 		c.ServeJSON()
+		c.StopRun()
 	}
 
 	wt := task.WorkTasks{
@@ -183,8 +183,8 @@ func (c *WorkTaskController) Complete() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
 
-		c.StopRun()
 		c.ServeJSON()
+		c.StopRun()
 	}
 
 	wt := task.WorkTasks{Id:taskId}
