@@ -29,6 +29,12 @@ func init() {
 	}))
 	ns := beego.NewNamespace("/api/v2/kg",
 
+		beego.NSNamespace("/course",
+			beego.NSInclude(
+				&controllers.CourseController{},
+			),
+		),
+		
 		beego.NSNamespace("/healthy/drug",
 			beego.NSInclude(
 				&healthy.DrugController{},
