@@ -4,6 +4,7 @@ import (
 	"time"
 	"github.com/astaxie/beego/orm"
 	"encoding/json"
+	"errors"
 )
 
 type WorkTasks struct {
@@ -202,19 +203,40 @@ func (wt *WorkTasks) Complete(operator int, coursewareId, coursewareName, upload
 		ut, _ := time.Parse("2006-01-02 15:04:05", uploadTime)
 		wto.UploadTime = ut
 	}
-	o.Update(&wto)
+	o.Begin()
 
-	o.QueryTable(wt.TableName()).Filter("id", wt.Id).Update(orm.Params{
+	if _, err := o.Update(&wto); err != nil {
+		o.Rollback()
+
+		return err
+	}
+
+	if _, err := o.QueryTable(wt.TableName()).Filter("id", wt.Id).Update(orm.Params{
 		"finish_num": orm.ColValue(orm.ColAdd, 1),
-	})
+	}); err != nil {
+		o.Rollback()
+
+		return err
+	}
 
 	if err := o.Read(wt); err != nil {
+		o.Rollback()
+
 		return err
 	}
 	if wt.TaskNum == wt.FinishNum {
 		wt.Status = 0
-		o.Update(wt)
+		if _, err := o.Update(wt); err != nil {
+			o.Rollback()
+
+			return err
+		}
+	} else if wt.FinishNum > wt.TaskNum {
+		o.Rollback()
+
+		return errors.New("exceed")
 	}
+	o.Commit()
 
 	return nil
 }
