@@ -151,7 +151,10 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		con = append(con, student_id)
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	sql := qb.Select("count(*)").From(f.TableName()).
+		LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+		LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+		Where(where).String()
 
 	var total int
 	err := o.Raw(sql, con).QueryRow(&total)
@@ -226,22 +229,17 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	//实际检查人数
 	where1 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
 	where1 += " AND left(created_at,10) = '"+day_time+"'"
-	where1 += " AND (types = 1 Or types = 2 Or types = 3)"
-	where1 += " AND abnormal != '' "
-	day_actual, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1 ).QueryRows(&count)
+	_, err = o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1 ).QueryRows(&count)
 	if err == nil{
-		fmt.Println(day_actual)
 		counts["day_actual"] = count[0].Num
 	}
 	//每月统计
 	month_time := time.Now().Format("2006-01")
 	where2 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
-	where2 += " AND left(created_at,7) = '"+month_time+"'"
-	where2 += " AND (types = 1 Or types = 2 Or types = 3)"
-	where2 += " AND abnormal != '' "
-	month, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where2 ).QueryRows(&count)
+	where2 += " AND left(healthy_inspect.created_at,7) = '"+month_time+"'"
+	where2 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where2 ).QueryRows(&count)
 	if err == nil{
-		fmt.Println(month)
 		counts["month"] = count[0].Num
 	}
 	//每周统计
@@ -251,12 +249,10 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	startTime := tm.Format("2006-01-02 00:00:00")
 
 	where3 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
-	where3 += " AND (types = 1 Or types = 2 Or types = 3) "
-	where3 += " AND abnormal != '' "
-	where3 += " AND created_at >= '"+startTime+"'"
-	week, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where3 ).QueryRows(&count)
+	where3 += " AND healthy_inspect.created_at >= '"+startTime+"'"
+	where3 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where3 ).QueryRows(&count)
 	if err == nil{
-		fmt.Println(week)
 		counts["week"] = count[0].Num
 	}
 	//全部统计
@@ -508,7 +504,7 @@ func (f *Inspect) Situation(baby_id int) (map[string]interface{}, error) {
 }
 
 //健康异常档案
-func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, search string) (Page, error) {
+func (f *Inspect) Abnormals(types, page, perPage, kindergarten_id, class_id int, date, search string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -517,23 +513,38 @@ func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, 
 		where += "AND healthy_inspect.kindergarten_id = ? "
 		con = append(con, kindergarten_id)
 	}
+	if search != "" {
+		where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
+		con = append(con, "%"+search+"%")
+		con = append(con, "%"+search+"%")
+		con = append(con, "%"+search+"%")
+	}
+	if date == "" {
+		day_time := time.Now().Format("2006-01-02")
+		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
+	} else {
+		where += " AND left(healthy_inspect.date,10) = '"+date+"'"
+	}
+
+	if types != 0 {
+		where += " AND healthy_inspect.types = ? "
+		con = append(con, types)
+	}
+
+	if class_id != 0{
+		where += " AND healthy_inspect.class_id = ? "
+		con = append(con, class_id)
+	}
 
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	sql := qb.Select("count(*)").From(f.TableName()).
+		LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+		LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+		Where(where).String()
 
 	var total int
 	err := o.Raw(sql, con).QueryRow(&total)
 	if err == nil {
-		if search != "" {
-			where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
-			con = append(con, "%"+search+"%")
-			con = append(con, "%"+search+"%")
-			con = append(con, "%"+search+"%")
-		}
-		if date == "" {
-			day_time := time.Now().Format("2006-01-02")
-			where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
-		}
 		var sxWords []orm.Params
 
 		limit := 10
@@ -545,11 +556,23 @@ func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, 
 		}
 		start := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.avatar,teacher.name as teacher_name").From(f.TableName()).
+		sql := qb.Select("healthy_inspect.*," +
+			"healthy_column.abnormal1," +
+			"healthy_column.abnormal2," +
+			"healthy_column.abnormal3," +
+			"healthy_column.abnormal4," +
+			"healthy_column.abnormal5," +
+			"healthy_column.abnormal6," +
+			"organizational.name as className,s" +
+			"tudent.name as student_name," +
+			"student.avatar," +
+			"teacher.name as teacher_name").From(f.TableName()).
 			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
 			LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+			LeftJoin("organizational").On("healthy_inspect.class_id = organizational.id").
+			LeftJoin("healthy_column").On("healthy_column.inspect_id = healthy_inspect.id").
 			Where(where).
-			OrderBy("id").Desc().
+			OrderBy("healthy_inspect.id").Desc().
 			Limit(limit).Offset(start).String()
 
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
@@ -750,17 +773,60 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 	return nil, nil
 }
 
-func (f *Inspect) Chart(kindergarten_id, types int) ([]orm.Params, error)  {
-	type Counts struct {
-		Num       int
-	}
+//体重统计
+func (f *Inspect) Weights(kindergarten_id int,date string) ([]orm.Params, error)  {
 	o := orm.NewOrm()
-	var counts []Counts
+	var counts []orm.Params
 	wheres := "1"
-	wheres += " AND group by body_id "
-	_, err := o.Raw("SELECT count(body_id) FROM healthy_inspect WHERE " + wheres).QueryRows(&counts)
-	if err == nil{
+	wheres += " AND (healthy_inspect.types = 4 Or healthy_inspect.types = 5)"
+	if date != ""{
+		wheres += " AND left( healthy_body.test_time,4) = '"+ date +"'"
+	}
+	wheres += " group by body_id"
 
+	wheres += " order by healthy_body.id desc "
+	wheres += " limit 6 "
+	_, err := o.Raw("SELECT healthy_body.test_time as date, sum(if(abnormal_weight = '肥胖',1,0)) as fat,sum(if(abnormal_weight = '超重',1,0)) as heavy ,sum(if(abnormal_weight = '瘦小',1,0)) as thin FROM healthy_inspect left join healthy_body on healthy_inspect.body_id = healthy_body.id  WHERE " + wheres).Values(&counts)
+	if err == nil{
+		return counts,nil
+	}
+	return nil , nil
+}
+
+//身高统计
+func (f *Inspect) Heights(kindergarten_id int,date string) ([]orm.Params, error)  {
+	o := orm.NewOrm()
+	var counts []orm.Params
+	wheres := "1"
+	wheres += " AND (healthy_inspect.types = 4 Or healthy_inspect.types = 5)"
+	if date != ""{
+		wheres += " AND left( healthy_body.test_time,4) = '"+ date +"'"
+	}
+	wheres += " group by body_id"
+
+	wheres += " order by healthy_body.id desc "
+	wheres += " limit 6 "
+	_, err := o.Raw("SELECT healthy_body.test_time as date, sum(if(abnormal_height = '超高',1,0)) as fat,sum(if(abnormal_height = '偏矮',1,0)) as heavy ,sum(if(abnormal_height = '矮小',1,0)) as thin FROM healthy_inspect left join healthy_body on healthy_inspect.body_id = healthy_body.id  WHERE " + wheres).Values(&counts)
+	if err == nil{
+		return counts,nil
+	}
+	return nil , nil
+}
+
+//全园统计
+func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error)  {
+	o := orm.NewOrm()
+	var counts []orm.Params
+	wheres := " 1 "
+	wheres += " AND kindergarten_id = "+strconv.Itoa(kindergarten_id)
+
+	wheres += " order by id desc "
+	wheres += " limit 6 "
+
+	_, err := o.Raw("SELECT test_time,(total - actual) as cha,actual,rate FROM healthy_body WHERE" + wheres).Values(&counts)
+
+	if err == nil{
+		return counts,nil
 	}
 	return nil , nil
 }
