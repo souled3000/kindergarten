@@ -60,7 +60,7 @@ func (this *AttendanceRule) TableName() string {
 	return "attendance_rule"
 }
 func init() {
-	orm.RegisterModel(new(Attendance))
+	orm.RegisterModel(new(AttendanceRule))
 }
 
 /*
