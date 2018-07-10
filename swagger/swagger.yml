@@ -1875,6 +1875,65 @@ paths:
             $ref: '#/definitions/models.UserPermission'
         "403":
           description: :id is empty
+  /app/attendance/askleave:
+    post:
+      tags:
+      - app/attendance
+      description: 请假（用户使用）{"Sid":15,"Applicant":"lchj","Type":1,"Reason":"xxxxx","Beg":"2018-01-01T13:13:13Z","End":"2018-04-05T07:07:07Z"}
+      operationId: AttCtl.请假
+      parameters:
+      - in: body
+        name: body
+        description: json
+        required: true
+        schema:
+          $ref: '#/definitions/.Animation'
+      responses:
+        "200":
+          description: success
+        "403":
+          description: ""
+  /app/attendance/stus:
+    get:
+      tags:
+      - app/attendance
+      description: 获取教师管理的学生(教师考勤首页使用)
+      operationId: AttCtl.获取教师的学生
+      parameters:
+      - in: query
+        name: tid
+        description: 教师ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: success
+        "403":
+          description: ""
+  /app/attendance/toatt:
+    get:
+      tags:
+      - app/attendance
+      description: 教师对学生进行考勤操作（教师考勤按钮使用）
+      operationId: AttCtl.执行考勤
+      parameters:
+      - in: query
+        name: sid
+        description: 学生ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: status
+        description: 考勤状态；0：有效：1：无效，缺省值：0
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: success
+        "403":
+          description: ""
   /app/healthy/body/:
     get:
       tags:
@@ -5341,3 +5400,6 @@ tags:
 - name: app/visitors
   description: |
     幼儿园 - 访客
+- name: app/attendance
+  description: |
+    考勤

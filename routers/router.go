@@ -224,6 +224,11 @@ func init() {
 				&task.WorkTaskController{},
 			),
 		),
+		beego.NSNamespace("/app/attendance",
+			beego.NSInclude(
+				&controllers.AttCtl{},
+			),
+		),
 
 		// 根据过敏源获取过敏儿童
 		beego.NSRouter("/app/allergen_child", &controllers.ExceptionalChildController{}, "get:GetAllergenChild"),
