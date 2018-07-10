@@ -5,5 +5,3 @@ kindergarten-service-go
 conf/app.conf
 .DS_Store
 *.DS_Store
-swagger/
-main.go
