@@ -119,7 +119,7 @@ func (wt *WorkTasks) Get(uId int) ([]map[string]interface{}, error) {
 		From("work_tasks as wt").
 		LeftJoin("work_tasks_cc as wtc").On("wt.id = wtc.work_tasks_id").
 		LeftJoin("work_tasks_operator as wto").On("wt.id = wto.work_tasks_id").
-		Where("wt.publisher = ? or wto.operator = ? or wtc.cc = ?").
+		Where("wt.publisher = ? or wto.operator = ? or wtc.cc = ? and wt.status <> 2").
 		GroupBy("wt.id").String()
 
 	if num, err := o.Raw(sql, uId, uId, uId).QueryRows(&tasks); err != nil {
@@ -168,7 +168,7 @@ func (wt *WorkTasks) GetInfoById() (map[string]interface{}, error) {
 	var res map[string]interface{}
 	o := orm.NewOrm()
 
-	if err := o.Read(wt); err != nil {
+	if err := o.QueryTable(wt).Filter("id", wt.Id).Exclude("status", 2).One(wt); err != nil {
 		return res, err
 	}
 	jsons, _ := json.Marshal(wt)
@@ -246,4 +246,34 @@ func (wto *WorkTasksOperator) Schedule() ([]WorkTasksOperator, error) {
 	_, err := orm.NewOrm().QueryTable(wto).Filter("work_tasks_id", wto.WorkTasksId).All(&wtos)
 
 	return wtos, err
+}
+
+func (wt *WorkTasks) Delete() error {
+	o := orm.NewOrm()
+
+	if err := o.Read(wt); err != nil {
+		return err
+	}
+
+	wt.Status = 2
+	if _, err := o.Update(wt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (wt *WorkTasks) Finish() error {
+	o := orm.NewOrm()
+
+	if err := o.Read(wt); err != nil {
+		return err
+	}
+
+	wt.Status = 3
+	if _, err := o.Update(wt); err != nil {
+		return err
+	}
+
+	return nil
 }
