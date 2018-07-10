@@ -443,7 +443,7 @@ func (c *InspectController) Height() {
 
 // GetAll ...
 // @Title GetAll
-// @Description 全国统计
+// @Description 全园统计
 // @Param	kindergarten_id		query	int		true		"幼儿园ID"
 // @Param	types				query	string	true		"类型"
 // @Success 0 {object} 			shanxi.SxWorks

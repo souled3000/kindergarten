@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
-	"reflect"
 )
 
 type Inspect struct {
@@ -760,12 +759,11 @@ func (f *Inspect) Weights(kindergarten_id int,date string) ([]orm.Params, error)
 	_, err := o.Raw("SELECT healthy_body.test_time as date, sum(if(abnormal_weight = '肥胖',1,0)) as fat,sum(if(abnormal_weight = '超重',1,0)) as heavy ,sum(if(abnormal_weight = '瘦小',1,0)) as thin FROM healthy_inspect left join healthy_body on healthy_inspect.body_id = healthy_body.id  WHERE " + wheres).Values(&counts)
 	if err == nil{
 		return counts,nil
-		fmt.Println(counts,reflect.TypeOf(counts))
 	}
 	return nil , nil
 }
 
-//体重统计
+//身高统计
 func (f *Inspect) Heights(kindergarten_id int,date string) ([]orm.Params, error)  {
 	o := orm.NewOrm()
 	var counts []orm.Params
@@ -781,12 +779,11 @@ func (f *Inspect) Heights(kindergarten_id int,date string) ([]orm.Params, error)
 	_, err := o.Raw("SELECT healthy_body.test_time as date, sum(if(abnormal_height = '超高',1,0)) as fat,sum(if(abnormal_height = '偏矮',1,0)) as heavy ,sum(if(abnormal_height = '矮小',1,0)) as thin FROM healthy_inspect left join healthy_body on healthy_inspect.body_id = healthy_body.id  WHERE " + wheres).Values(&counts)
 	if err == nil{
 		return counts,nil
-		fmt.Println(counts,reflect.TypeOf(counts))
 	}
 	return nil , nil
 }
 
-//体重统计
+//全园统计
 func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error)  {
 	o := orm.NewOrm()
 	var counts []orm.Params
@@ -800,7 +797,6 @@ func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error)  {
 
 	if err == nil{
 		return counts,nil
-		fmt.Println(counts,reflect.TypeOf(counts))
 	}
 	return nil , nil
 }

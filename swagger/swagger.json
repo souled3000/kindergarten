@@ -4926,7 +4926,7 @@
                 "tags": [
                     "healthy/inspect"
                 ],
-                "description": "全国统计",
+                "description": "全园统计",
                 "operationId": "InspectController.GetAll",
                 "parameters": [
                     {
