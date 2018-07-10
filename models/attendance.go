@@ -46,6 +46,53 @@ func init() {
 	orm.RegisterModel(new(Leave))
 }
 
+type AttendanceRule struct {
+	Id   int    `json:"id" orm:"column(id);auto"`
+	Kid  int    `json:"kid" orm:"column(kid)" description:"学校ID"`
+	Mbeg string `json:"mbeg" orm:"column(mbeg)" description:"上午起始时间"`
+	Mend string `json:"mend" orm:"column(mend)" description:"上午结束时间"`
+	Abeg string `json:"abeg" orm:"column(abeg)" description:"下午起始时间"`
+	Aend string `json:"aend" orm:"column(aend)" description:"下午结束时间"`
+	Days string `json:"aend" orm:"column(days)" description:"下午结束时间"`
+}
+
+func (this *AttendanceRule) TableName() string {
+	return "attendance_rule"
+}
+func init() {
+	orm.RegisterModel(new(Attendance))
+}
+
+/*
+考勤上下限
+*/
+func AttRule(kid int, mbeg, mend, abeg, aend , days string) (err error) {
+	db := orm.NewOrm()
+	db.Begin()
+	defer func() {
+		if err != nil {
+			db.Rollback()
+			err = errors.New("保存失败")
+		} else {
+			db.Commit()
+		}
+	}()
+	var a AttendanceRule
+	a.Kid = kid
+	a.Abeg = abeg
+	a.Aend = aend
+	a.Mbeg = mbeg
+	a.Mend = mend
+	a.Days = days
+
+	created, id, err := db.ReadOrCreate(&a, "Kid")
+	if !created {
+		db.Update(&a)
+	}
+	beego.Debug(id, err)
+	return
+}
+
 /*
 考勤
 */
@@ -102,11 +149,10 @@ func AskForLeave(o Leave) (err error) {
 			db.Commit()
 		}
 	}()
-	id,err:=db.Insert(&o)
-	beego.Debug(id,err)
+	id, err := db.Insert(&o)
+	beego.Debug(id, err)
 	return
 }
-
 
 /*
 获取教师下的学生 为教师页面
@@ -114,6 +160,13 @@ func AskForLeave(o Leave) (err error) {
 func GotStdsByTeaID(tid int) (rt []orm.Params) {
 	sql := "select distinct s.name,s.student_id ,s.class_info from organizational_member om,organizational_member o2 ,student s  where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1"
 	orm.NewOrm().Raw(sql, tid).Values(&rt)
+	return
+}
+
+func GotStdsAbn(tid int) (rt []orm.Params) {
+	sql := "select distinct s.name,s.student_id ,s.class_info from organizational_member om,organizational_member o2 ,student s  where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1"
+	orm.NewOrm().Raw(sql, tid).Values(&rt)
+
 	return
 }
 
