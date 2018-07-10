@@ -66,7 +66,7 @@ func (m Drug) Save(baby_id int) error {
 		if err == nil {
 			//通过组织架构ID获取班级ID
 			var organizational models.Organizational
-			err := o.QueryTable("organizational").Filter("id", member.OrganizationalId).Filter("type",3).Filter("level",2).One(&organizational)
+			err := o.QueryTable("organizational").Filter("id", member.OrganizationalId).Filter("type",2).Filter("level",3).One(&organizational)
 			if err == nil{
 				tmp.ClassId = organizational.Id
 				tmp.ClassName = organizational.Name
