@@ -47,6 +47,7 @@ func (c *InspectController) Post() {
 	drug_id, _:= c.GetInt("drug_id")
 	teacher_id, _:= c.GetInt("teacher_id")
 	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	content := c.GetString("content")
 
 	valid := validation.Validation{}
 	valid.Required(class_name,"class_name").Message("班级名称不能为空")
@@ -78,6 +79,7 @@ func (c *InspectController) Post() {
 		TeacherId:teacher_id,
 		KindergartenId:kindergarten_id,
 		ClassName:class_name,
+		Content:content,
 	}
 	if err := w.Save(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "申请成功"}
@@ -111,7 +113,7 @@ func (c *InspectController) GetAll() {
 	types, _:= c.GetInt("types")
 	perPage, _ := c.GetInt("per_page")
 	role, _:= c.GetInt("role")
-	date := c.GetString("time")
+	date := c.GetString("date")
 	baby_id, _:= c.GetInt("baby_id")
 	search := c.GetString("search")
 	//验证参数是否为空

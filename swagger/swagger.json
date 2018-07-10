@@ -4921,12 +4921,12 @@
                 }
             }
         },
-        "/healthy/inspect/chart/": {
+        "/healthy/inspect/country/": {
             "get": {
                 "tags": [
                     "healthy/inspect"
                 ],
-                "description": "体重健康统计",
+                "description": "全国统计",
                 "operationId": "InspectController.GetAll",
                 "parameters": [
                     {
@@ -4989,6 +4989,46 @@
                         "description": "参数不能为空"
                     },
                     "1003": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/healthy/inspect/height/": {
+            "get": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "身高健康统计",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "类型",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
                         "description": "获取失败"
                     }
                 }
@@ -5098,6 +5138,46 @@
                         "in": "query",
                         "name": "date",
                         "description": "餐检时间",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SxWorks"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数不能为空"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/healthy/inspect/weight/": {
+            "get": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "体重健康统计",
+                "operationId": "InspectController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "types",
+                        "description": "类型",
                         "required": true,
                         "type": "string"
                     }
