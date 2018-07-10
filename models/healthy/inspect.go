@@ -151,7 +151,10 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		con = append(con, student_id)
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	sql := qb.Select("count(*)").From(f.TableName()).
+		LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+		LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+		Where(where).String()
 
 	var total int
 	err := o.Raw(sql, con).QueryRow(&total)
@@ -501,7 +504,7 @@ func (f *Inspect) Situation(baby_id int) (map[string]interface{}, error) {
 }
 
 //健康异常档案
-func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, search string) (Page, error) {
+func (f *Inspect) Abnormals(types, page, perPage, kindergarten_id, class_id int, date, search string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -510,23 +513,38 @@ func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, 
 		where += "AND healthy_inspect.kindergarten_id = ? "
 		con = append(con, kindergarten_id)
 	}
+	if search != "" {
+		where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
+		con = append(con, "%"+search+"%")
+		con = append(con, "%"+search+"%")
+		con = append(con, "%"+search+"%")
+	}
+	if date == "" {
+		day_time := time.Now().Format("2006-01-02")
+		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
+	} else {
+		where += " AND left(healthy_inspect.date,10) = '"+date+"'"
+	}
+
+	if types != 0 {
+		where += " AND healthy_inspect.types = ? "
+		con = append(con, types)
+	}
+
+	if class_id != 0{
+		where += " AND healthy_inspect.class_id = ? "
+		con = append(con, class_id)
+	}
 
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	sql := qb.Select("count(*)").From(f.TableName()).
+		LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+		LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+		Where(where).String()
 
 	var total int
 	err := o.Raw(sql, con).QueryRow(&total)
 	if err == nil {
-		if search != "" {
-			where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
-			con = append(con, "%"+search+"%")
-			con = append(con, "%"+search+"%")
-			con = append(con, "%"+search+"%")
-		}
-		if date == "" {
-			day_time := time.Now().Format("2006-01-02")
-			where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
-		}
 		var sxWords []orm.Params
 
 		limit := 10
@@ -538,11 +556,23 @@ func (f *Inspect) Abnormals(page, perPage, kindergarten_id, class_id int, date, 
 		}
 		start := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.avatar,teacher.name as teacher_name").From(f.TableName()).
+		sql := qb.Select("healthy_inspect.*," +
+			"healthy_column.abnormal1," +
+			"healthy_column.abnormal2," +
+			"healthy_column.abnormal3," +
+			"healthy_column.abnormal4," +
+			"healthy_column.abnormal5," +
+			"healthy_column.abnormal6," +
+			"organizational.name as className,s" +
+			"tudent.name as student_name," +
+			"student.avatar," +
+			"teacher.name as teacher_name").From(f.TableName()).
 			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
 			LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
+			LeftJoin("organizational").On("healthy_inspect.class_id = organizational.id").
+			LeftJoin("healthy_column").On("healthy_column.inspect_id = healthy_inspect.id").
 			Where(where).
-			OrderBy("id").Desc().
+			OrderBy("healthy_inspect.id").Desc().
 			Limit(limit).Offset(start).String()
 
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {

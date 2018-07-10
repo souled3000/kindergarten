@@ -229,6 +229,7 @@ func (c *InspectController) Put() {
 	teacher_id, _:= c.GetInt("teacher_id")
 	kindergarten_id, _:= c.GetInt("kindergarten_id")
 	content := c.GetString("content")
+	date := c.GetString("date")
 
 	valid := validation.Validation{}
 	valid.Required(class_name,"class_name").Message("班级名称不能为空")
@@ -262,6 +263,7 @@ func (c *InspectController) Put() {
 		KindergartenId:kindergarten_id,
 		ClassName:class_name,
 		Content:content,
+		Date:date,
 	}
 	if err := w.SaveInspect(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "申请成功"}
@@ -292,8 +294,11 @@ func (c *InspectController) Abnormal() {
 	kindergarten_id, _:= c.GetInt("kindergarten_id")
 	class_id, _:= c.GetInt("class_id")
 	perPage, _ := c.GetInt("per_page")
-	date := c.GetString("time")
+	date := c.GetString("date")
 	search := c.GetString("search")
+	types, _:= c.GetInt("types")
+
+	fmt.Println(date)
 
 	//验证参数是否为空
 	valid := validation.Validation{}
@@ -303,7 +308,7 @@ func (c *InspectController) Abnormal() {
 		c.ServeJSON()
 		c.StopRun()
 	}
-	if works, err := f.Abnormals(page, perPage, kindergarten_id, class_id, date, search ); err == nil {
+	if works, err := f.Abnormals(types, page, perPage, kindergarten_id, class_id, date, search ); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
