@@ -33,7 +33,6 @@ func (this *AttCtl) GotStdsByTeaID() {
 
 // @Title 异常考勤
 // @Description 异常考勤内容
-// @Param 
 func (this *AttCtl) GotAbnDetail(){
 	defer this.ServeJSON()
 	

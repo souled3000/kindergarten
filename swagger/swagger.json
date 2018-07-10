@@ -1890,11 +1890,11 @@
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "body",
+                        "name": "student",
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/.学生"
                         }
                     }
                 ],
@@ -2792,16 +2792,17 @@
                 "tags": [
                     "app/attendance"
                 ],
-                "description": "获取教师管理的学生(教师考勤首页使用)",
-                "operationId": "AttCtl.获取教师的学生",
+                "description": "写入考勤规则(园长使用)",
+                "operationId": "AttCtl.记录考勤规则",
                 "parameters": [
                     {
-                        "in": "query",
-                        "name": "tid",
-                        "description": "教师ID",
+                        "in": "body",
+                        "name": "body",
+                        "description": "json",
                         "required": true,
-                        "type": "integer",
-                        "format": "int64"
+                        "schema": {
+                            "$ref": "#/definitions/.Animation"
+                        }
                     }
                 ],
                 "responses": {
@@ -7076,6 +7077,9 @@
             "type": "object"
         },
         ".time": {
+            "type": "object"
+        },
+        ".学生": {
             "type": "object"
         },
         "healthy.Body": {
