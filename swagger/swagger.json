@@ -6225,6 +6225,39 @@
                 }
             }
         },
+        "/task/work_tasks/finish/{id}": {
+            "put": {
+                "tags": [
+                    "task/work_tasks"
+                ],
+                "description": "结束任务",
+                "operationId": "WorkTaskController.结束任务",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "任务ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.JSONStruct"
+                        }
+                    },
+                    "1002": {
+                        "description": "任务不存在"
+                    },
+                    "1003": {
+                        "description": "设置结束失败"
+                    }
+                }
+            }
+        },
         "/task/work_tasks/schedule": {
             "get": {
                 "tags": [
@@ -6281,8 +6314,42 @@
                     "0": {
                         "description": "{int} models.Feedback.Id"
                     },
+                    "1002": {
+                        "description": "任务不存在"
+                    },
                     "1005": {
                         "description": "获取失败"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "task/work_tasks"
+                ],
+                "description": "删除任务",
+                "operationId": "WorkTaskController.删除任务",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "任务ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.JSONStruct"
+                        }
+                    },
+                    "1002": {
+                        "description": "任务不存在"
+                    },
+                    "1004": {
+                        "description": "删除失败"
                     }
                 }
             }
@@ -6537,6 +6604,9 @@
             "type": "object"
         },
         ".Cover": {
+            "type": "object"
+        },
+        ".JSONStruct": {
             "type": "object"
         },
         ".OK": {

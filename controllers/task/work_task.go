@@ -6,6 +6,7 @@ import (
 	"time"
 	"kindergarten-service-go/models/task"
 	"encoding/json"
+	"github.com/astaxie/beego/orm"
 )
 
 type WorkTaskController struct {
@@ -25,6 +26,8 @@ func (c *WorkTaskController) URLMapping() {
 	c.Mapping("GetInfo", c.GetInfo)
 	c.Mapping("Complete", c.Complete)
 	c.Mapping("Schedule", c.Schedule)
+	c.Mapping("Delete", c.Delete)
+	c.Mapping("Finish", c.Finish)
 }
 
 // @Title 发布任务
@@ -122,6 +125,7 @@ func (c *WorkTaskController) Get() {
 // @Description 获取任务详情
 // @Param   id     			path    int  	true        "任务ID"
 // @Success 0 {int} models.Feedback.Id
+// @Failure 1002 任务不存在
 // @Failure 1005 获取失败
 // @router /:id [get]
 func (c *WorkTaskController) GetInfo() {
@@ -141,6 +145,8 @@ func (c *WorkTaskController) GetInfo() {
 			}
 		}
 		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}
+	} else if err == orm.ErrNoRows {
+		c.Data["json"] = JSONStruct{"error", 1002, "", "任务不存在"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
 	}
@@ -225,6 +231,54 @@ func (c *WorkTaskController) Schedule() {
 		c.Data["json"] = JSONStruct{"success", 0, result, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// @Title 删除任务
+// @Description 删除任务
+// @Param   id     			path    int  	true        "任务ID"
+// @Success 0 {object} JSONStruct
+// @Failure 1002 任务不存在
+// @Failure 1004 删除失败
+// @router /:id [delete]
+func (c *WorkTaskController) Delete() {
+	var id int
+	c.Ctx.Input.Bind(&id, ":id")
+
+	wt := task.WorkTasks{Id:id}
+
+	if err := wt.Delete(); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, "", "删除成功"}
+	} else if err == orm.ErrNoRows {
+		c.Data["json"] = JSONStruct{"error", 1002, "", "任务不存在"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1004, "", "删除失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// @Title 结束任务
+// @Description 结束任务
+// @Param   id     			path    int  	true        "任务ID"
+// @Success 0 {object} JSONStruct
+// @Failure 1002 任务不存在
+// @Failure 1003 设置结束失败
+// @router /finish/:id [put]
+func (c *WorkTaskController) Finish() {
+	var id int
+	c.Ctx.Input.Bind(&id, ":id")
+
+	wt := task.WorkTasks{Id:id}
+
+	if err := wt.Finish(); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, "", "设置结束成功"}
+	} else if err == orm.ErrNoRows {
+		c.Data["json"] = JSONStruct{"error", 1002, "", "任务不存在"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1003, "", "设置结束失败"}
 	}
 
 	c.ServeJSON()
