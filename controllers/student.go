@@ -1,4 +1,4 @@
-package admin
+package controllers
 
 import (
 	"kindergarten-service-go/models"
@@ -12,25 +12,19 @@ type StudentController struct {
 	BaseController
 }
 
-// GetStudent ...
-// @Title 学生列表
-// @Description 学生列表
+// Student ...
+// @Title 学生列表-前台
+// @Description 学生列表-前台
 // @Param	kindergarten_id       query	int	     true		"幼儿园ID"
-// @Param	status                query	int	     false		"状态"
-// @Param	search                query	int	     false		"搜索条件"
 // @Param	page                  query	int	     false		"页数"
 // @Param	per_page              query	int	     false		"每页显示条数"
 // @Success 200 {object} models.Student
 // @Failure 403
 // @router / [get]
-func (c *StudentController) GetStudent() {
-	search := c.GetString("search")
-	prepage, _ := c.GetInt("per_page", 20)
-	page, _ := c.GetInt("page")
+func (c *StudentController) Student() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	status, _ := c.GetInt("status", -1)
-	v := models.GetStudent(kindergarten_id, status, search, page, prepage)
-	if v == nil {
+	v, err := models.ClassStudent(kindergarten_id)
+	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
@@ -217,20 +211,13 @@ func (c *StudentController) DeleteStudent() {
 // @router /baby [get]
 func (c *StudentController) GetBaby() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	valid := validation.Validation{}
-	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
-	if valid.HasErrors() {
-		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
-		c.ServeJSON()
+	v, err := models.GetBabyInfo(kindergarten_id)
+	if err != nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
 	} else {
-		v, err := models.GetBabyInfo(kindergarten_id)
-		if err != nil {
-			c.Data["json"] = JSONStruct{"error", 1005, nil, err.Error()}
-		} else {
-			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
-		}
-		c.ServeJSON()
+		c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 	}
+	c.ServeJSON()
 }
 
 // GetNameClass ...
