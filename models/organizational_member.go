@@ -246,3 +246,23 @@ func DestroyMember(teacher_id int, class_id int, is_principal int) error {
 	err = errors.New("移除失败")
 	return err
 }
+
+/*
+班级下所有教师
+*/
+func ClassTeacher(class_type int, kindergarten_id int) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var v []orm.Params
+	paginatorMap = make(map[string]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("o.name as class_name", "o.id as class_id", "t.name", "t.avatar", "t.user_id", "t.teacher_id").From("teacher as t").LeftJoin("organizational_member as om").
+		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("o.kindergarten_id = ?").And("o.type = 2 and o.level = 3 and o.class_type = ? and om.type = 0 and om.is_principal = 0").And("isnull(t.deleted_at)").String()
+	num, err := o.Raw(sql, kindergarten_id, class_type).Values(&v)
+	if err == nil && num > 0 {
+		paginatorMap["class"] = v
+		return paginatorMap, nil
+	}
+	err = errors.New("班级暂无教师")
+	return nil, err
+}

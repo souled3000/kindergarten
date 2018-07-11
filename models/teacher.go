@@ -329,3 +329,39 @@ func OrganizationalTeacher(id int, ty int, person int, class_id int) (paginatorM
 	}
 	return nil, err
 }
+
+/*
+筛选教师
+*/
+func FilterTeacher(class_id int) (ml map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var class []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("t.teacher_id", "o.id as class_id", "o.name as class_name", "o.class_type", "t.name").From("teacher as t").LeftJoin("organizational_member as om").
+		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("o.id = ?").And("om.type = 0").String()
+	_, err = o.Raw(sql, class_id).Values(&class)
+
+	if err != nil {
+		return nil, err
+	}
+	data := make(map[string][]interface{})
+	for _, val := range class {
+		if val["class_type"].(string) == "3" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["大班"+strc] = append(data["大班"+strc], val)
+			}
+		} else if val["class_type"].(string) == "2" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["中班"+strc] = append(data["中班"+strc], val)
+			}
+		} else if val["class_type"].(string) == "1" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["小班"+strc] = append(data["小班"+strc], val)
+			}
+		}
+	}
+	ml = make(map[string]interface{})
+	ml["data"] = data
+	return ml, nil
+}
