@@ -57,8 +57,7 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	o.Raw(sql).QueryRow(&num)
 	c_num := num.Num
 	list2 := make(map[string]interface{})
-	//list3 := make(map[string]interface{})
-	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and weight is not null"
+	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and weight is != '' "
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
 	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
@@ -71,13 +70,8 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 	list2["columnh"] = "height"
 	list2["name"] = "体重体重"
 	list = append(list,list2)
-	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and height is not null"
+	sql = "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(id)+" and height != '' "
 	o.Raw(sql).QueryRow(&num)
-	fmt.Println(num.Num)
-	//list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
-	//
-	//list3["name"] = "身高"
-	//list = append(list,list3)
 	if err := o.Read(&b); err == nil {
 		var c string
 		project := strings.Split(b.Project,",")
@@ -85,7 +79,7 @@ func GetOneBody(id int) (ml map[string]interface{}, err error){
 
 			list1 := make(map[string]interface{})
 			cloumn := strings.Split(val,":")
-			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
+			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" != '' "
 			o.Raw(sql).QueryRow(&num)
 			fmt.Println(num.Num)
 			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
