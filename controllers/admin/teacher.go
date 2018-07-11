@@ -142,8 +142,8 @@ func (c *TeacherController) GetTeacherInfo() {
 // @Title 编辑教师
 // @Description 编辑教师
 // @Param	id		    path 	int	               true		    "教师编号"
-// @Param	body		body 	models.Animation	true		"param(json)"
-// @Success 200 {object} models.Animation
+// @Param	body		body 	models.Teacher	   true		    "param(json)"
+// @Success 200 {object} models.Teacher
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *TeacherController) Put() {
@@ -167,8 +167,8 @@ func (c *TeacherController) Put() {
 // Post ...
 // @Title 教师-录入信息
 // @Description 教师-录入信息
-// @Param	body		body 	models.Animation	true		"json"
-// @Success 201 {int} models.Animation
+// @Param	body		body 	models.Teacher	true		"json"
+// @Success 201 {int} models.Teacher
 // @Failure 403 body is empty
 // @router / [post]
 func (c *TeacherController) Post() {
@@ -244,7 +244,7 @@ func (c *TeacherController) RemoveTeacher() {
 // @Param	name		            body 	string   true		"姓名"
 // @Param	role  		        body 	int  	 true		"身份"
 // @Param	kindergarten_id		body 	int   	 true		"幼儿园ID"
-// @Success 201 {int} models.Animation
+// @Success 201 {int} models.Teacher
 // @Failure 403 body is empty
 // @router /invite [post]
 func (c *TeacherController) Invite() {

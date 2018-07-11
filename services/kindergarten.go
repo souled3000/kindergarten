@@ -128,3 +128,21 @@ func (c *KindergartenServer) GetBaby(baby_id int) interface{} {
 	}
 	return nil
 }
+
+//教师通知
+func (c *KindergartenServer) TeacherNotice(class_type int, kindergarten_id int) (interface{}, error) {
+	v, err := models.ClassTeacher(class_type, kindergarten_id)
+	if err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
+//学生通知
+func (c *KindergartenServer) StudentNotice(class_type int, kindergarten_id int) (interface{}, error) {
+	v, err := models.Classtudent(class_type, kindergarten_id)
+	if err == nil {
+		return v, nil
+	}
+	return nil, err
+}

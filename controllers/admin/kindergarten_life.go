@@ -17,9 +17,9 @@ type KindergartenLifeController struct {
 // Store ...
 // @Title 保存园内生活
 // @Description Web-保存园内生活
-// @Param	content		            string   	boby	true		"标题"
-// @Param	template		        int 	    boby	true		"公告内容"
-// @Param	kindergarten_id		    int 	    boby	true		"幼儿园ID"
+// @Param	content		        query    string   		true		"标题"
+// @Param	template		    query    int 	    	true		"公告内容"
+// @Param	kindergarten_id		query    int 	    	true		"幼儿园ID"
 // @Success 201 {int} models.KindergartenLife
 // @Failure 403 body is empty
 // @router / [post]

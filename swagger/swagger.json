@@ -178,9 +178,7 @@
                         "name": "name",
                         "description": "姓名",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.name"
-                        }
+                        "type": "string"
                     },
                     {
                         "in": "query",
@@ -282,31 +280,27 @@
                 "operationId": "KindergartenLifeController.保存园内生活",
                 "parameters": [
                     {
-                        "in": "string",
+                        "in": "query",
                         "name": "content",
                         "description": "标题",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.boby"
-                        }
+                        "type": "string"
                     },
                     {
-                        "in": "int",
+                        "in": "query",
                         "name": "template",
                         "description": "公告内容",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.boby"
-                        }
+                        "type": "integer",
+                        "format": "int64"
                     },
                     {
-                        "in": "int",
+                        "in": "query",
                         "name": "kindergarten_id",
                         "description": "幼儿园ID",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.boby"
-                        }
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -430,31 +424,26 @@
                 "operationId": "NoticeController.保存公告",
                 "parameters": [
                     {
-                        "in": "string",
+                        "in": "query",
                         "name": "title",
                         "description": "标题",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.boby"
-                        }
+                        "type": "string"
                     },
                     {
-                        "in": "string",
+                        "in": "query",
                         "name": "content",
                         "description": "公告内容",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.boby"
-                        }
+                        "type": "string"
                     },
                     {
-                        "in": "int",
+                        "in": "query",
                         "name": "kindergarten_id",
                         "description": "幼儿园ID",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.boby"
-                        }
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -1251,10 +1240,7 @@
                 "operationId": "PingController.Ping",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.OK"
-                        }
+                        "description": "success"
                     },
                     "403": {
                         "description": ":没有该服务"
@@ -1271,10 +1257,7 @@
                 "operationId": "PingController.onemore服务是否调通",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.OK"
-                        }
+                        "description": "success"
                     },
                     "403": {
                         "description": ":没有该服务"
@@ -1291,10 +1274,7 @@
                 "operationId": "PingController.user服务是否调通",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.OK"
-                        }
+                        "description": "success"
                     },
                     "403": {
                         "description": ":没有该服务"
@@ -1792,7 +1772,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1003": {
                         "description": "更新失败"
@@ -1816,7 +1796,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1004": {
                         "description": "删除失败"
@@ -1890,11 +1870,11 @@
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "student",
+                        "name": "body",
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.学生"
+                            "$ref": "#/definitions/models.Student"
                         }
                     }
                 ],
@@ -2276,13 +2256,13 @@
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.Teacher"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Animation"
+                        "description": "{int} models.Teacher"
                     },
                     "403": {
                         "description": "body is empty"
@@ -2383,7 +2363,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Animation"
+                        "description": "{int} models.Teacher"
                     },
                     "403": {
                         "description": "body is empty"
@@ -2522,7 +2502,7 @@
                         "description": "param(json)",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.Teacher"
                         }
                     }
                 ],
@@ -2530,7 +2510,7 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.Teacher"
                         }
                     },
                     "403": {
@@ -2773,7 +2753,7 @@
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.Attendance"
                         }
                     }
                 ],
@@ -2801,7 +2781,7 @@
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.Attendance"
                         }
                     }
                 ],
@@ -2966,7 +2946,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Category"
+                        "description": "{int} healthy.Body"
                     },
                     "403": {
                         "description": "body is empty"
@@ -3046,7 +3026,7 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Cover"
+                            "$ref": "#/definitions/healthy.Body"
                         }
                     },
                     "403": {
@@ -3173,7 +3153,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Category"
+                        "description": "{int} healthy.Class"
                     },
                     "403": {
                         "description": "body is empty"
@@ -3198,7 +3178,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Category"
+                        "description": "{int} healthy.Class"
                     },
                     "403": {
                         "description": "body is empty"
@@ -3278,7 +3258,7 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Cover"
+                            "$ref": "#/definitions/healthy.Class"
                         }
                     },
                     "403": {
@@ -3331,7 +3311,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Drug"
                         }
                     },
                     "1001": {
@@ -3421,7 +3401,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Counts"
+                            "$ref": "#/definitions/healthy.Drug"
                         }
                     },
                     "1001": {
@@ -3497,7 +3477,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -3639,7 +3619,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -3702,7 +3682,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Counts"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -3764,7 +3744,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -3826,7 +3806,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -3888,7 +3868,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -3951,7 +3931,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Counts"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -4087,7 +4067,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Situation"
                         }
                     },
                     "1001": {
@@ -4117,7 +4097,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4150,7 +4130,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1004": {
                         "description": "删除失败"
@@ -4183,7 +4163,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json}  JSONStruct"
+                        "description": "{string} success"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4242,7 +4222,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4320,7 +4300,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4355,7 +4335,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4382,7 +4362,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4441,7 +4421,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4468,7 +4448,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{json} \tJSONStruct"
+                        "description": "{string} \tsuccess"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4593,7 +4573,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Category"
+                        "description": "{int} healthy.Body"
                     },
                     "403": {
                         "description": "body is empty"
@@ -4673,7 +4653,7 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Cover"
+                            "$ref": "#/definitions/healthy.Body"
                         }
                     },
                     "403": {
@@ -4824,7 +4804,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "{int} models.Category"
+                        "description": "{int} healthy.Class"
                     },
                     "403": {
                         "description": "body is empty"
@@ -4929,11 +4909,35 @@
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Cover"
+                            "$ref": "#/definitions/healthy.Class"
                         }
                     },
                     "403": {
                         "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "healthy/class"
+                ],
+                "description": "删除",
+                "operationId": "ClassController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "自增ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{string} delete success!"
+                    },
+                    "1003": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -4982,7 +4986,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Drug"
                         }
                     },
                     "1001": {
@@ -5072,7 +5076,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Counts"
+                            "$ref": "#/definitions/healthy.Drug"
                         }
                     },
                     "1001": {
@@ -5142,7 +5146,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5215,7 +5219,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{int} models.Drug.Id"
+                        "description": "{int} healthy.Inspect"
                     },
                     "1001": {
                         "description": "补全信息"
@@ -5284,7 +5288,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5324,7 +5328,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5357,7 +5361,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Counts"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5397,7 +5401,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5459,7 +5463,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5521,7 +5525,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5561,7 +5565,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5594,7 +5598,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.Counts"
+                            "$ref": "#/definitions/healthy.Inspect"
                         }
                     },
                     "1001": {
@@ -5667,7 +5671,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{int} models.Drug.Id"
+                        "description": "{int} healthy.Inspect"
                     },
                     "1001": {
                         "description": "补全信息"
@@ -5723,7 +5727,7 @@
                     "0": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/.SxWorks"
+                            "$ref": "#/definitions/healthy.Situation"
                         }
                     },
                     "1001": {
@@ -6470,10 +6474,7 @@
                 "operationId": "PingController.Ping",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.OK"
-                        }
+                        "description": "success"
                     },
                     "403": {
                         "description": ":没有该服务"
@@ -6490,10 +6491,7 @@
                 "operationId": "PingController.onemore服务是否调通",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.OK"
-                        }
+                        "description": "success"
                     },
                     "403": {
                         "description": ":没有该服务"
@@ -6510,13 +6508,378 @@
                 "operationId": "PingController.user服务是否调通",
                 "responses": {
                     "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.OK"
-                        }
+                        "description": "success"
                     },
                     "403": {
                         "description": ":没有该服务"
+                    }
+                }
+            }
+        },
+        "/student/": {
+            "get": {
+                "tags": [
+                    "student"
+                ],
+                "description": "学生列表-前台",
+                "operationId": "StudentController.学生列表-前台",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "student"
+                ],
+                "description": "学生-录入信息",
+                "operationId": "StudentController.学生-录入信息",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "json",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Student"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/student/baby": {
+            "get": {
+                "tags": [
+                    "student"
+                ],
+                "description": "未激活baby",
+                "operationId": "StudentController.GetBaby",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ":幼儿园id不能为空"
+                    }
+                }
+            }
+        },
+        "/student/class": {
+            "get": {
+                "tags": [
+                    "student"
+                ],
+                "description": "学生班级搜索",
+                "operationId": "StudentController.学生班级搜索",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_type",
+                        "description": "班级类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/student/get_class": {
+            "get": {
+                "tags": [
+                    "student"
+                ],
+                "description": "学生名字获取班级",
+                "operationId": "StudentController.GetNameClass",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "name",
+                        "description": "学生姓名",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ":幼儿园id不能为空"
+                    }
+                }
+            }
+        },
+        "/student/invite": {
+            "post": {
+                "tags": [
+                    "student"
+                ],
+                "description": "邀请学生/批量邀请",
+                "operationId": "StudentController.邀请学生/批量邀请",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "name",
+                        "description": "学生姓名(json)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "baby_id",
+                        "description": "宝宝id(json)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id(json)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Student"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/student/remove": {
+            "delete": {
+                "tags": [
+                    "student"
+                ],
+                "description": "移除学生",
+                "operationId": "StudentController.RemoveStudent",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "student_id",
+                        "description": "学生ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "student_id is empty"
+                    }
+                }
+            }
+        },
+        "/student/{id}": {
+            "get": {
+                "tags": [
+                    "student"
+                ],
+                "description": "学生详情",
+                "operationId": "StudentController.Get Student Info",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "student_id",
+                        "description": "学生编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ":学生编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "student"
+                ],
+                "description": "编辑学生",
+                "operationId": "StudentController.编辑学生",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "学生编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "param(json)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "student"
+                ],
+                "description": "删除学生",
+                "operationId": "StudentController.DeleteStudent",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "student_id",
+                        "description": "学生ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "status",
+                        "description": "状态(status 0:未分班 2:离园)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "type",
+                        "description": "删除类型（type 0:学生离园 1:删除档案）",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -6563,9 +6926,7 @@
                         "name": "deadline",
                         "description": "截止日期",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/.time"
-                        }
+                        "type": "string"
                     },
                     {
                         "in": "formData",
@@ -6662,9 +7023,7 @@
                         "in": "formData",
                         "name": "upload_time",
                         "description": "上传课件时间",
-                        "schema": {
-                            "$ref": "#/definitions/.time"
-                        }
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -6699,10 +7058,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.JSONStruct"
-                        }
+                        "description": "{string} success"
                     },
                     "1002": {
                         "description": "任务不存在"
@@ -6795,16 +7151,360 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/.JSONStruct"
-                        }
+                        "description": "{string} success"
                     },
                     "1002": {
                         "description": "任务不存在"
                     },
                     "1004": {
                         "description": "删除失败"
+                    }
+                }
+            }
+        },
+        "/teacher/": {
+            "get": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "全部教师列表",
+                "operationId": "TeacherController.全部教师列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "description": "状态",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "search",
+                        "description": "搜索条件",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "教师-录入信息",
+                "operationId": "TeacherController.教师-录入信息",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "json",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Teacher"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/teacher/class": {
+            "get": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "班级列表",
+                "operationId": "TeacherController.班级列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_type",
+                        "description": "班级类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/teacher/filter_teacher": {
+            "get": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "教师筛选列表-前台",
+                "operationId": "TeacherController.教师筛选列表-前台",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Student"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/teacher/organizational_teacher": {
+            "get": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "组织框架教师列表",
+                "operationId": "TeacherController.组织框架教师列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "type",
+                        "description": "年级组标识(1 年级组)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "person",
+                        "description": "是否为负责人(1 负责 2 不是负责人)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/teacher/remove": {
+            "delete": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "移除教师",
+                "operationId": "TeacherController.移除教师",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacher_id",
+                        "description": "教师ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "teacher_id is empty"
+                    }
+                }
+            }
+        },
+        "/teacher/{id}": {
+            "get": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "教师详情",
+                "operationId": "TeacherController.Get Teacher Info",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "teacher_id",
+                        "description": "教师编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ":教师编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "编辑教师",
+                "operationId": "TeacherController.编辑教师",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "教师编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "param(json)",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "teacher"
+                ],
+                "description": "删除教师",
+                "operationId": "TeacherController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "teacher_id",
+                        "description": "教师ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "status",
+                        "description": "状态(status 0:未分班 2:离职)",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -7052,36 +7752,6 @@
         }
     },
     "definitions": {
-        ".Animation": {
-            "type": "object"
-        },
-        ".Counts": {
-            "type": "object"
-        },
-        ".Cover": {
-            "type": "object"
-        },
-        ".JSONStruct": {
-            "type": "object"
-        },
-        ".OK": {
-            "type": "object"
-        },
-        ".SxWorks": {
-            "type": "object"
-        },
-        ".boby": {
-            "type": "object"
-        },
-        ".name": {
-            "type": "object"
-        },
-        ".time": {
-            "type": "object"
-        },
-        ".学生": {
-            "type": "object"
-        },
         "healthy.Body": {
             "title": "Body",
             "type": "object",
@@ -7175,6 +7845,220 @@
                 },
                 "id": {
                     "description": "编号",
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "healthy.Drug": {
+            "title": "Drug",
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "description": "头像",
+                    "type": "string"
+                },
+                "class_id": {
+                    "description": "班级ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "class_name": {
+                    "description": "班级名称",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "drug": {
+                    "description": "药片",
+                    "type": "string"
+                },
+                "explain": {
+                    "description": "用量说明",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "编号",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "kindergarten_id": {
+                    "description": "幼儿园ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "note_taker": {
+                    "description": "喂药申请人",
+                    "type": "string"
+                },
+                "student_id": {
+                    "description": "学生ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "symptom": {
+                    "description": "症状",
+                    "type": "string"
+                },
+                "url": {
+                    "description": "喂药申请图片",
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "healthy.Inspect": {
+            "title": "Inspect",
+            "type": "object",
+            "properties": {
+                "abnormal": {
+                    "description": "是否传染",
+                    "type": "string"
+                },
+                "abnormal_height": {
+                    "type": "string"
+                },
+                "abnormal_weight": {
+                    "type": "string"
+                },
+                "body_id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "class_id": {
+                    "description": "班级ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "class_name": {
+                    "description": "班级名称",
+                    "type": "string"
+                },
+                "content": {
+                    "description": "备注",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string",
+                    "format": "string"
+                },
+                "date": {
+                    "description": "参检时间",
+                    "type": "string"
+                },
+                "drug_id": {
+                    "description": "喂药申请",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "evaluate": {
+                    "description": "评价",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "handel": {
+                    "description": "处理方式",
+                    "type": "string"
+                },
+                "height": {
+                    "description": "身高",
+                    "type": "number",
+                    "format": "double"
+                },
+                "id": {
+                    "description": "编号",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "infect": {
+                    "description": "是否传染",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "kindergarten_id": {
+                    "description": "幼儿园ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "student_id": {
+                    "description": "学生ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "teacher_id": {
+                    "description": "记录人ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "types": {
+                    "description": "类型",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "url": {
+                    "description": "照片",
+                    "type": "string"
+                },
+                "weight": {
+                    "description": "体重",
+                    "type": "number",
+                    "format": "double"
+                }
+            }
+        },
+        "healthy.Situation": {
+            "title": "Situation",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Attendance": {
+            "title": "Attendance",
+            "type": "object",
+            "properties": {
+                "att_time": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "cls": {
+                    "description": "班级名称",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "description": "考勤日期",
+                    "type": "string"
+                },
+                "sid": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "status": {
+                    "description": "状态",
                     "type": "integer",
                     "format": "int64"
                 }
@@ -7829,6 +8713,14 @@
         },
         {
             "name": "admin/teacher",
+            "description": "教师\n"
+        },
+        {
+            "name": "student",
+            "description": "学生\n"
+        },
+        {
+            "name": "teacher",
             "description": "教师\n"
         },
         {

@@ -531,13 +531,33 @@ func GetClassStudent(class_id int) (paginatorMapmap map[string]interface{}, err 
 	o := orm.NewOrm()
 	var v []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
+	data := make(map[string][]interface{})
 	paginatorMap := make(map[string]interface{})
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql := qb.Select("s.*").From("organizational_member as om").LeftJoin("student as s").
-		On("om.member_id = s.student_id").Where("om.organizational_id = ?").And("om.type = 1").String()
+	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name", "s.avatar").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.type = 1").String()
 	num, err := o.Raw(sql, class_id).Values(&v)
+	if err != nil {
+		return nil, err
+	}
+	for _, val := range v {
+		if val["class_type"].(string) == "3" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["大班"+strc] = append(data["大班"+strc], val)
+			}
+		} else if val["class_type"].(string) == "2" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["中班"+strc] = append(data["中班"+strc], val)
+			}
+		} else if val["class_type"].(string) == "1" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["小班"+strc] = append(data["小班"+strc], val)
+			}
+		}
+	}
 	if err == nil && num > 0 {
-		paginatorMap["data"] = v
+		paginatorMap["data"] = data
 		return paginatorMap, nil
 	}
 	return nil, err

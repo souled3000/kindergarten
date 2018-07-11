@@ -115,8 +115,8 @@ func (c *TeacherController) GetTeacherInfo() {
 // @Title 编辑教师
 // @Description 编辑教师
 // @Param	id		    path 	int	               true		    "教师编号"
-// @Param	body		body 	models.Animation	true		"param(json)"
-// @Success 200 {object} models.Animation
+// @Param	body		body 	models.Teacher	true		"param(json)"
+// @Success 200 {object} models.Teacher
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *TeacherController) Put() {
@@ -140,8 +140,8 @@ func (c *TeacherController) Put() {
 // Post ...
 // @Title 教师-录入信息
 // @Description 教师-录入信息
-// @Param	body		body 	models.Animation	true		"json"
-// @Success 201 {int} models.Animation
+// @Param	body		body 	models.Teacher	true		"json"
+// @Success 201 {int} models.Teacher
 // @Failure 403 body is empty
 // @router / [post]
 func (c *TeacherController) Post() {
@@ -248,8 +248,9 @@ func (c *TeacherController) OrganizationalTeacher() {
 // @Failure 403
 // @router /filter_teacher [get]
 func (c *TeacherController) Teacher() {
-	class_id, _ := c.GetInt("class_id")
-	v, err := models.FilterTeacher(class_id)
+	class_type, _ := c.GetInt("class_type")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	v, err := models.FilterTeacher(class_type, kindergarten_id)
 	if err != nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {

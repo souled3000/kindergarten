@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"kindergarten-service-go/models"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
-	"kindergarten-service-go/models"
 )
 
 //考勤
@@ -33,10 +34,11 @@ func (this *AttCtl) GotStdsByTeaID() {
 
 // @Title 异常考勤
 // @Description 异常考勤内容
-func (this *AttCtl) GotAbnDetail(){
+func (this *AttCtl) GotAbnDetail() {
 	defer this.ServeJSON()
-	
+
 }
+
 // @Title 执行考勤
 // @Description 教师对学生进行考勤操作（教师考勤按钮使用）
 // @Param	sid			query int	true	"学生ID"
@@ -60,7 +62,7 @@ func (this *AttCtl) ToAtt() {
 
 // @Title 请假
 // @Description 请假（用户使用）{"Sid":15,"Applicant":"lchj","Type":1,"Reason":"xxxxx","Beg":"2018-01-01T13:13:13Z","End":"2018-04-05T07:07:07Z"}
-// @Param	body	body	models.Animation	true	"json"
+// @Param	body	body	models.Attendance	true	"json"
 // @Success 200	success
 // @Failure 403
 // @router /askleave [post]
@@ -94,9 +96,9 @@ func (this *AttCtl) AskForLeave() {
 	}
 }
 
-// @Title  记录考勤规则
+// @Title  记录考勤规则
 // @Description 写入考勤规则(园长使用)
-// @Param	body	body	models.Animation	true	"json"
+// @Param	body	body	models.Attendance	true	"json"
 // @Success 200		success
 // @Failure 403
 // @router /stus [get]

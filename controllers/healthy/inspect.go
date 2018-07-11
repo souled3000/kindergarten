@@ -29,7 +29,7 @@ func (c *InspectController) URLMapping() {
 // @Param   handel     				formData    string  true        "处理方式"
 // @Param   url     				formData    string  true        "照片留档"
 // @Param   infect     				formData    string  true        "是否传染（1，否2，是）"
-// @Success 0 {int} models.Drug.Id
+// @Success 0 {int} healthy.Inspect
 // @Failure 1001 补全信息
 // @Failure 1003 保存失败
 // @router / [post]
@@ -96,7 +96,7 @@ func (c *InspectController) Post() {
 // @Param	class_id		query	int		false		"班级ID"
 // @Param	role			query	int		true		"身份类型"
 // @Param	date			query	string	true		"餐检时间"
-// @Success 0 {object} 		shanxi.SxWorks
+// @Success 0 {object} 		healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router / [get]
@@ -154,7 +154,7 @@ func (c *InspectController) Delete() {
 // @Title GetAll
 // @Description 统计
 // @Param	kindergarten_id	query	int	true		"幼儿园ID"
-// @Success 0 {object} 	healthy.Counts
+// @Success 0 {object} 	healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1003 		获取失败
 // @router /counts/ [get]
@@ -184,7 +184,7 @@ func (c *InspectController) Counts() {
 // @Title GetAll
 // @Description 详情
 // @Param	kindergarten_id	query	int	true		"幼儿园ID"
-// @Success 0 {object} 	healthy.Counts
+// @Success 0 {object} 	healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1003 		获取失败
 // @router /:id
@@ -209,7 +209,7 @@ func (c *InspectController) Inspect() {
 // @Param   handel     				formData    string  true        "处理方式"
 // @Param   url     				formData    string  true        "照片留档"
 // @Param   infect     				formData    string  true        "是否传染（1，否2，是）"
-// @Success 0 {int} models.Drug.Id
+// @Success 0 {int} healthy.Inspect
 // @Failure 1001 补全信息
 // @Failure 1003 保存失败
 // @router /:id [put]
@@ -284,7 +284,7 @@ func (c *InspectController) Put() {
 // @Param	class_id		query	int		false		"班级ID"
 // @Param	role			query	int		true		"身份类型"
 // @Param	date			query	string	true		"餐检时间"
-// @Success 0 {object} 		shanxi.SxWorks
+// @Success 0 {object} 		healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router /archives/ [get]
@@ -325,7 +325,7 @@ func (c *InspectController) Abnormal() {
 // @Param	class_id		query	int		false		"班级ID"
 // @Param	role			query	int		true		"身份类型"
 // @Param	date			query	string	true		"餐检时间"
-// @Success 0 {object} 		shanxi.SxWorks
+// @Success 0 {object} 		healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router /project/ [get]
@@ -337,9 +337,8 @@ func (c *InspectController) Project() {
 	perPage, _ := c.GetInt("per_page")
 	body_id, _:= c.GetInt("body_id")
 	baby_id, _:= c.GetInt("baby_id")
-	column := c.GetString("column")
 
-	if works, err := f.Project(page, perPage, kindergarten_id, class_id, body_id,baby_id, column ); err == nil {
+	if works, err := f.Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id ); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -356,7 +355,7 @@ func (c *InspectController) Project() {
 // @Param	class_id		query	int		false		"班级ID"
 // @Param	role			query	int		true		"身份类型"
 // @Param	date			query	string	true		"餐检时间"
-// @Success 0 {object} 		shanxi.SxWorks
+// @Success 0 {object} 		healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router /projectNew/ [get]
@@ -385,7 +384,7 @@ func (c *InspectController) ProjectNew() {
 // @Description 体重健康统计
 // @Param	kindergarten_id		query	int		true		"幼儿园ID"
 // @Param	types				query	string	true		"类型"
-// @Success 0 {object} 			shanxi.SxWorks
+// @Success 0 {object} 			healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router /weight/ [get]
@@ -418,7 +417,7 @@ func (c *InspectController) Weight() {
 // @Description 身高健康统计
 // @Param	kindergarten_id		query	int		true		"幼儿园ID"
 // @Param	types				query	string	true		"类型"
-// @Success 0 {object} 			shanxi.SxWorks
+// @Success 0 {object} 			healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router /height/ [get]
@@ -451,7 +450,7 @@ func (c *InspectController) Height() {
 // @Description 全园统计
 // @Param	kindergarten_id		query	int		true		"幼儿园ID"
 // @Param	types				query	string	true		"类型"
-// @Success 0 {object} 			shanxi.SxWorks
+// @Success 0 {object} 			healthy.Inspect
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router /country/ [get]

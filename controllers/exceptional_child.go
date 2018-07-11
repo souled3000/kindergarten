@@ -43,7 +43,7 @@ func (c *ExceptionalChildController) GetSearch() {
 // @Title 根据过敏源获取特殊儿童
 // @Description 根据过敏源获取特殊儿童
 // @Param	allergen	query	string	true	"过敏源信息，多个过敏源以','分隔"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router / [get]
 func (c *ExceptionalChildController) GetAllergenChild() {
@@ -114,7 +114,7 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 // @Title 			根据宝宝ID过敏源
 // @Description 		根据宝宝ID过敏源
 // @Param	id		query 	int		true		"宝宝IDxs"
-// @Success 0 		{json} 	JSONStruct
+// @Success 0 		{string} 	success
 // @Failure 1004		删除失败
 func (c *ExceptionalChildController) GetAllergen() {
 	// 宝宝ID
@@ -131,7 +131,7 @@ func (c *ExceptionalChildController) GetAllergen() {
 // @Title 			删除过敏源
 // @Description 		删除过敏源
 // @Param	id		path 	string	true		"特殊儿童ID"
-// @Success 0 		{json} 	JSONStruct
+// @Success 0 		{string} 	success
 // @Failure 1004		删除失败
 // @router /:id [delete]
 func (c *ExceptionalChildController) DelAllergen() {

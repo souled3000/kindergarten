@@ -24,9 +24,9 @@ type JSONStruct struct {
 // Store ...
 // @Title 保存公告
 // @Description Web-保存公告
-// @Param	title		        string   	boby	true		"标题"
-// @Param	content		        string 	    boby	true		"公告内容"
-// @Param	kindergarten_id		int 	    boby	true		"幼儿园ID"
+// @Param	title		     query      string   		true		"标题"
+// @Param	content		     query      string 	    	true		"公告内容"
+// @Param	kindergarten_id	 query	   int 	    	    true		"幼儿园ID"
 // @Success 201 {int} models.Notice
 // @Failure 403 body is empty
 // @router / [post]

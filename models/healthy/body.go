@@ -211,6 +211,9 @@ func UpdataByIdBody(b *Body) (err error) {
 		if b.Total > 0 {
 			v.Total = b.Total
 		}
+		if b.Theme != "" {
+			v.Theme = b.Theme
+		}
 		_,err = o.Update(&v)
 	}
 
@@ -229,6 +232,7 @@ func GetAllBody(kindergarten_id, page int,per_page int,types int,theme string) (
 	if kindergarten_id != 0 {
 		qs = qs.Filter("kindergarten_id",kindergarten_id)
 	}
+
 	var d []Body
 
 	ml = make(map[string]interface{})
@@ -277,4 +281,69 @@ func Delete(id int) map[string]interface{} {
 		}
 	}
 	return nil
+}
+
+func GetOneBodyClasss(id int, class_id int) (ml map[string]interface{}, err error){
+	o := orm.NewOrm()
+	var num Num
+	var list []map[string]interface{}
+	sql := "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)
+	o.Raw(sql).QueryRow(&num)
+	c_num := num.Num
+	list2 := make(map[string]interface{})
+	list3 := make(map[string]interface{})
+	list4 := make(map[string]interface{})
+	list5 := make(map[string]interface{})
+	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight is not null"
+	o.Raw(sql).QueryRow(&num)
+	fmt.Println(num.Num)
+	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	if bili < 0{
+		list2["bili"] = 0
+	}else{
+		list2["bili"] = bili
+	}
+	list2["column"] = "weight"
+	list2["name"] = "体重"
+	list4["name"] = "体重评价"
+	list4["column"] = "abnormal_weight"
+	list = append(list,list2)
+	list = append(list,list4)
+	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and height is not null"
+	o.Raw(sql).QueryRow(&num)
+	fmt.Println(num.Num)
+	list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+	list3["column"] = "height"
+	list3["name"] = "身高"
+	list5["name"] = "身高评价"
+	list5["column"] = "abnormal_height"
+	list = append(list,list3)
+	list = append(list,list5)
+	sql = "select a.id,a.theme,a.test_time,a.mechanism,a.kindergarten_id,a.types,a.project,b.class_total as total,b.class_actual as actual,b.class_rate as rate from healthy_body a left join healthy_class b on a.id = b.body_id where a.id="+strconv.Itoa(id)+" and b.class_id="+strconv.Itoa(class_id)
+	var b Body
+
+	if err = o.Raw(sql).QueryRow(&b); err == nil {
+		project := strings.Split(b.Project,",")
+		for _,val := range project {
+			list1 := make(map[string]interface{})
+			cloumn := strings.Split(val,":")
+			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where  a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
+			o.Raw(sql).QueryRow(&num)
+			fmt.Println(num.Num)
+			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
+			if bili < 0{
+				list1["bili"] = 0
+			}else{
+				list1["bili"]  = bili
+			}
+			list1["column"] = cloumn[0]
+			list1["name"] = string(cloumn[1])
+			list = append(list,list1)
+		}
+		bjson,_ :=json.Marshal(b)
+		json.Unmarshal(bjson, &ml)
+		ml["info"] = list
+		return ml, nil
+	}
+	return nil, err
 }

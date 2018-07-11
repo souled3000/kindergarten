@@ -118,3 +118,17 @@ func GetAllClass(page int,per_page int,class_id int,body_id int) (ml map[string]
 	}
 	return nil,err
 }
+
+//删除
+func DeleteClass(id int) map[string]interface{} {
+	o := orm.NewOrm()
+	v := Class{Id: id}
+	if err := o.Read(&v); err == nil {
+		if num, err := o.Delete(&Class{Id: id}); err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["data"] = num
+			return paginatorMap
+		}
+	}
+	return nil
+}
