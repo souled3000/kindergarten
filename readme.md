@@ -11,3 +11,11 @@ bee run -gendoc=true -downdoc=true
 govendor init
 govendor add +external
 ```
+## 添加包
+```
+govendor add +outside
+```
+## 同步包
+```
+govendor sync
+```
