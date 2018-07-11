@@ -9,16 +9,14 @@ type KindergartenVisitorsController struct {
 	BaseController
 }
 
-
-
 // @Title 幼儿园访客列表
 // @Description 幼儿园访客列表
 // @Param	page	  query	int	 false	"当前页"
 // @Param	per_page  query	int	 false	"每页显示条数"
-// @Success 0 {json}  JSONStruct
+// @Success 0 {string} success
 // @Failure 1005 获取失败
 // @router / [get]
-func (c * KindergartenVisitorsController) GetAll() {
+func (c *KindergartenVisitorsController) GetAll() {
 	// 当前页
 	page, _ := c.GetInt("page")
 	// 每页显示条数

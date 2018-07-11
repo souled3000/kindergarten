@@ -830,3 +830,62 @@ func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error)  {
 	}
 	return nil , nil
 }
+
+//后台体检项目
+func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND healthy_inspect.types = 5 "
+
+	if class_id > 0{
+		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
+	}
+	if baby_id > 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil{
+			student_id = 0
+		}else {
+			student_id = student.Id
+		}
+		where += " AND healthy_inspect.student_id = "+strconv.Itoa(student_id)
+	}
+	if body_id > 0{
+		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
+	}
+	if kindergarten_id > 0{
+		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	var total int
+	err := o.Raw(sql, con).QueryRow(&total)
+	if err == nil {
+		var sxWords []orm.Params
+
+		limit := 10
+		if perPage != 0 {
+			limit = perPage
+		}
+		if page <= 0 {
+			page = 1
+		}
+		start := (page - 1) * limit
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_inspect.*,student.sex,student.age,student.name as student_name,student.student_id as studentId,student.avatar,healthy_column.*").From(f.TableName()).
+			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+			LeftJoin("healthy_column").On("healthy_inspect.id = healthy_column.inspect_id").
+			Where(where).
+			Limit(limit).Offset(start).String()
+
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+
+			pageNum := int(math.Ceil(float64(total) / float64(limit)))
+			return Page{pageNum, limit, total, sxWords}, nil
+		}
+	}
+
+	return Page{}, nil
+}

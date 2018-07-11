@@ -141,7 +141,7 @@ func (c *ExceptionalChildController) GetOne() {
 // @Param	somatotype		body 	int		false		"体质类型"
 // @Param	allergen			body 	string	false		"过敏源"
 // @Param	student_id		body 	int		false		"学生ID"
-// @Success 0 				{json} 	JSONStruct
+// @Success 0 				{string} 	success
 // @Failure 1003			更新失败
 // @router /:id [put]
 func (c *ExceptionalChildController) Put() {
@@ -169,7 +169,7 @@ func (c *ExceptionalChildController) Put() {
 // @Title 			删除特殊儿童
 // @Description 	删除特殊儿童
 // @Param	id		path 	string	true		"特殊儿童ID"
-// @Success 0 		{json} 	JSONStruct
+// @Success 0 		{string} 	success
 // @Failure 1004	删除失败
 // @router /:id [delete]
 func (c *ExceptionalChildController) Delete() {

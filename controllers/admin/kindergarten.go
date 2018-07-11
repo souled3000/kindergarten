@@ -87,9 +87,9 @@ func (c *KindergartenController) GetAll() {
 // StudentClass ...
 // @Title 学生姓名搜索班级
 // @Description 学生姓名搜索班级
-// @Param	name                  query	name	     true		"姓名"
-// @Param	page                  query	int	     false		"页数"
-// @Param	per_page              query	int	     false		"每页显示条数"
+// @Param	name                  query	 string	     true		"姓名"
+// @Param	page                  query	   int	     false		"页数"
+// @Param	per_page              query	   int	     false		"每页显示条数"
 // @Success 200 {object} models.Kindergarten
 // @Failure 403
 // @router /student_class [get]

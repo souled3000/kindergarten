@@ -16,7 +16,6 @@ func (c *ClassController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
-	c.Mapping("Delete", c.Delete)
 }
 
 // Post ...
@@ -31,7 +30,7 @@ func (c *ClassController) URLMapping() {
 // @Param	class_actual	query	int	false	""
 // @Param	test_time	query	string	false	"测评日期"
 // @Param	class_rate	query	int	false	""
-// @Success 201 {int} models.Category
+// @Success 201 {int} healthy.Class
 // @Failure 403 body is empty
 // @router / [post]
 func (c *ClassController) Post() {
@@ -88,7 +87,7 @@ func (c *ClassController) Post_info() {
 // @Param	kindergarten_id	query	int	false	"幼儿园id"
 // @Param	types	query	int	false	"类型 1，体质测评2，体检"
 // @Param	project	query	string	false	"体检项目"
-// @Success 200 {object} models.Cover
+// @Success 200 {object} healthy.Class
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *ClassController) Put() {
@@ -140,6 +139,25 @@ func (c *ClassController) GetAll() {
 		c.Data["json"] = JSONStruct{"success", 0, l, "添加成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "添加失败"}
+	}
+	c.ServeJSON()
+}
+
+// Delete ...
+// @Title Delete
+// @Description 删除
+// @Param	id		path 	string	true		"自增ID"
+// @Success 0 {string} delete success!
+// @Failure 1003 id is empty
+// @router /:id [delete]
+func (c *ClassController) Delete() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := healthy.DeleteClass(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "删除失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	}
 	c.ServeJSON()
 }

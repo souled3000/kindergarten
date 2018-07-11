@@ -31,7 +31,7 @@ func (c *BodyController) URLMapping() {
 // @Param	kindergarten_id	query	int	false	"幼儿园id"
 // @Param	types	query	int	false	"类型 1，体质测评2，体检"
 // @Param	project	query	string	false	"体检项目"
-// @Success 201 {int} models.Category
+// @Success 201 {int} healthy.Body
 // @Failure 403 body is empty
 // @router / [post]
 func (c *BodyController) Post() {
@@ -80,7 +80,7 @@ func (c *BodyController) Post() {
 // @Param	kindergarten_id	query	int	false	"幼儿园id"
 // @Param	types	query	int	false	"类型 1，体质测评2，体检"
 // @Param	project	query	string	false	"体检项目"
-// @Success 200 {object} models.Cover
+// @Success 200 {object} 	healthy.Body
 // @Failure 403 :id is not int
 // @router /:id [put]
 func (c *BodyController) Put() {
@@ -156,7 +156,7 @@ func (c *BodyController) GetOne() {
 	id, _ := strconv.Atoi(idStr)
 	class_id,_ := c.GetInt("class_id")
 	if class_id > 0 {
-		if l,err := healthy.GetOneBodyClass(id,class_id); err == nil {
+		if l,err := healthy.GetOneBodyClasss(id,class_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}

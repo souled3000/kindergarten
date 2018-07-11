@@ -424,7 +424,7 @@ func ClassStudent(kindergarten_id int) (ml map[string]interface{}, err error) {
 	var class []orm.Params
 	data := make(map[string][]interface{})
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name").From("student as s").LeftJoin("organizational_member as om").
+	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name", "s.avatar").From("student as s").LeftJoin("organizational_member as om").
 		On("s.student_id = om.member_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("o.kindergarten_id = ?").And("om.type = 1").String()
 	_, err = o.Raw(sql, kindergarten_id).Values(&class)

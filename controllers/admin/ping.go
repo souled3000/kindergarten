@@ -12,7 +12,7 @@ type PingController struct {
 // Ping ...
 // @Title Ping
 // @Description Ping
-// @Success 200 {object} OK
+// @Success 200		success
 // @Failure 403 :没有该服务
 // @router / [get]
 func (c *PingController) Ping() {
@@ -24,7 +24,7 @@ func (c *PingController) Ping() {
 // PingUserRpc ...
 // @Title user服务是否调通
 // @Description user服务是否调通
-// @Success 200 {object} OK
+// @Success 200		success
 // @Failure 403 :没有该服务
 // @router /rpc/user [get]
 func (c *PingController) PingUserRpc() {
@@ -43,7 +43,7 @@ func (c *PingController) PingUserRpc() {
 // PingOnemoreRpc ...
 // @Title onemore服务是否调通
 // @Description onemore服务是否调通
-// @Success 200 {object} OK
+// @Success 200		success
 // @Failure 403 :没有该服务
 // @router /rpc/onemore [get]
 func (c *PingController) PingOnemoreRpc() {
