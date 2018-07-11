@@ -169,7 +169,6 @@ func GetStudentClass(id int, class_type int, page int, prepage int) map[string]i
 */
 func DeleteStudent(id int, status int, ty int, class_type int) error {
 	o := orm.NewOrm()
-	o.Begin()
 	v := Student{Id: id}
 	timeLayout := "2006-01-02 15:04:05" //转化所需模板
 	loc, _ := time.LoadLocation("")
@@ -187,13 +186,10 @@ func DeleteStudent(id int, status int, ty int, class_type int) error {
 		if _, err = o.Update(&v); err == nil {
 			_, err = o.QueryTable("organizational_member").Filter("member_id", id).Delete()
 			if err == nil {
-				fmt.Println(id)
 				_, err = o.QueryTable("exceptional_child").Filter("student_id", id).Delete()
 				if err != nil {
-					o.Rollback()
 					return err
 				} else {
-					o.Commit()
 					return nil
 				}
 			}
@@ -421,4 +417,36 @@ func GetNameClass(name string, kindergarten_id int) (paginatorMap map[string]int
 	}
 	err = errors.New("获取失败")
 	return nil, err
+}
+
+func ClassStudent(kindergarten_id int) (ml map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var class []orm.Params
+	data := make(map[string][]interface{})
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("o.kindergarten_id = ?").And("om.type = 1").String()
+	_, err = o.Raw(sql, kindergarten_id).Values(&class)
+	if err != nil {
+		return nil, err
+	}
+	for _, val := range class {
+		if val["class_type"].(string) == "3" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["大班"+strc] = append(data["大班"+strc], val)
+			}
+		} else if val["class_type"].(string) == "2" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["中班"+strc] = append(data["中班"+strc], val)
+			}
+		} else if val["class_type"].(string) == "1" {
+			if strc, ok := val["class_name"].(string); ok {
+				data["小班"+strc] = append(data["小班"+strc], val)
+			}
+		}
+	}
+	ml = make(map[string]interface{})
+	ml["data"] = data
+	return ml, nil
 }

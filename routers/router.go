@@ -34,7 +34,7 @@ func init() {
 				&controllers.CourseController{},
 			),
 		),
-		
+
 		beego.NSNamespace("/healthy/drug",
 			beego.NSInclude(
 				&healthy.DrugController{},
@@ -176,6 +176,18 @@ func init() {
 		beego.NSNamespace("/admin/teacher",
 			beego.NSInclude(
 				&admin.TeacherController{},
+			),
+		),
+
+		beego.NSNamespace("/student",
+			beego.NSInclude(
+				&controllers.StudentController{},
+			),
+		),
+
+		beego.NSNamespace("/teacher",
+			beego.NSInclude(
+				&controllers.TeacherController{},
 			),
 		),
 

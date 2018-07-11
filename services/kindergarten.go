@@ -115,3 +115,16 @@ func (c *KindergartenServer) GetClassName(organizational_id int) (ml map[string]
 	}
 	return nil, err
 }
+
+//宝宝是否在幼儿园
+func (c *KindergartenServer) GetBaby(baby_id int) interface{} {
+	o := orm.NewOrm()
+	var v []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("b.*").From("baby_kindergarten as b").Where("b.baby_id = ?").And("b.status = 0").String()
+	_, err := o.Raw(sql, baby_id).Values(&v)
+	if err == nil {
+		return v
+	}
+	return nil
+}
