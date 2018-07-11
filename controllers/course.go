@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"kindergarten-service-go/models"
-	"github.com/astaxie/beego/validation"
 	"encoding/json"
 	"fmt"
+	"kindergarten-service-go/models"
+
+	"github.com/astaxie/beego/validation"
 )
 
 type CourseController struct {
@@ -23,17 +24,17 @@ func (c *CourseController) URLMapping() {
 // @Param	status	query	int	true	"状态"
 // @Param	page	query	int	true	"页"
 // @Param	per_page	query	int	true	"每页条数"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router / [get]
 func (c *CourseController) GetAll() {
-	parent_id,_ := c.GetInt("parent_id")
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	status,_ := c.GetInt("status")
-	page,_ := c.GetInt("page")
-	per_page,_ := c.GetInt("per_page")
+	parent_id, _ := c.GetInt("parent_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	status, _ := c.GetInt("status")
+	page, _ := c.GetInt("page")
+	per_page, _ := c.GetInt("per_page")
 
-	if list, err := models.GetCourseList(parent_id,kindergarten_id,status,page,per_page); err == nil {
+	if list, err := models.GetCourseList(parent_id, kindergarten_id, status, page, per_page); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
@@ -50,17 +51,17 @@ func (c *CourseController) GetAll() {
 // @Param	status	query	int	true	"状态"
 // @Param	page	query	int	true	"页"
 // @Param	per_page	query	int	true	"每页条数"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router /infolist [get]
 func (c *CourseController) GetInfoList() {
-	parent_id,_ := c.GetInt("parent_id")
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	status,_ := c.GetInt("status")
-	page,_ := c.GetInt("page")
-	per_page,_ := c.GetInt("per_page")
+	parent_id, _ := c.GetInt("parent_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	status, _ := c.GetInt("status")
+	page, _ := c.GetInt("page")
+	per_page, _ := c.GetInt("per_page")
 
-	if list, err := models.GetCourseList(parent_id,kindergarten_id,status,page,per_page); err == nil {
+	if list, err := models.GetCourseList(parent_id, kindergarten_id, status, page, per_page); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
@@ -68,7 +69,6 @@ func (c *CourseController) GetInfoList() {
 
 	c.ServeJSON()
 }
-
 
 // @Title 添加园本课程，专题，课程
 // @Description 添加园本课程，专题，课程
@@ -123,11 +123,11 @@ func (c *CourseController) Post() {
 // @router /add_time [post]
 func (c *CourseController) PostTime() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	name :=	c.GetString("name")
+	name := c.GetString("name")
 	begin_time := c.GetString("begin_time")
 	end_time := c.GetString("end_time")
 	types, _ := c.GetInt("type")
-	class_type,_ := c.GetInt("class_type")
+	class_type, _ := c.GetInt("class_type")
 	class_id, _ := c.GetInt("class_id")
 
 	var course models.KindergartenTime
@@ -143,7 +143,7 @@ func (c *CourseController) PostTime() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if l,err := models.AddKindergartenTime(course); err == nil {
+		if l, err := models.AddKindergartenTime(course); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, l, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, err, "保存失败"}
@@ -159,7 +159,7 @@ func (c *CourseController) PostTime() {
 func (c *CourseController) PostTimeClass() {
 	content := c.GetString("content")
 	var course []models.KindergartenTime
-	json.Unmarshal([]byte(content),&course)
+	json.Unmarshal([]byte(content), &course)
 	fmt.Println(course)
 	valid := validation.Validation{}
 	valid.Required(content, "content").Message("参数不能为空")
@@ -179,16 +179,15 @@ func (c *CourseController) PostTimeClass() {
 // @Title 幼儿园时间安排详情
 // @Description 幼儿园时间安排详情
 // @Param	id	query	int	true	"幼儿园id"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router /time_info [get]
 func (c *CourseController) GetTimeInfo() {
 
-	class_type,_ := c.GetInt("class_type")
-	class_id,_ := c.GetInt("class_id")
+	class_type, _ := c.GetInt("class_type")
+	class_id, _ := c.GetInt("class_id")
 
-
-	if list := models.GetKindergartenTimeInfo(class_type,class_id); list == nil {
+	if list := models.GetKindergartenTimeInfo(class_type, class_id); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -196,11 +195,6 @@ func (c *CourseController) GetTimeInfo() {
 
 	c.ServeJSON()
 }
-
-
-
-
-
 
 // @Title 添加园本课程，专题，课程
 // @Description 添加园本课程，专题，课程
@@ -232,7 +226,7 @@ func (c *CourseController) Add_info() {
 
 	class_info := c.GetString("class_info")
 	var class_course_time []models.CourseTime
-	json.Unmarshal([]byte(class_info),&class_course_time)
+	json.Unmarshal([]byte(class_info), &class_course_time)
 	var course models.CourseInfo
 	course.CourseId = course_id
 	course.TearcherId = tearcher_id
@@ -253,7 +247,7 @@ func (c *CourseController) Add_info() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if _, err := models.AddCourseInfo(&course,class_course_time); err == nil {
+		if _, err := models.AddCourseInfo(&course, class_course_time); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "保存失败"}
@@ -269,7 +263,7 @@ func (c *CourseController) Add_info() {
 // @param 		end_date			query  	string 	true		"结束时间"
 // @router /addtime [post]
 func (c *CourseController) Add_time() {
-	id,_ := c.GetInt("id")
+	id, _ := c.GetInt("id")
 	begin_date := c.GetString("begin_date")
 	end_date := c.GetString("end_date")
 	valid := validation.Validation{}
@@ -277,7 +271,7 @@ func (c *CourseController) Add_time() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if err := models.UpdataCourse(id,begin_date,end_date); err == nil {
+		if err := models.UpdataCourse(id, begin_date, end_date); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
@@ -290,11 +284,11 @@ func (c *CourseController) Add_time() {
 // @Title 专题详情
 // @Description 专题详情
 // @Param	id	query	int	true	"专题id"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router /courseinfo [get]
 func (c *CourseController) GetCourse() {
-	id,_ := c.GetInt("id")
+	id, _ := c.GetInt("id")
 
 	if list, err := models.InfoCourse(id); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -310,16 +304,16 @@ func (c *CourseController) GetCourse() {
 // @Description 获取班级课程表
 // @Param	kindergarten_id	query	int	true	"幼儿园id"
 // @Param	class_id	query	int	true	"班级id"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router /class_course [get]
 func (c *CourseController) GetTimelist() {
 
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	class_id,_ := c.GetInt("class_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
 	time := c.GetString("time")
 
-	if list := models.GetClassTime(class_id,kindergarten_id,time); list == nil {
+	if list := models.GetClassTime(class_id, kindergarten_id, time); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -333,16 +327,16 @@ func (c *CourseController) GetTimelist() {
 // @Description 获取班级某一天课程
 // @Param	kindergarten_id	query	int	true	"幼儿园id"
 // @Param	class_id	query	int	true	"班级id"
-// @Success 0 			{json} 	JSONStruct
+// @Success 0 			{string} 	success
 // @Failure 1005 获取失败
 // @router /class_day [get]
 func (c *CourseController) GetTimeOne() {
 
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	class_id,_ := c.GetInt("class_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
 	time := c.GetString("time")
 
-	if list := models.GetClassDay(class_id,kindergarten_id,time); list == nil {
+	if list := models.GetClassDay(class_id, kindergarten_id, time); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}

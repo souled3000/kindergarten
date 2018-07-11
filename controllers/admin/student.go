@@ -134,7 +134,7 @@ func (c *StudentController) UpdateStudent() {
 // Post ...
 // @Title 学生-录入信息
 // @Description 学生-录入信息
-// @Param	body		body 	models.Animation	true		"json"
+// @Param	body		body 	models.Student	true		"json"
 // @Success 201 {int} models.Student
 // @Failure 403 body is empty
 // @router / [post]

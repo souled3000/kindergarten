@@ -1,8 +1,9 @@
 package app
 
 import (
-	"github.com/astaxie/beego"
 	"kindergarten-service-go/models/healthy"
+
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 )
 
@@ -22,20 +23,20 @@ func (c *SituationController) URLMapping() {
 // @Title GetAll
 // @Description 病例列表
 // @Param	types			query	int	true		"类型"
-// @Success 0 {object} 		shanxi.SxWorks
+// @Success 0 {object} 		healthy.Situation
 // @Failure 1001 		参数不能为空
 // @Failure 1005 		获取失败
 // @router / [get]
-func (c * SituationController) GetAll() {
+func (c *SituationController) GetAll() {
 	var f *healthy.Situation
 
-	types, _:= c.GetInt("types")
+	types, _ := c.GetInt("types")
 
 	//验证参数是否为空
 	valid := validation.Validation{}
-	valid.Required(types,"types").Message("类型ID不能为空")
-	if valid.HasErrors(){
-		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+	valid.Required(types, "types").Message("类型ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 		c.ServeJSON()
 		c.StopRun()
 	}

@@ -1,12 +1,13 @@
 package task
 
 import (
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/validation"
-	"time"
-	"kindergarten-service-go/models/task"
 	"encoding/json"
+	"kindergarten-service-go/models/task"
+	"time"
+
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/validation"
 )
 
 type WorkTaskController struct {
@@ -34,7 +35,7 @@ func (c *WorkTaskController) URLMapping() {
 // @Description 发布任务
 // @Param   title     				formData    string  true        "标题"
 // @Param   describe     			formData    string  true        "描述"
-// @Param   deadline     			formData    time    true        "截止日期"
+// @Param   deadline     			formData    string  true        "截止日期"
 // @Param   save_folder_id     		formData    int  	false       "存入文件夹ID"
 // @Param   save_folder_name     	formData    string  false       "存入文件夹名称"
 // @Param   publisher     			formData    int  	true        "发布人ID"
@@ -84,14 +85,14 @@ func (c *WorkTaskController) Post() {
 	}
 
 	wt := task.WorkTasks{
-		Title:title,
-		Describe:describe,
-		SaveFolderId:saveFolderId,
-		SaveFolderName:saveFolderName,
-		Publisher:publisher,
-		PublisherName:publisherName,
-		Deadline:deadline,
-		TaskNum:len(operator),
+		Title:          title,
+		Describe:       describe,
+		SaveFolderId:   saveFolderId,
+		SaveFolderName: saveFolderName,
+		Publisher:      publisher,
+		PublisherName:  publisherName,
+		Deadline:       deadline,
+		TaskNum:        len(operator),
 	}
 
 	if err := wt.Save(operator, cc); err == nil {
@@ -131,7 +132,7 @@ func (c *WorkTaskController) Get() {
 func (c *WorkTaskController) GetInfo() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
-	wt := task.WorkTasks{Id:id}
+	wt := task.WorkTasks{Id: id}
 	uId, _ := c.GetInt("u_id")
 
 	if res, err := wt.GetInfoById(); err == nil {
@@ -160,7 +161,7 @@ func (c *WorkTaskController) GetInfo() {
 // @Param   operator     			formData    int	    true        "操作人"
 // @Param   courseware_id     		formData    string  false       "课件ID"
 // @Param   courseware_name     	formData    string  false       "课件名称"
-// @Param   upload_time     		formData    time    false       "上传课件时间"
+// @Param   upload_time     		formData    string    false       "上传课件时间"
 // @Success 0 {int} models.Feedback.Id
 // @Failure 1001 参数验证
 // @Failure 1003 操作失败
@@ -187,7 +188,7 @@ func (c *WorkTaskController) Complete() {
 		c.StopRun()
 	}
 
-	wt := task.WorkTasks{Id:taskId}
+	wt := task.WorkTasks{Id: taskId}
 
 	if err := wt.Complete(operator, coursewareId, coursewareName, uploadTimeS); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "操作成功"}
@@ -217,7 +218,7 @@ func (c *WorkTaskController) Schedule() {
 		c.ServeJSON()
 	}
 
-	wto := task.WorkTasksOperator{WorkTasksId:taskId}
+	wto := task.WorkTasksOperator{WorkTasksId: taskId}
 	if res, err := wto.Schedule(); err == nil {
 		var result []map[string]interface{}
 		for _, value := range res {
@@ -239,7 +240,7 @@ func (c *WorkTaskController) Schedule() {
 // @Title 删除任务
 // @Description 删除任务
 // @Param   id     			path    int  	true        "任务ID"
-// @Success 0 {object} JSONStruct
+// @Success 0 {string} success
 // @Failure 1002 任务不存在
 // @Failure 1004 删除失败
 // @router /:id [delete]
@@ -247,7 +248,7 @@ func (c *WorkTaskController) Delete() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
 
-	wt := task.WorkTasks{Id:id}
+	wt := task.WorkTasks{Id: id}
 
 	if err := wt.Delete(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "删除成功"}
@@ -263,7 +264,7 @@ func (c *WorkTaskController) Delete() {
 // @Title 结束任务
 // @Description 结束任务
 // @Param   id     			path    int  	true        "任务ID"
-// @Success 0 {object} JSONStruct
+// @Success 0 {string} success
 // @Failure 1002 任务不存在
 // @Failure 1003 设置结束失败
 // @router /finish/:id [put]
@@ -271,7 +272,7 @@ func (c *WorkTaskController) Finish() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
 
-	wt := task.WorkTasks{Id:id}
+	wt := task.WorkTasks{Id: id}
 
 	if err := wt.Finish(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "设置结束成功"}
