@@ -1873,7 +1873,7 @@ paths:
       operationId: AttCtl.异常考勤
       parameters:
       - in: query
-        name: tid
+        name: cid
         description: 班ID
         required: true
         type: integer
@@ -1969,11 +1969,11 @@ paths:
     get:
       tags:
       - app/attendance
-      description: 获取教师管理的学生(教师考勤首页使用)
-      operationId: AttCtl.获取教师的学生
+      description: 某班待考勤学生列表(教师考勤首页使用)
+      operationId: AttCtl.某班待考勤学生列表
       parameters:
       - in: query
-        name: tid
+        name: cid
         description: 班ID
         required: true
         type: integer

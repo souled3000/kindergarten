@@ -13,41 +13,41 @@ type AttCtl struct {
 	BaseController
 }
 
-// @Title 获取教师的学生
-// @Description 获取教师管理的学生(教师考勤首页使用)
-// @Param	tid		query int	true	"班ID"
+// @Title 某班待考勤学生列表
+// @Description 某班待考勤学生列表(教师考勤首页使用)
+// @Param	cid		query int	true	"班ID"
 // @Success 200		success
 // @Failure 403
 // @router /stus [get]
 func (this *AttCtl) GotStdsByTeaID() {
 	defer this.ServeJSON()
-	tid, _ := this.GetInt("tid")
-	beego.Info("tid:", tid)
-	r := models.GotStdsByTeaID(tid)
+	cid, _ := this.GetInt("cid")
+	beego.Info("cid:", cid)
+	r := models.GotStdsByTeaID(cid)
 	beego.Info(r)
 	if len(r) > 0 {
-		this.Data["json"] = JSONStruct{"success", 0, r, "获取学生成功"}
+		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
 	} else {
-		this.Data["json"] = JSONStruct{"success", 0, nil, "教师下无学生"}
+		this.Data["json"] = JSONStruct{"success", 0, nil, "无结果"}
 	}
 }
 
 // @Title 异常考勤
 // @Description 异常考勤内容
-// @Param	tid		query int	true	"班ID"
+// @Param	cid		query int	true	"班ID"
 // @Success 200		success
 // @Failure 403
 // @router /abn [get]
 func (this *AttCtl) GotAbnDetail() {
 	defer this.ServeJSON()
-	tid, _ := this.GetInt("tid")
-	beego.Info("tid:", tid)
-	r := models.GotAbnDtl(tid)
+	cid, _ := this.GetInt("cid")
+	beego.Info("cid:", cid)
+	r := models.GotAbnDtl(cid)
 	beego.Info(r)
 	if len(r) > 0 {
-		this.Data["json"] = JSONStruct{"success", 0, r, "获取学生成功"}
+		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
 	} else {
-		this.Data["json"] = JSONStruct{"success", 0, nil, "教师下无学生"}
+		this.Data["json"] = JSONStruct{"success", 0, nil, "无结果"}
 	}
 }
 
@@ -66,9 +66,9 @@ func (this *AttCtl) ToAtt() {
 	beego.Info("status:", status)
 	e := models.Att(sid, status)
 	if e == nil {
-		this.Data["json"] = JSONStruct{"success", 0, nil, "考勤成功"}
+		this.Data["json"] = JSONStruct{"success", 0, nil, "成功"}
 	} else {
-		this.Data["json"] = JSONStruct{"failure", 0, e, "考勤失败"}
+		this.Data["json"] = JSONStruct{"failure", 0, e, "失败"}
 	}
 }
 
@@ -83,9 +83,9 @@ func (this *AttCtl) ToAll() {
 	cid, _ := this.GetInt("cid")
 	e := models.ToAll(cid)
 	if e == nil {
-		this.Data["json"] = JSONStruct{"success", 0, nil, "考勤成功"}
+		this.Data["json"] = JSONStruct{"success", 0, nil, "成功"}
 	} else {
-		this.Data["json"] = JSONStruct{"failure", 0, e, "考勤失败"}
+		this.Data["json"] = JSONStruct{"failure", 0, nil, e.Error()}
 	}
 }
 
@@ -150,9 +150,9 @@ func (this *AttCtl) Rule() {
 		e := models.AttRule(o)
 		beego.Debug(e)
 		if e == nil {
-			this.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+			this.Data["json"] = JSONStruct{"success", 0, nil, "成功"}
 		} else {
-			this.Data["json"] = JSONStruct{"failure", 0, e, "保存失败"}
+			this.Data["json"] = JSONStruct{"failure", 0, e, "失败"}
 		}
 	} else {
 		this.Data["json"] = JSONStruct{"error", 1001, err.Error(), "字段必须为json格式"}
@@ -171,14 +171,13 @@ func (this *AttCtl) Count() {
 	gid, _ := this.GetInt("gid")
 	day := this.GetString("day", time.Now().Format("2006-01-02"))
 	r := models.CountByGrade(day, gid)
-	beego.Info(r) 
+	beego.Info(r)
 	if len(r) > 0 {
 		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
 	} else {
 		this.Data["json"] = JSONStruct{"success", 0, nil, "无考勤"}
 	}
 }
-
 
 // @Title 考勤详情
 // @Description 某日某班的考勤详情（园长使用）
@@ -192,7 +191,7 @@ func (this *AttCtl) AttDtl() {
 	cid, _ := this.GetInt("cid")
 	day := this.GetString("day", time.Now().Format("2006-01-02"))
 	r := models.GotAttsByDayAndCls(day, cid)
-	beego.Info(r) 
+	beego.Info(r)
 	if len(r) > 0 {
 		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
 	} else {
