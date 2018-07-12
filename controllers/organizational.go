@@ -374,3 +374,28 @@ func (o *OrganizationalController) GetBabyClass() {
 		o.ServeJSON()
 	}
 }
+
+// FilterStudent ...
+// @Title 筛选学生
+// @Description 筛选学生
+// @Param	class_id           query	int	     true		"班级ID"
+// @Success 200 {object} models.Organizational
+// @Failure 403
+// @router /filter_student [get]
+func (o *OrganizationalController) FilterStudent() {
+	class_id, _ := o.GetInt("class_id")
+	valid := validation.Validation{}
+	valid.Required(class_id, "class_id").Message("班级id不能为空")
+	if valid.HasErrors() {
+		o.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		o.ServeJSON()
+	} else {
+		v, err := models.FilterStudent(class_id)
+		if err != nil {
+			o.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			o.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		o.ServeJSON()
+	}
+}
