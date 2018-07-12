@@ -130,6 +130,8 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 	if date == "" {
 		day_time := time.Now().Format("2006-01-02")
 		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
+	}else {
+		where += " AND left(healthy_inspect.date,10) = '"+date+"'"
 	}
 	if search != "" {
 		where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
@@ -832,7 +834,7 @@ func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error)  {
 }
 
 //后台体检项目
-func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id int) (Page, error) {
+func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id int,search string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -841,6 +843,7 @@ func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,bab
 	if class_id > 0{
 		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
 	}
+
 	if baby_id > 0 {
 		var student_id int
 		var student models.Student
@@ -858,8 +861,15 @@ func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,bab
 	if kindergarten_id > 0{
 		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
 	}
+	if search != ""{
+		where += " AND student.name like " + "'%"+search+"%'"
+	}
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	//sql := qb.Select("").From(f.TableName()).Where(where).String()
+	sql := qb.Select("count(*)").From(f.TableName()).
+		LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+		LeftJoin("healthy_column").On("healthy_inspect.id = healthy_column.inspect_id").
+		Where(where).String()
 	var total int
 	err := o.Raw(sql, con).QueryRow(&total)
 	if err == nil {
@@ -874,7 +884,7 @@ func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,bab
 		}
 		start := (page - 1) * limit
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("healthy_inspect.*,student.sex,student.age,student.name as student_name,student.student_id as studentId,student.avatar,healthy_column.*").From(f.TableName()).
+		sql := qb.Select("healthy_inspect.*,healthy_inspect.id as hid,student.sex,student.age,student.name as student_name,student.student_id as studentId,student.avatar,healthy_column.*").From(f.TableName()).
 			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
 			LeftJoin("healthy_column").On("healthy_inspect.id = healthy_column.inspect_id").
 			Where(where).
@@ -888,4 +898,48 @@ func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,bab
 	}
 
 	return Page{}, nil
+}
+
+//删除
+func DeleteStudent(id int) map[string]interface{} {
+	o := orm.NewOrm()
+	v := Inspect{Id: id}
+	err := o.Begin()
+	if err = o.Read(&v); err == nil {
+		_, err = o.Raw("UPDATE healthy_body SET actual = actual - 1 where id = ? ",v.BodyId ).Exec()
+		if err != nil {
+			err = o.Rollback()
+			return nil
+		}
+		_, err = o.Raw("UPDATE healthy_class SET class_actual = class_actual - 1 where class_id = ? and body_id = ? ",v.ClassId,v.BodyId ).Exec()
+		if err != nil{
+			err = o.Rollback()
+			return nil
+		}
+		if num, err := o.Delete(&Inspect{Id: id}); err == nil {
+			paginatorMap := make(map[string]interface{})
+			paginatorMap["data"] = num
+			o.Commit()
+			return paginatorMap
+		}else {
+			err = o.Rollback()
+			return nil
+		}
+	}
+	return nil
+}
+
+//添加备注
+func (f *Inspect) Contents(content string) error {
+	o := orm.NewOrm()
+	if err := o.Read(f); err == nil {
+		f.Content = content
+		if _, err := o.Update(f, "Content"); err != nil {
+			return err
+		}
+	} else {
+		return err
+	}
+
+	return nil
 }
