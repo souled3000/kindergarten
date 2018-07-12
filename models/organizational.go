@@ -531,6 +531,26 @@ func GetClassStudent(class_id int) (paginatorMapmap map[string]interface{}, err 
 	o := orm.NewOrm()
 	var v []orm.Params
 	qb, _ := orm.NewQueryBuilder("mysql")
+	paginatorMap := make(map[string]interface{})
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name", "s.avatar").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.type = 1").String()
+	num, err := o.Raw(sql, class_id).Values(&v)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = v
+		return paginatorMap, nil
+	}
+	return nil, err
+}
+
+/*
+筛选学生
+*/
+func FilterStudent(class_id int) (paginatorMapmap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var v []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
 	data := make(map[string][]interface{})
 	paginatorMap := make(map[string]interface{})
 	qb, _ = orm.NewQueryBuilder("mysql")

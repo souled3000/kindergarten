@@ -341,7 +341,6 @@ func FilterTeacher(class_type int, kindergarten_id int) (ml map[string]interface
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("o.class_type = ? and o.level = 3 and o.type =2").And("o.kindergarten_id = ?").And("om.type = 0").String()
 	_, err = o.Raw(sql, class_type, kindergarten_id).Values(&class)
-
 	if err != nil {
 		return nil, err
 	}
