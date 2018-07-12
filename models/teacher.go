@@ -339,7 +339,7 @@ func FilterTeacher(class_type int, kindergarten_id int) (ml map[string]interface
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("t.teacher_id", "o.id as class_id", "o.name as class_name", "o.class_type", "t.name", "t.avatar").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
-		On("om.organizational_id = o.id").Where("o.class_type = ? and o.level = 3 and o.type =2").And("o.kindergarten_id = ?").And("om.type = 0").String()
+		On("om.organizational_id = o.id").Where("o.class_type = ? and o.level = 3 and o.type =2").And("o.kindergarten_id = ?").And("om.type = 0").And("isnull(t.deleted_at)").String()
 	_, err = o.Raw(sql, class_type, kindergarten_id).Values(&class)
 	if err != nil {
 		return nil, err
