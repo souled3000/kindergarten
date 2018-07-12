@@ -253,9 +253,10 @@ func GetAllergenChild(allergen string) (allergenChild []map[string]interface{}, 
 
 			where := " allergen like \"%" + string(v) + "%\""
 			if _, err := o.Raw("SELECT allergen FROM `exceptional_child` WHERE " + where).Values(&allergens); err == nil {
-				if childName, err := GetChildName(where); err == nil {
+				if childName, childNum, err := GetChildName(v); err == nil {
 					maps["allergen"] = v
 					maps["child_name"] = childName
+					maps["child_num"] = childNum
 					allergenChild = append(allergenChild, maps)
 				} else {
 					return allergenChild, err
@@ -270,19 +271,24 @@ func GetAllergenChild(allergen string) (allergenChild []map[string]interface{}, 
 }
 
 // 获取过敏儿童名称
-func GetChildName(where string) (childName string, err error) {
+func GetChildName(val string) (childName string, childNum int64, err error) {
 	o := orm.NewOrm()
 	var lists []orm.ParamsList
-	if _, err := o.Raw("SELECT child_name FROM `exceptional_child` WHERE " + where).ValuesList(&lists); err == nil {
-		var str string
-		for _, row := range lists {
-			str += row[0].(string) + ","
-			s := []rune(str)
-			childName = string(s[:len(s)-1])
+	childNum, errs := o.QueryTable("exceptional_child").Filter("allergen__contains", val).Count()
+	if errs == nil && childNum > 0 {
+		where := " allergen like \"%" + string(val) + "%\""
+		if _, err := o.Raw("SELECT child_name FROM `exceptional_child` WHERE " + where).ValuesList(&lists); err == nil {
+			var str string
+			for _, row := range lists {
+				str += row[0].(string) + ","
+				s := []rune(str)
+				childName = string(s[:len(s)-1])
+			}
+			return childName, childNum, err
 		}
-		return childName, err
 	}
-	return childName, err
+
+	return childName, childNum, err
 }
 
 // 根据baby_id获取过敏源
