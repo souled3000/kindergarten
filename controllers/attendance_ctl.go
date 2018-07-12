@@ -91,7 +91,7 @@ func (this *AttCtl) ToAll() {
 
 // @Title 请假
 // @Description 请假（用户使用）{"Sid":33,"Applicant":"lchj","Type":1,"Reason":"xxxxx","Beg":"2018-01-01T13:13:13Z","End":"2018-12-05T07:07:07Z"}
-// @Param	body	body	models.Animation	true	"json"
+// @Param	body	body	models.Leave	true	"json"
 // @Success 200	success
 // @Failure 403
 // @router /askleave [post]
@@ -127,7 +127,7 @@ func (this *AttCtl) AskForLeave() {
 
 // @Title  考勤规则
 // @Description 写入考勤规则(园长使用)
-// @Param	body	body	models.Animation	true	"json"
+// @Param	body	body	models.AttendanceRule	true	"json"
 // @Success 200	success
 // @Failure 403
 // @router /rule [post]

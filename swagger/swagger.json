@@ -2780,7 +2780,7 @@
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.Leave"
                         }
                     }
                 ],
@@ -2876,7 +2876,7 @@
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/.Animation"
+                            "$ref": "#/definitions/models.AttendanceRule"
                         }
                     }
                 ],
@@ -7985,9 +7985,6 @@
         }
     },
     "definitions": {
-        ".Animation": {
-            "type": "object"
-        },
         "healthy.Body": {
             "title": "Body",
             "type": "object",
@@ -8269,6 +8266,41 @@
                 }
             }
         },
+        "models.AttendanceRule": {
+            "title": "AttendanceRule",
+            "type": "object",
+            "properties": {
+                "abeg": {
+                    "description": "下午起始时间",
+                    "type": "string"
+                },
+                "aend": {
+                    "description": "下午结束时间",
+                    "type": "string"
+                },
+                "days": {
+                    "description": "工作日",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "kid": {
+                    "description": "学校ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "mbeg": {
+                    "description": "上午起始时间",
+                    "type": "string"
+                },
+                "mend": {
+                    "description": "上午结束时间",
+                    "type": "string"
+                }
+            }
+        },
         "models.ExceptionalChild": {
             "title": "ExceptionalChild",
             "type": "object",
@@ -8406,6 +8438,51 @@
                 "update_at": {
                     "type": "string",
                     "format": "string"
+                }
+            }
+        },
+        "models.Leave": {
+            "title": "Leave",
+            "type": "object",
+            "properties": {
+                "Type": {
+                    "description": "0:事假;1:病假",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "app": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "applicant": {
+                    "description": "申请人",
+                    "type": "string"
+                },
+                "beg": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "end": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "reason": {
+                    "description": "理由",
+                    "type": "string"
+                },
+                "sid": {
+                    "description": "学生ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "integer",
+                    "format": "int64"
                 }
             }
         },
