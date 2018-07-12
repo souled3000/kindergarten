@@ -6,6 +6,7 @@ import (
 	"kindergarten-service-go/models/healthy"
 	"fmt"
 	"strconv"
+	"github.com/astaxie/beego/orm"
 )
 
 //餐检
@@ -232,14 +233,9 @@ func (c *InspectController) Put() {
 	date := c.GetString("date")
 
 	valid := validation.Validation{}
-	valid.Required(class_name,"class_name").Message("班级名称不能为空")
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
 	valid.Required(class_id,"class_id").Message("班级ID不能为空")
 	valid.Required(types,"types").Message("检查类型不能为空")
-	valid.Required(abnormal,"abnormal").Message("异常情况不能为空")
-	valid.Required(teacher_id,"teacher_id").Message("教师ID不能为空")
-	valid.Required(handel,"handel").Message("异常情况不能为空")
-	valid.Required(infect,"infect").Message("传染情况不能为空")
 	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
 
 	if valid.HasErrors() {
@@ -337,8 +333,9 @@ func (c *InspectController) Project() {
 	perPage, _ := c.GetInt("per_page")
 	body_id, _:= c.GetInt("body_id")
 	baby_id, _:= c.GetInt("baby_id")
+	search := c.GetString("search")
 
-	if works, err := f.Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id ); err == nil {
+	if works, err := f.Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id,search ); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -473,4 +470,46 @@ func (c *InspectController) Country() {
 
 	c.ServeJSON()
 
+}
+
+// Delete ...
+// @Title Delete
+// @Description 删除
+// @Param	id		path 	int	true		"自增ID"
+// @Success 0 {string} delete success!
+// @Failure 1003 id is empty
+// @router /deleteStudent/:id [delete]
+func (c *InspectController) DeleteStudent() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	v := healthy.DeleteStudent(id)
+	if v == nil {
+		c.Data["json"] = JSONStruct{"error", 1003, nil, "删除失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+	}
+	c.ServeJSON()
+}
+
+// PUT ...
+// @Title PUT
+// @Description 添加备注
+// @Param	id		path 	int	true		"体检ID"
+// @Success 200 {string} put success!
+// @Failure 403 id is empty
+// @router /content/:id [put]
+func (c *InspectController)  Content(){
+	var id int
+	c.Ctx.Input.Bind(&id, ":id")
+	f := healthy.Inspect{Id:id}
+	content := c.GetString("content")
+	if err := f.Contents(content); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, f, "操作成功"}
+	} else if err == orm.ErrNoRows {
+		c.Data["json"] = JSONStruct{"error", 1002, err, "用户不存在"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1003, err, "操作失败"}
+	}
+
+	c.ServeJSON()
 }
