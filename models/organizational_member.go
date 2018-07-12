@@ -286,3 +286,23 @@ func Classtudent(class_type int, kindergarten_id int) (paginatorMap map[string]i
 	err = errors.New("班级暂无学生")
 	return nil, err
 }
+
+/*
+班级下教师
+*/
+func TeacherClass(Kindergarten_id int, class_type int) (paginatorMap map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var mk []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	paginatorMap = make(map[string]interface{})
+	sql := qb.Select("t.teacher_id", "t.avatar", "t.name", "o.name as class_name", "t.user_id").From("organizational_member as om").LeftJoin("teacher as t").
+		On("om.member_id = t.teacher_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("o.kindergarten_id = ?").And("om.type = 0 and class_type = ? and o.level = 3 and o.type = 2 and om.is_principal = 0").And("isnull(t.deleted_at)").String()
+	num, err := o.Raw(sql, Kindergarten_id, class_type).Values(&mk)
+	if err == nil && num > 0 {
+		paginatorMap["data"] = mk
+		return paginatorMap, nil
+	}
+	err = errors.New("暂无教师信息")
+	return nil, err
+}
