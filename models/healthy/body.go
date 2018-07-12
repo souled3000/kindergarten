@@ -122,7 +122,7 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	c_num := num.Num
 	list2 := make(map[string]interface{})
 	//list3 := make(map[string]interface{})
-	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight is not null"
+	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and weight != '' "
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
 	bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
@@ -135,7 +135,7 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	list2["columnh"] = "height"
 	list2["name"] = "身高体重"
 	list = append(list,list2)
-	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and height is not null"
+	sql = "select count(a.id) as num from healthy_inspect a where a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and height != '' "
 	o.Raw(sql).QueryRow(&num)
 	fmt.Println(num.Num)
 	//list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
@@ -150,7 +150,7 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 		for _,val := range project {
 			list1 := make(map[string]interface{})
 			cloumn := strings.Split(val,":")
-			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where  a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" is not null"
+			sql := "select count(b.id) as num from healthy_inspect a left join healthy_column b on a.id= b.inspect_id where  a.class_id="+strconv.Itoa(class_id)+" and a.body_id = "+strconv.Itoa(id)+" and b."+string(cloumn[0])+" != '' "
 			o.Raw(sql).QueryRow(&num)
 			fmt.Println(num.Num)
 			bili := int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
@@ -220,7 +220,7 @@ func UpdataByIdBody(b *Body) (err error) {
 	return err
 }
 
-func GetAllBody(kindergarten_id, page int,per_page int,types int,theme string) (ml map[string]interface{}, err error){
+func GetAllBody(kindergarten_id, page int,per_page int,types int,theme string, search string) (ml map[string]interface{}, err error){
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Body))
 	if types > 0 {
@@ -231,6 +231,9 @@ func GetAllBody(kindergarten_id, page int,per_page int,types int,theme string) (
 	}
 	if kindergarten_id != 0 {
 		qs = qs.Filter("kindergarten_id",kindergarten_id)
+	}
+	if search != ""{
+		qs = qs.Filter("theme__contains", search)
 	}
 
 	var d []Body

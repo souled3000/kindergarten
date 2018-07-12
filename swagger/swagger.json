@@ -5300,6 +5300,33 @@
                 }
             }
         },
+        "/healthy/inspect/content/{id}": {
+            "put": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "添加备注",
+                "operationId": "InspectController.PUT",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "体检ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} put success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
         "/healthy/inspect/country/": {
             "get": {
                 "tags": [
@@ -5369,6 +5396,33 @@
                     },
                     "1003": {
                         "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/healthy/inspect/deleteStudent/{id}": {
+            "delete": {
+                "tags": [
+                    "healthy/inspect"
+                ],
+                "description": "删除",
+                "operationId": "InspectController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "自增ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{string} delete success!"
+                    },
+                    "1003": {
+                        "description": "id is empty"
                     }
                 }
             }
