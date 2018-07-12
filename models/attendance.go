@@ -3,21 +3,20 @@ package models
 import (
 	"errors"
 	"fmt"
-	//	"math"
-	//	"strconv"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"time"
 )
 
 type Attendance struct {
-	Id      int       `json:"id" orm:"column(id);auto"`
-	Sid     int       `json:"sid" orm:"column(sid)"`
-	Name    string    `json:"name" orm:"column(name)" description:"学生姓名"`
-	Today   string    `json:"name" orm:"column(today)" description:"考勤日期"`
-	Cls     string    `json:"cls" orm:"column(cls)" description:"班级名称"`
-	AttTime time.Time `json:"att_time" orm:"auto_now"`
-	Status  int       `json:"status" orm:"column(status)" description:"状态"`
+	Id        int       `json:"id" orm:"column(id);auto"`
+	Sid       int       `json:"sid" orm:"column(sid)"`
+	Name      string    `json:"name" orm:"column(name)" description:"学生姓名"`
+	Today     string    `json:"name" orm:"column(today)" description:"考勤日期"`
+	Cls       string    `json:"cls" orm:"column(cls)" description:"班级名称"`
+	Morning   time.Time `json:"morning" orm:"column(morning)"`
+	Afternoon time.Time `json:"afternoon" orm:"column(afternoon)"`
+	Status    int       `json:"status" orm:"column(status)" description:"状态"`
 }
 
 func (t *Attendance) TableName() string {
@@ -49,11 +48,11 @@ func init() {
 type AttendanceRule struct {
 	Id   int    `json:"id" orm:"column(id);auto"`
 	Kid  int    `json:"kid" orm:"column(kid)" description:"学校ID"`
-	Mbeg string `json:"mbeg" orm:"column(mbeg)" description:"上午起始时间"`
-	Mend string `json:"mend" orm:"column(mend)" description:"上午结束时间"`
-	Abeg string `json:"abeg" orm:"column(abeg)" description:"下午起始时间"`
-	Aend string `json:"aend" orm:"column(aend)" description:"下午结束时间"`
-	Days string `json:"aend" orm:"column(days)" description:"下午结束时间"`
+	Mbeg string `json:"mbeg" orm:"column(m_beg)" description:"上午起始时间"`
+	Mend string `json:"mend" orm:"column(m_end)" description:"上午结束时间"`
+	Abeg string `json:"abeg" orm:"column(a_beg)" description:"下午起始时间"`
+	Aend string `json:"aend" orm:"column(a_end)" description:"下午结束时间"`
+	Days string `json:"days" orm:"column(days)" description:"工作日"`
 }
 
 func (this *AttendanceRule) TableName() string {
@@ -66,7 +65,7 @@ func init() {
 /*
 考勤上下限
 */
-func AttRule(kid int, mbeg, mend, abeg, aend , days string) (err error) {
+func AttRule(o AttendanceRule) (err error) {
 	db := orm.NewOrm()
 	db.Begin()
 	defer func() {
@@ -77,17 +76,9 @@ func AttRule(kid int, mbeg, mend, abeg, aend , days string) (err error) {
 			db.Commit()
 		}
 	}()
-	var a AttendanceRule
-	a.Kid = kid
-	a.Abeg = abeg
-	a.Aend = aend
-	a.Mbeg = mbeg
-	a.Mend = mend
-	a.Days = days
-
-	created, id, err := db.ReadOrCreate(&a, "Kid")
+	created, id, err := db.ReadOrCreate(&o, "Kid")
 	if !created {
-		db.Update(&a)
+		db.Update(&o)
 	}
 	beego.Debug(id, err)
 	return
@@ -97,7 +88,9 @@ func AttRule(kid int, mbeg, mend, abeg, aend , days string) (err error) {
 考勤
 */
 func Att(sid, status int) (err error) {
-	today := time.Now().Format("2006-01-02")
+	now := time.Now()
+	today := now.Format("2006-01-02")
+	noon, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" 12:00:00", time.Local)
 	fmt.Println(sid, status)
 	db := orm.NewOrm()
 	db.Begin()
@@ -109,11 +102,9 @@ func Att(sid, status int) (err error) {
 			db.Commit()
 		}
 	}()
-
 	var a Attendance
 	a.Sid = sid
 	a.Today = today
-
 	created, id, err := db.ReadOrCreate(&a, "Sid", "Today")
 	if created {
 		var st Student
@@ -127,10 +118,64 @@ func Att(sid, status int) (err error) {
 		a.Name = st.Name
 		a.Cls = st.ClassInfo
 	}
+
+	if now.Unix() <= noon.Unix() {
+		a.Morning = now
+	} else {
+		a.Afternoon = now
+	}
+
 	a.Status = status
 	db.Update(&a)
 
-	beego.Debug(id, a.Name, a.Status, a.AttTime, err)
+	beego.Debug(id, a.Name, a.Status, err)
+	return
+}
+
+/*
+一键入园
+*/
+func ToAll(cid int) (err error) {
+	now := time.Now()
+	today := now.Format("2006-01-02")
+	noon, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" 12:00:00", time.Local)
+	db := orm.NewOrm()
+	db.Begin()
+	defer func() {
+		if err != nil {
+			db.Rollback()
+			err = errors.New("保存失败")
+		} else {
+			db.Commit()
+		}
+	}()
+	sql := "select t.member_id from organizational_member t where t.organizational_id = ? and not exists( select t2.sid from aleave t2 where t2.beg <? and t2.end> ? and t.member_id = t2.sid) and not exists ( select sid from attendance t3 where t.member_id = t3.sid and t3.today=? )"
+	var ids []int
+	db.Raw(sql, cid, now, now, today).QueryRows(&ids)
+	var atts []Attendance
+	for _, sid := range ids {
+		var a Attendance
+		a.Sid = sid
+		a.Today = today
+		var st Student
+		db.QueryTable("student").Filter("student_id", sid).One(&st, "name", "class_info")
+		e := db.Read(&st, "name", "class_info")
+		if e != nil {
+			beego.Debug("read stu:", sid, e)
+			continue
+		}
+		beego.Debug("stu:", st.Id, st.Name, st.ClassInfo)
+		a.Name = st.Name
+		a.Cls = st.ClassInfo
+
+		if now.Unix() <= noon.Unix() {
+			a.Morning = now
+		} else {
+			a.Afternoon = now
+		}
+		atts = append(atts, a)
+	}
+	_, err = db.InsertMulti(len(atts), atts)
 	return
 }
 
@@ -155,29 +200,134 @@ func AskForLeave(o Leave) (err error) {
 }
 
 /*
-获取教师下的学生 为教师页面
-*/
+*	获取教师下的学生 为教师页面
+ */
 func GotStdsByTeaID(tid int) (rt []orm.Params) {
-	sql := "select distinct s.name,s.student_id ,s.class_info from organizational_member om,organizational_member o2 ,student s  where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1"
-	orm.NewOrm().Raw(sql, tid).Values(&rt)
-	return
-}
+	db := orm.NewOrm()
+	now := time.Now()
+	today := now.Format("2006-01-02")
+	var t Organizational
+	t.Id = tid
+	db.Read(&t, "Id")
+	var r AttendanceRule
+	r.Kid = t.KindergartenId
+	db.Read(&r, "Kid")
 
-func GotStdsAbn(tid int) (rt []orm.Params) {
-	sql := "select distinct s.name,s.student_id ,s.class_info from organizational_member om,organizational_member o2 ,student s  where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1"
-	orm.NewOrm().Raw(sql, tid).Values(&rt)
+	//	mbeg, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Mbeg,time.Local)
+	mend, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Mend, time.Local)
+	abeg, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Abeg, time.Local)
+	aend, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Aend, time.Local)
 
+	var sql string
+	switch {
+	case (now.Unix() <= mend.Unix()) || (abeg.Unix() <= now.Unix() && now.Unix() <= aend.Unix()):
+		//		sql = "select name,sid,cls,morning,afternoon from (select name,w.sid,cls,morning,afternoon from (select t.name,t.sid,t.cls,a.morning,a.afternoon from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id=? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t left join attendance a on t.sid=a.sid and a.today=?) w left join aleave l on w.sid = l.sid and l.beg < ? and l.end > ? where l.sid is null) z"
+		sql = "select name,sid,cls,morning,afternoon from (select name,w.sid,cls,morning,afternoon from (select t.name,t.sid,t.cls,a.morning,a.afternoon from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id = ? and s.status=1 ) t left join attendance a on t.sid=a.sid and a.today=?) w left join aleave l on w.sid = l.sid and l.beg < ? and l.end > ? where l.sid is null) z"
+		db.Raw(sql, tid, today, now, now).Values(&rt)
+	case (mend.Unix() < now.Unix() && now.Unix() < abeg.Unix()) || now.Unix() > aend.Unix():
+		//		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id=? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t inner join attendance a on t.sid=a.sid and a.today=?"
+		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t inner join attendance a on t.sid=a.sid and a.today=?"
+		db.Raw(sql, tid, today).Values(&rt)
+	}
 	return
 }
 
 /*
-获得某日考勤记录
-*/
-func Query(date time.Time, orgid int) (rt []Attendance) {
+*	非正常考勤
+ */
+func GotAbnDtl(tid int) (rt []orm.Params) {
 	db := orm.NewOrm()
-	var condition []interface{}
-	condition = append(condition, orgid)
-	sql := "select a.* from attendance a,organizatinal_member om  om.kindergarten_id = ? and a.organizational_id = om.organizational_id"
-	db.Raw(sql, condition).QueryRows(&rt)
+	now := time.Now()
+	today := now.Format("2006-01-02")
+	var t Organizational
+	t.Id = tid
+	db.Read(&t, "Id")
+	var r AttendanceRule
+	r.Kid = t.KindergartenId
+	db.Read(&r, "Kid")
+
+	//	mbeg, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Mbeg)
+	mend, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Mend, time.Local)
+	abeg, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Abeg, time.Local)
+	aend, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Aend, time.Local)
+
+	var sql string
+	switch {
+	case (now.Unix() <= mend.Unix()) || (abeg.Unix() <= now.Unix() && now.Unix() <= aend.Unix()):
+		//		sql := "select t.name,t.sid,t.cls,a.reason from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t left join aleave a on t.sid=a.sid and a.beg <? and a.end>?"
+		sql := "select t.name,t.sid,t.cls,a.reason from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t left join aleave a on t.sid=a.sid and a.beg <? and a.end>?"
+		orm.NewOrm().Raw(sql, tid, now, now).Values(&rt)
+	case (mend.Unix() < now.Unix() && now.Unix() < abeg.Unix()):
+		//		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t  left join attendance a on t.sid=a.sid and (a.morning is null || a.morning >?)" +
+		//			"union all" +
+		//			" select t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
+		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 and not exists (select l.sid from aleave l where l.sid=s.student_id and l.beg<? and l.end>?)) t  left join attendance a on t.sid=a.sid and (a.morning is null || a.morning >?)" +
+			"union all" +
+			" select t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
+		orm.NewOrm().Raw(sql, tid, now, now, now, tid, now, mend).Values(&rt)
+	case now.Unix() > aend.Unix():
+		//afternoon<abeg 早退 ；afternoon >aend 补勤
+		//		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id=? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t  left join attendance a on t.sid=a.sid and (a.afternoon is null || a.afternoon <? || a.afternoon >?)" +
+		//			"union all" +
+		//			" select t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
+		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 and not exists (select l.sid from aleave l where l.sid=s.student_id and l.beg<? and l.end>?)) t  left join attendance a on t.sid=a.sid and (a.afternoon is null || a.afternoon <? || a.afternoon >?)" +
+			"union all" +
+			" select t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
+		orm.NewOrm().Raw(sql, tid, now, now, abeg, aend, tid, now, now).Values(&rt)
+	}
+	return
+}
+
+/*
+获得某日某年级考勤统计
+*/
+func CountByGrade(day string, grade int) (rt []orm.Params) {
+	db := orm.NewOrm()
+	beego.Info(day)
+	aday, _ := time.ParseInLocation("2006-01-02", day, time.Local)
+	var t Organizational
+	t.Id = grade
+	db.Read(&t, "Id")
+	var r AttendanceRule
+	r.Kid = t.KindergartenId
+	db.Read(&r, "Kid")
+
+	beego.Debug("KID:", r.Kid)
+
+	//	mbeg, _ := time.ParseInLocation("2006-01-02 15:04", today+" "+r.Mbeg)
+	mend, e := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Mend, time.Local)
+	abeg, _ := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Abeg, time.Local)
+	aend, _ := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Aend, time.Local)
+	beego.Debug(mend.Local().String(), abeg.Local().String(), aend.Local().String(), e)
+	var sql string
+	sql += "select name,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ("
+	sql += " select t1.name,-1 type,count(*) amount from organizational t1 , organizational_member t2 , attendance t3 where t1.parent_id=? and t1.id = t2.organizational_id and t2.member_id = t3.sid and t3.today = ? and t3.morning <? and t3.afternoon between ? and ?  group by t1.id"
+	sql += " union all"
+	sql += " select t4.name,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid group by t4.id and t6.beg <? and t6.end >?"
+	sql += " ) z group by name"
+	db.Raw(sql, grade, day, mend, abeg, aend, grade, aday, aday).QueryRows(&rt)
+	return
+}
+
+/*
+获取某日某班考勤记录
+*/
+func GotAttsByDayAndCls(day string, cid int) (rt map[string]interface{}) {
+	db := orm.NewOrm()
+	beego.Info(day)
+	aday, _ := time.ParseInLocation("2006-01-02", day, time.Local)
+	var t Organizational
+	t.Id = cid
+	db.Read(&t, "Id")
+	rt = make(map[string]interface{})
+	var sql string
+	var r1 []orm.Params
+	sql = "select t1.sid,t1.name,t1.cls,t1.morning,t1.afternoon from attendance t1, organizational t2,organizational_member t3 where t2.id=? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.today = ?"
+	db.Raw(sql, cid, day).Values(&r1)
+	sql = "select t1.sid,t1.type,t1.reason,t4.name from aleave t1,organizational t2,organizational_member t3, student t4 where t4.student_id=t1.sid and t2.id = ? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.beg < ? and t1.end >?"
+	var r2 []orm.Params
+	db.Raw(sql, cid, aday, aday).Values(&r2)
+	rt["att"] = r1
+	rt["leave"] = r2
 	return
 }

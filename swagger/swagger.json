@@ -2739,12 +2739,39 @@
                 }
             }
         },
+        "/app/attendance/abn": {
+            "get": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "异常考勤内容",
+                "operationId": "AttCtl.异常考勤",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "tid",
+                        "description": "班ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/app/attendance/askleave": {
             "post": {
                 "tags": [
                     "app/attendance"
                 ],
-                "description": "请假（用户使用）{\"Sid\":15,\"Applicant\":\"lchj\",\"Type\":1,\"Reason\":\"xxxxx\",\"Beg\":\"2018-01-01T13:13:13Z\",\"End\":\"2018-04-05T07:07:07Z\"}",
+                "description": "请假（用户使用）{\"Sid\":33,\"Applicant\":\"lchj\",\"Type\":1,\"Reason\":\"xxxxx\",\"Beg\":\"2018-01-01T13:13:13Z\",\"End\":\"2018-12-05T07:07:07Z\"}",
                 "operationId": "AttCtl.请假",
                 "parameters": [
                     {
@@ -2753,7 +2780,103 @@
                         "description": "json",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Attendance"
+                            "$ref": "#/definitions/.Animation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/app/attendance/count": {
+            "get": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "按日年级对班统计考勤（园长使用）",
+                "operationId": "AttCtl.考勤统计",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "gid",
+                        "description": "年级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "day",
+                        "description": "2016-01-02",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/app/attendance/dtl": {
+            "get": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "某日某班的考勤详情（园长使用）",
+                "operationId": "AttCtl.考勤详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cid",
+                        "description": "班级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "day",
+                        "description": "2016-01-02",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/app/attendance/rule": {
+            "post": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "写入考勤规则(园长使用)",
+                "operationId": "AttCtl.考勤规则",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "json",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/.Animation"
                         }
                     }
                 ],
@@ -2772,17 +2895,16 @@
                 "tags": [
                     "app/attendance"
                 ],
-                "description": "写入考勤规则(园长使用)",
-                "operationId": "AttCtl.记录考勤规则",
+                "description": "获取教师管理的学生(教师考勤首页使用)",
+                "operationId": "AttCtl.获取教师的学生",
                 "parameters": [
                     {
-                        "in": "body",
-                        "name": "body",
-                        "description": "json",
+                        "in": "query",
+                        "name": "tid",
+                        "description": "班ID",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Attendance"
-                        }
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -2795,7 +2917,34 @@
                 }
             }
         },
-        "/app/attendance/toatt": {
+        "/app/attendance/toall": {
+            "get": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "批量考勤（教师考勤按钮使用）",
+                "operationId": "AttCtl.一键入园",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cid",
+                        "description": "班ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/app/attendance/toone": {
             "get": {
                 "tags": [
                     "app/attendance"
@@ -6221,6 +6370,36 @@
                 }
             }
         },
+        "/organizational/filter_student": {
+            "get": {
+                "tags": [
+                    "organizational"
+                ],
+                "description": "筛选学生",
+                "operationId": "OrganizationalController.筛选学生",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Organizational"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/organizational/member": {
             "get": {
                 "tags": [
@@ -7806,6 +7985,9 @@
         }
     },
     "definitions": {
+        ".Animation": {
+            "type": "object"
+        },
         "healthy.Body": {
             "title": "Body",
             "type": "object",
@@ -8082,37 +8264,6 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer",
-                    "format": "int64"
-                }
-            }
-        },
-        "models.Attendance": {
-            "title": "Attendance",
-            "type": "object",
-            "properties": {
-                "att_time": {
-                    "type": "string",
-                    "format": "string"
-                },
-                "cls": {
-                    "description": "班级名称",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "name": {
-                    "description": "考勤日期",
-                    "type": "string"
-                },
-                "sid": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "status": {
-                    "description": "状态",
                     "type": "integer",
                     "format": "int64"
                 }
