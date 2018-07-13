@@ -148,22 +148,24 @@ func (c *OrganizationalMemberController) MyKinderTeacher() {
 	}
 }
 
-// MyKindergarten ...
-// @Title 我的幼儿园列表
-// @Description 我的幼儿园列表-web
+// teacher_class ...
+// @Title teacher_class
+// @Description 班级下教师
 // @Param	kindergarten_id		body 	int	    true		"幼儿园ID"
 // @Success 201 {int} models.OrganizationalMember
 // @Failure 403 body is empty
-// @router /my_kinder [get]
+// @router /teacher_class [get]
 func (c *OrganizationalMemberController) MyKindergarten() {
+	class_type, _ := c.GetInt("class_type")
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	valid := validation.Validation{}
+	valid.Required(class_type, "class_type").Message("班级类型不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园id不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 		c.ServeJSON()
 	} else {
-		v, err := models.MyKinder(kindergarten_id)
+		v, err := models.TeacherClass(kindergarten_id, class_type)
 		if err != nil {
 			c.Data["json"] = JSONStruct{"error", 1006, nil, err.Error()}
 		} else {
