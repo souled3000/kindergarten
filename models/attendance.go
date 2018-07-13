@@ -108,8 +108,7 @@ func Att(sid, status int) (err error) {
 	created, id, err := db.ReadOrCreate(&a, "Sid", "Today")
 	if created {
 		var st Student
-		db.QueryTable("student").Filter("student_id", sid).One(&st, "name", "class_info")
-		err = db.Read(&st, "name", "class_info")
+		err = db.QueryTable("student").Filter("student_id", sid).One(&st, "name", "class_info")
 		if err != nil {
 			beego.Debug("read stu:", err)
 			return
@@ -144,12 +143,11 @@ func ToAll(cid int) (err error) {
 	defer func() {
 		if err != nil {
 			db.Rollback()
-			err = errors.New("保存失败")
 		} else {
 			db.Commit()
 		}
 	}()
-	sql := "select t.member_id from organizational_member t where t.organizational_id = ? and not exists( select t2.sid from aleave t2 where t2.beg <? and t2.end> ? and t.member_id = t2.sid) and not exists ( select sid from attendance t3 where t.member_id = t3.sid and t3.today=? )"
+	sql := "select t.member_id from organizational_member t where t.organizational_id = ? and not exists( select t2.sid from aleave t2 where t2.beg <? and t2.end> ? and t.member_id = t2.sid) and not exists ( select sid from attendance t3 where t.member_id = t3.sid and t3.today=? and (t3.morning is not null and t3.afternoon is not null))"
 	var ids []int
 	db.Raw(sql, cid, now, now, today).QueryRows(&ids)
 	var atts []Attendance
@@ -157,9 +155,10 @@ func ToAll(cid int) (err error) {
 		var a Attendance
 		a.Sid = sid
 		a.Today = today
+
 		var st Student
-		db.QueryTable("student").Filter("student_id", sid).One(&st, "name", "class_info")
-		e := db.Read(&st, "name", "class_info")
+		st.Id = sid
+		e := db.QueryTable("student").Filter("student_id", sid).One(&st, "name", "class_info")
 		if e != nil {
 			beego.Debug("read stu:", sid, e)
 			continue
@@ -175,7 +174,12 @@ func ToAll(cid int) (err error) {
 		}
 		atts = append(atts, a)
 	}
-	_, err = db.InsertMulti(len(atts), atts)
+	if len(atts) > 0 {
+		_, err = db.InsertMulti(len(atts), atts)
+	} else {
+		err = fmt.Errorf("已全都考勤")
+	}
+	beego.Debug("TOALL:", len(atts), err)
 	return
 }
 
@@ -306,6 +310,14 @@ func CountByGrade(day string, grade int) (rt []orm.Params) {
 	sql += " select t4.name,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid group by t4.id and t6.beg <? and t6.end >?"
 	sql += " ) z group by name"
 	db.Raw(sql, grade, day, mend, abeg, aend, grade, aday, aday).QueryRows(&rt)
+	//	sql += "select name,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ("
+	//	sql += " select t1.name,-1 type,count(*) amount from organizational t1 , organizational_member t2 , attendance t3 where t1.parent_id=? and t1.id = t2.organizational_id and t2.member_id = t3.sid and t3.today = ?   group by t1.id"
+	//	sql += " union all"
+	//	sql += " select t4.name,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid group by t4.id and t6.beg <? and t6.end >?"
+	//	sql += " ) z group by name"
+	//	db.Raw(sql, grade, day, grade, aday, aday).Values(&rt)
+
+	beego.Debug(rt)
 	return
 }
 

@@ -2749,7 +2749,7 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "tid",
+                        "name": "cid",
                         "description": "班ID",
                         "required": true,
                         "type": "integer",
@@ -2895,12 +2895,12 @@
                 "tags": [
                     "app/attendance"
                 ],
-                "description": "获取教师管理的学生(教师考勤首页使用)",
-                "operationId": "AttCtl.获取教师的学生",
+                "description": "某班待考勤学生列表(教师考勤首页使用)",
+                "operationId": "AttCtl.某班待考勤学生列表",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "tid",
+                        "name": "cid",
                         "description": "班ID",
                         "required": true,
                         "type": "integer",
@@ -6644,18 +6644,18 @@
                 }
             }
         },
-        "/organizational_member/my_kinder": {
+        "/organizational_member/my_teacher": {
             "get": {
                 "tags": [
                     "organizational_member"
                 ],
-                "description": "我的幼儿园列表-web",
-                "operationId": "OrganizationalMemberController.我的幼儿园列表",
+                "description": "我的幼儿园教师-web",
+                "operationId": "OrganizationalMemberController.我的幼儿园教师",
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园ID",
+                        "name": "organizational_id",
+                        "description": "班级ID",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -6671,18 +6671,18 @@
                 }
             }
         },
-        "/organizational_member/my_teacher": {
+        "/organizational_member/teacher_class": {
             "get": {
                 "tags": [
                     "organizational_member"
                 ],
-                "description": "我的幼儿园教师-web",
-                "operationId": "OrganizationalMemberController.我的幼儿园教师",
+                "description": "班级下教师",
+                "operationId": "OrganizationalMemberController.teacher_class",
                 "parameters": [
                     {
                         "in": "body",
-                        "name": "organizational_id",
-                        "description": "班级ID",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
                         "required": true,
                         "type": "integer",
                         "format": "int64"

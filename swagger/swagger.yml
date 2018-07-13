@@ -1873,7 +1873,7 @@ paths:
       operationId: AttCtl.异常考勤
       parameters:
       - in: query
-        name: tid
+        name: cid
         description: 班ID
         required: true
         type: integer
@@ -1969,11 +1969,11 @@ paths:
     get:
       tags:
       - app/attendance
-      description: 获取教师管理的学生(教师考勤首页使用)
-      operationId: AttCtl.获取教师的学生
+      description: 某班待考勤学生列表(教师考勤首页使用)
+      operationId: AttCtl.某班待考勤学生列表
       parameters:
       - in: query
-        name: tid
+        name: cid
         description: 班ID
         required: true
         type: integer
@@ -4534,24 +4534,6 @@ paths:
           description: '{int} models.OrganizationalMember'
         "403":
           description: body is empty
-  /organizational_member/my_kinder:
-    get:
-      tags:
-      - organizational_member
-      description: 我的幼儿园列表-web
-      operationId: OrganizationalMemberController.我的幼儿园列表
-      parameters:
-      - in: body
-        name: kindergarten_id
-        description: 幼儿园ID
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "201":
-          description: '{int} models.OrganizationalMember'
-        "403":
-          description: body is empty
   /organizational_member/my_teacher:
     get:
       tags:
@@ -4562,6 +4544,24 @@ paths:
       - in: body
         name: organizational_id
         description: 班级ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.OrganizationalMember'
+        "403":
+          description: body is empty
+  /organizational_member/teacher_class:
+    get:
+      tags:
+      - organizational_member
+      description: 班级下教师
+      operationId: OrganizationalMemberController.teacher_class
+      parameters:
+      - in: body
+        name: kindergarten_id
+        description: 幼儿园ID
         required: true
         type: integer
         format: int64
