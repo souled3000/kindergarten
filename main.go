@@ -25,10 +25,6 @@ func init() {
 }
 
 func main() {
-	beego.SetLevel(beego.LevelDebug)
-	beego.SetLogFuncCall(true)
-	beego.BeeLogger.DelLogger("console")
-	beego.SetLogger("file", `{"filename":"/Users/lichunjiang/logs/test.log"}`)
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
