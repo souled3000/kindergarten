@@ -2771,7 +2771,7 @@
                 "tags": [
                     "app/attendance"
                 ],
-                "description": "请假（用户使用）{\"Sid\":33,\"Applicant\":\"lchj\",\"Type\":1,\"Reason\":\"xxxxx\",\"Beg\":\"2018-01-01T13:13:13Z\",\"End\":\"2018-12-05T07:07:07Z\"}",
+                "description": "请假（用户使用）0:事假;1:病假 {\"Sid\":33,\"Applicant\":\"lchj\",\"Type\":1,\"Reason\":\"xxxxx\",\"Beg\":\"2018-01-01T13:13:13Z\",\"End\":\"2018-12-05T07:07:07Z\"}",
                 "operationId": "AttCtl.请假",
                 "parameters": [
                     {
@@ -2850,6 +2850,33 @@
                         "description": "2016-01-02",
                         "required": true,
                         "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/app/attendance/grade": {
+            "get": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "根据学校id求年级",
+                "operationId": "AttCtl.根据学校id求年级",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kid",
+                        "description": "学校ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -2966,6 +2993,40 @@
                         "description": "考勤状态；0：有效：1：无效，缺省值：0",
                         "type": "integer",
                         "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/app/attendance/total": {
+            "get": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "某日某学校的总统计",
+                "operationId": "AttCtl.考勤总数统计",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kid",
+                        "description": "学校ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "day",
+                        "description": "2016-01-02",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
