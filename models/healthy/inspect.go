@@ -426,7 +426,7 @@ func Abnormal(info Column,body_id int,yue float64)(ml Column){
 		if c_one[1] == "左眼" || c_one[1] == "右眼" {
 			if minfo[c_one[0]] != "" {
 				v2, _ := strconv.ParseFloat(minfo[c_one[0]].(string), 64)
-				if (age <= 4 && v2 >= 0.6) || (age == 5 && v2 > 0.8) {
+				if (age <= 4 && v2 >= 0.6) || (age >= 5 && v2 > 0.8) {
 					minfo[abnormal] = "正常"
 				} else {
 					minfo[abnormal] = "异常"

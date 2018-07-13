@@ -99,7 +99,7 @@ func GetAllClass(page int,per_page int,class_id int,body_id int) (ml map[string]
 		where += " and a.body_id = "+strconv.Itoa(body_id)
 	}
 	var d []orm.Params
-	sql := "select a.*,c.name as class_name,b.theme from healthy_class a left join healthy_body b on a.body_id = b.id left join organizational c on c.id = a.class_id "+where+" order by a.id desc "
+	sql := "select a.*,c.name as class_name,c.class_type,b.theme from healthy_class a left join healthy_body b on a.body_id = b.id left join organizational c on c.id = a.class_id "+where+" order by a.id desc "
 	sqlNum := "select count(a.id) as num from healthy_class a left join healthy_body b on a.body_id = b.id left join organizational c on c.id = a.class_id "+where+" order by a.id desc "
 	limit := " limit "+strconv.Itoa((page-1)*per_page)+","+strconv.Itoa(per_page)
 	ml = make(map[string]interface{})
@@ -110,6 +110,15 @@ func GetAllClass(page int,per_page int,class_id int,body_id int) (ml map[string]
 		var total Num
 		err = o.Raw(sqlNum).QueryRow(&total);
 		pageNum := int(math.Ceil(float64(total.Num) / float64(per_page)))
+		for _, val := range d {
+			if val["class_type"].(string) == "3"{
+				val["class_name"] = "大班"+val["class_name"].(string)
+			} else if val["class_type"].(string) == "2"{
+				val["class_name"] = "中班"+val["class_name"].(string)
+			}else if val["class_type"].(string) == "1"{
+				val["class_name"] = "小班"+val["class_name"].(string)
+			}
+		}
 		ml["data"] = d
 		ml["total"] = total.Num
 		ml["pageNum"] = pageNum
