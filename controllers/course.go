@@ -129,7 +129,6 @@ func (c *CourseController) GetCourse() {
 	c.ServeJSON()
 }
 
-
 // PostTime ...
 // @Title 幼儿园添加时间安排(时间段添加)
 // @Description 幼儿园添加时间安排(时间段)
@@ -141,11 +140,11 @@ func (c *CourseController) GetCourse() {
 // @router /add_time [post]
 func (c *CourseController) PostTime() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
-	name :=	c.GetString("name")
+	name := c.GetString("name")
 	begin_time := c.GetString("begin_time")
 	end_time := c.GetString("end_time")
 	types, _ := c.GetInt("type")
-	class_type,_ := c.GetInt("class_type")
+	class_type, _ := c.GetInt("class_type")
 	class_id, _ := c.GetInt("class_id")
 	var course models.KindergartenTime
 	course.KindergartenId = kindergarten_id
@@ -160,7 +159,7 @@ func (c *CourseController) PostTime() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if l,err := models.AddKindergartenTime(course); err == nil {
+		if l, err := models.AddKindergartenTime(course); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, l, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, err, "保存失败"}
@@ -179,9 +178,9 @@ func (c *CourseController) PostTime() {
 // @Failure 1005 获取失败
 // @router /time_list [get]
 func (c *CourseController) GetTimeInfo() {
-	class_type,_ := c.GetInt("class_type")
-	class_id,_ := c.GetInt("class_id")
-	if list := models.GetKindergartenTimeInfo(class_type,class_id); list == nil {
+	class_type, _ := c.GetInt("class_type")
+	class_id, _ := c.GetInt("class_id")
+	if list := models.GetKindergartenTimeInfo(class_type, class_id); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -189,5 +188,3 @@ func (c *CourseController) GetTimeInfo() {
 
 	c.ServeJSON()
 }
-
-

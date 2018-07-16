@@ -357,7 +357,7 @@ func GotAttsByDayAndCls(day string, cid int) (rt map[string]interface{}) {
 	sql += " union all "
 	sql += " select t1.sid,t4.name ,t1.type,t1.reason,null morning,null afternoon,t4.avatar from aleave t1,organizational t2,organizational_member t3, student t4 where t4.student_id=t1.sid and t2.id = ? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.beg < ? and t1.end >?"
 	var r2 []orm.Params
-	db.Raw(sql, cid, day, mend, abeg, aend,cid, aday, aday).Values(&r2)
+	db.Raw(sql, cid, day, mend, abeg, aend, cid, aday, aday).Values(&r2)
 	rt["att"] = r1
 	rt["leave"] = r2
 	return

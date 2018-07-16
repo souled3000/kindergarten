@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"kindergarten-service-go/models"
 	"github.com/astaxie/beego/validation"
+	"kindergarten-service-go/models"
 )
 
 type CourseInfoController struct {
@@ -23,11 +23,11 @@ func (c *CourseInfoController) URLMapping() {
 // @Failure 1005 获取失败
 // @router / [get]
 func (c *CourseInfoController) GetAll() {
-	class_type,_ := c.GetInt("class_type")
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
+	class_type, _ := c.GetInt("class_type")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	date := c.GetString("date")
 
-	if list, err := models.GetCourseInfoList(class_type,kindergarten_id,date); err == nil {
+	if list, err := models.GetCourseInfoList(class_type, kindergarten_id, date); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}

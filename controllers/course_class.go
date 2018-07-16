@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"kindergarten-service-go/models"
 	"github.com/astaxie/beego/validation"
+	"kindergarten-service-go/models"
 )
 
 type CourseClassController struct {
@@ -23,7 +23,7 @@ func (c *CourseClassController) URLMapping() {
 // @router / [post]
 func (c *CourseClassController) Post() {
 	content := c.GetString("content")
-	class_id,_ := c.GetInt("class_id")
+	class_id, _ := c.GetInt("class_id")
 	begin_date := c.GetString("begin_date")
 	end_date := c.GetString("end_date")
 	var course models.CourseClass
@@ -36,7 +36,7 @@ func (c *CourseClassController) Post() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if _,err := models.AddCourseClass(&course); err == nil {
+		if _, err := models.AddCourseClass(&course); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
@@ -55,12 +55,12 @@ func (c *CourseClassController) Post() {
 // @router /class_day [get]
 func (c *CourseClassController) GetTimeOne() {
 
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	class_id,_ := c.GetInt("class_id")
-	types,_ := c.GetInt("type")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
+	types, _ := c.GetInt("type")
 	time := c.GetString("time")
 
-	if list := models.GetCourseClassInfo(class_id,time,types,kindergarten_id); list == nil {
+	if list := models.GetCourseClassInfo(class_id, time, types, kindergarten_id); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -79,11 +79,11 @@ func (c *CourseClassController) GetTimeOne() {
 // @router /class_course [get]
 func (c *CourseClassController) GetTimelist() {
 
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	class_id,_ := c.GetInt("class_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
 	time := c.GetString("time")
 
-	if list := models.GetClassTime(class_id,kindergarten_id,time); list == nil {
+	if list := models.GetClassTime(class_id, kindergarten_id, time); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -101,10 +101,10 @@ func (c *CourseClassController) GetTimelist() {
 // @Failure 1005 获取失败
 // @router /plan [get]
 func (c *CourseClassController) GetPlan() {
-	class_id,_ := c.GetInt("class_id")
+	class_id, _ := c.GetInt("class_id")
 	time := c.GetString("time")
 
-	if list := models.PlanCourseClass(class_id,time); list == nil {
+	if list := models.PlanCourseClass(class_id, time); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
@@ -121,7 +121,7 @@ func (c *CourseClassController) GetPlan() {
 // @Failure 1005 获取失败
 // @router /plan_info [get]
 func (c *CourseClassController) GetPlanInfo() {
-	id,_ := c.GetInt("id")
+	id, _ := c.GetInt("id")
 
 	if list := models.PlanInfoCourseClass(id); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
