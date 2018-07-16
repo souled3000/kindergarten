@@ -23,7 +23,7 @@ func (this *AttCtl) GotStdsByTeaID() {
 	defer this.ServeJSON()
 	cid, _ := this.GetInt("cid")
 	beego.Info("cid:", cid)
-	r := models.GotStdsByTeaID(cid)
+	r := models.GotStds(cid)
 	beego.Info(r)
 	if len(r) > 0 {
 		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
