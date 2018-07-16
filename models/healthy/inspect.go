@@ -1,61 +1,61 @@
 package healthy
 
 import (
-	"github.com/astaxie/beego/orm"
-	"time"
-	"math"
-	"kindergarten-service-go/models"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/astaxie/beego/orm"
+	"kindergarten-service-go/models"
+	"math"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Inspect struct {
-	Id             int			`json:"id" orm:"column(id);auto" description:"编号"`
-	StudentId      int			`json:"student_id" orm:"column(student_id)" description:"学生ID"`
-	Weight         float64		`json:"weight" orm:"column(weight)" description:"体重"`
-	AbnormalWeight string		`json:"abnormal_weight" orm:"column(abnormal_weight)"`
-	ClassName	   string		`json:"class_name" orm:"column" description:"班级名称"`
-	Height         float64		`json:"height" orm:"column(height)" description:"身高"`
-	AbnormalHeight string		`json:"abnormal_height" orm:"column(abnormal_height)"`
-	Content        string 		`json:"content" orm:"column(content);size(100)" description:"备注"`
-	Evaluate       int			`json:"evaluate" orm:"column(evaluate)" description:"评价"`
-	ClassId        int			`json:"class_id" orm:"column(class_id)" description:"班级ID"`
-	KindergartenId int			`json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
-	TeacherId      int 			`json:"teacher_id" orm:"column(teacher_id)" description:"记录人ID"`
-	Types          int			`json:"types" orm:"column(types)" description:"类型"`
-	Handel         string 		`json:"handel" orm:"column(handel);size(100)" description:"处理方式"`
-	Url            string 		`json:"url" orm:"column(url);size(1800)" description:"照片"`
-	Infect         int			`json:"infect" orm:"column(infect)" description:"是否传染"`
-	DrugId		   int			`json:"drug_id" orm:"column(drug_id)" description:"喂药申请"`
-	Abnormal       string 		`json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
-	BodyId		   int			`json:"body_id" orm:"column(body_id)"`
-	Date		   string		`json:"date" orm:"column(date)" description:"参检时间"`
-	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
+	Id             int       `json:"id" orm:"column(id);auto" description:"编号"`
+	StudentId      int       `json:"student_id" orm:"column(student_id)" description:"学生ID"`
+	Weight         float64   `json:"weight" orm:"column(weight)" description:"体重"`
+	AbnormalWeight string    `json:"abnormal_weight" orm:"column(abnormal_weight)"`
+	ClassName      string    `json:"class_name" orm:"column" description:"班级名称"`
+	Height         float64   `json:"height" orm:"column(height)" description:"身高"`
+	AbnormalHeight string    `json:"abnormal_height" orm:"column(abnormal_height)"`
+	Content        string    `json:"content" orm:"column(content);size(100)" description:"备注"`
+	Evaluate       int       `json:"evaluate" orm:"column(evaluate)" description:"评价"`
+	ClassId        int       `json:"class_id" orm:"column(class_id)" description:"班级ID"`
+	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
+	TeacherId      int       `json:"teacher_id" orm:"column(teacher_id)" description:"记录人ID"`
+	Types          int       `json:"types" orm:"column(types)" description:"类型"`
+	Handel         string    `json:"handel" orm:"column(handel);size(100)" description:"处理方式"`
+	Url            string    `json:"url" orm:"column(url);size(1800)" description:"照片"`
+	Infect         int       `json:"infect" orm:"column(infect)" description:"是否传染"`
+	DrugId         int       `json:"drug_id" orm:"column(drug_id)" description:"喂药申请"`
+	Abnormal       string    `json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
+	BodyId         int       `json:"body_id" orm:"column(body_id)"`
+	Date           string    `json:"date" orm:"column(date)" description:"参检时间"`
+	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
 }
 
 type Inspect_add struct {
-	Id             int			`json:"id" orm:"column(id);auto" description:"编号"`
-	StudentId      int			`json:"student_id" orm:"column(student_id)" description:"学生ID"`
-	Weight         float64		`json:"weight" orm:"column(weight)" description:"体重"`
-	ClassName	   string		`json:"class_name" orm:"column" description:"班级名称"`
-	Height         float64		`json:"height" orm:"column(height)" description:"身高"`
-	Content        string 		`json:"content" orm:"column(content);size(100)" description:"备注"`
-	Evaluate       int			`json:"evaluate" orm:"column(evaluate)" description:"评价"`
-	ClassId        int			`json:"class_id" orm:"column(class_id)" description:"班级ID"`
-	KindergartenId int			`json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
-	TeacherId      int 			`json:"teacher_id" orm:"column(teacher_id)" description:"记录人ID"`
-	Types          int			`json:"types" orm:"column(types)" description:"类型"`
-	Handel         string 		`json:"handel" orm:"column(handel);size(100)" description:"处理方式"`
-	Url            string 		`json:"url" orm:"column(url);size(1800)" description:"照片"`
-	Infect         int			`json:"infect" orm:"column(infect)" description:"是否传染"`
-	DrugId		   int			`json:"drug_id" orm:"column(drug_id)" description:"喂药申请"`
-	Abnormal       string 		`json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
-	Date		   string		`json:"date" orm:"column(date)" description:"参检时间"`
-	CreatedAt      time.Time 	`json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
-	BodyId         int			`json:"body_id" orm:"column(body_id)" description:"班级ID"`
-	Info		   Column		`json:"info" orm:""`
+	Id             int       `json:"id" orm:"column(id);auto" description:"编号"`
+	StudentId      int       `json:"student_id" orm:"column(student_id)" description:"学生ID"`
+	Weight         float64   `json:"weight" orm:"column(weight)" description:"体重"`
+	ClassName      string    `json:"class_name" orm:"column" description:"班级名称"`
+	Height         float64   `json:"height" orm:"column(height)" description:"身高"`
+	Content        string    `json:"content" orm:"column(content);size(100)" description:"备注"`
+	Evaluate       int       `json:"evaluate" orm:"column(evaluate)" description:"评价"`
+	ClassId        int       `json:"class_id" orm:"column(class_id)" description:"班级ID"`
+	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
+	TeacherId      int       `json:"teacher_id" orm:"column(teacher_id)" description:"记录人ID"`
+	Types          int       `json:"types" orm:"column(types)" description:"类型"`
+	Handel         string    `json:"handel" orm:"column(handel);size(100)" description:"处理方式"`
+	Url            string    `json:"url" orm:"column(url);size(1800)" description:"照片"`
+	Infect         int       `json:"infect" orm:"column(infect)" description:"是否传染"`
+	DrugId         int       `json:"drug_id" orm:"column(drug_id)" description:"喂药申请"`
+	Abnormal       string    `json:"abnormal" orm:"column(abnormal)" description:"是否传染"`
+	Date           string    `json:"date" orm:"column(date)" description:"参检时间"`
+	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add;auto_now" description:"创建时间"`
+	BodyId         int       `json:"body_id" orm:"column(body_id)" description:"班级ID"`
+	Info           Column    `json:"info" orm:""`
 }
 
 func (t *Inspect) TableName() string {
@@ -67,10 +67,10 @@ func init() {
 }
 
 type Page struct {
-	PageNum int `json:"page_num"`
-	PerPage int `json:"per_page"`
-	Total int `json:"total"`
-	Data []orm.Params `json:"data"`
+	PageNum int          `json:"page_num"`
+	PerPage int          `json:"per_page"`
+	Total   int          `json:"total"`
+	Data    []orm.Params `json:"data"`
 }
 
 //创建记录
@@ -79,30 +79,30 @@ func (m Inspect) Save() error {
 	o := orm.NewOrm()
 
 	where := " where 1=1 "
-	if tmp.StudentId > 0{
-		where += " and student_id = "+strconv.Itoa(tmp.StudentId)
+	if tmp.StudentId > 0 {
+		where += " and student_id = " + strconv.Itoa(tmp.StudentId)
 	}
 
 	if tmp.Date != "" {
-		where += " and left(created_at,10) = '"+tmp.Date+"'"
-	}else {
+		where += " and left(created_at,10) = '" + tmp.Date + "'"
+	} else {
 		day_time := time.Now().Format("2006-01-02")
-		where += " and left(created_at,10) = '"+ day_time +"'"
+		where += " and left(created_at,10) = '" + day_time + "'"
 	}
 
 	var drug []Drug
-	_, err := o.Raw("SELECT id FROM healthy_drug "+where).QueryRows(&drug)
+	_, err := o.Raw("SELECT id FROM healthy_drug " + where).QueryRows(&drug)
 
 	if err == nil && len(drug) != 0 {
 		m.DrugId = drug[0].Id
 	}
-	o.Insert(&m);
+	o.Insert(&m)
 
 	return nil
 }
 
 //晨、午、晚列表
-func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, baby_id int, date,search string) (Page, error) {
+func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, baby_id int, date, search string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -122,16 +122,16 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		con = append(con, types)
 	}
 
-	if class_id != 0{
+	if class_id != 0 {
 		where += "AND healthy_inspect.class_id = ? "
 		con = append(con, class_id)
 	}
 
 	if date == "" {
 		day_time := time.Now().Format("2006-01-02")
-		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
-	}else {
-		where += " AND left(healthy_inspect.date,10) = '"+date+"'"
+		where += " AND left(healthy_inspect.date,10) = '" + day_time + "'"
+	} else {
+		where += " AND left(healthy_inspect.date,10) = '" + date + "'"
 	}
 	if search != "" {
 		where += "AND ( student.name like ? Or teacher.name like ? Or healthy_inspect.abnormal like ? ) "
@@ -144,9 +144,9 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 		var student_id int
 		var student models.Student
 		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-		if err != nil{
+		if err != nil {
 			student_id = 0
-		}else {
+		} else {
 			student_id = student.Id
 		}
 		where += "AND healthy_inspect.student_id = ? "
@@ -203,7 +203,7 @@ func DeleteInspect(id int) map[string]interface{} {
 }
 
 //统计
-func Counts(kindergarten_id int) map[string]interface{}  {
+func Counts(kindergarten_id int) map[string]interface{} {
 	o := orm.NewOrm()
 	counts := make(map[string]interface{})
 	numbers := make(map[string]int64)
@@ -215,53 +215,53 @@ func Counts(kindergarten_id int) map[string]interface{}  {
 	numbers["Saturday"] = 5
 	numbers["Sunday"] = 6
 	//每天统计
-	where := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	where := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	day_time := time.Now().Format("2006-01-02")
-	where += " AND left(created_at,10) = '"+day_time+"'"
+	where += " AND left(created_at,10) = '" + day_time + "'"
 	where += " AND (types = 1 Or types = 2 Or types = 3)"
 	where += " AND abnormal != '' "
 	type Counts struct {
-		Num       int
+		Num int
 	}
 	var count []Counts
-	_, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where ).QueryRows(&count)
-	if err == nil{
+	_, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where).QueryRows(&count)
+	if err == nil {
 		counts["day"] = count[0].Num
 	}
 	//实际检查人数
-	where1 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
-	where1 += " AND left(created_at,10) = '"+day_time+"'"
-	_, err = o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1 ).QueryRows(&count)
-	if err == nil{
+	where1 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where1 += " AND left(created_at,10) = '" + day_time + "'"
+	_, err = o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1).QueryRows(&count)
+	if err == nil {
 		counts["day_actual"] = count[0].Num
 	}
 	//每月统计
 	month_time := time.Now().Format("2006-01")
-	where2 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
-	where2 += " AND left(healthy_inspect.created_at,7) = '"+month_time+"'"
+	where2 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where2 += " AND left(healthy_inspect.created_at,7) = '" + month_time + "'"
 	where2 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
-	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where2 ).QueryRows(&count)
-	if err == nil{
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where2).QueryRows(&count)
+	if err == nil {
 		counts["month"] = count[0].Num
 	}
 	//每周统计
 	t := time.Now()
-	date := time.Now().Unix() - 24 * 60 * 60 *(numbers[t.Weekday().String()])
+	date := time.Now().Unix() - 24*60*60*(numbers[t.Weekday().String()])
 	tm := time.Unix(date, 0)
 	startTime := tm.Format("2006-01-02 00:00:00")
 
-	where3 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
-	where3 += " AND healthy_inspect.created_at >= '"+startTime+"'"
+	where3 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where3 += " AND healthy_inspect.created_at >= '" + startTime + "'"
 	where3 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
-	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where3 ).QueryRows(&count)
-	if err == nil{
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where3).QueryRows(&count)
+	if err == nil {
 		counts["week"] = count[0].Num
 	}
 	//全部统计
-	where4 := " kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	where4 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	where4 += " AND types = 1 Or types = 2 Or types = 3"
-	all, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where4 ).QueryRows(&count)
-	if err == nil{
+	all, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where4).QueryRows(&count)
+	if err == nil {
 		fmt.Println(all)
 		counts["all"] = count[0].Num
 	}
@@ -285,7 +285,7 @@ func InspectInfo(id int) map[string]interface{} {
 //创建记录
 func (m Inspect) SaveInspect() error {
 	o := orm.NewOrm()
-	o.Update(&m);
+	o.Update(&m)
 
 	return nil
 }
@@ -294,33 +294,33 @@ func AddlistInspect(data string) (some_err []interface{}) {
 	o := orm.NewOrm()
 	o.Begin()
 	var i []Inspect_add
-	json.Unmarshal([]byte(data),&i)
-	for key,val := range i{
+	json.Unmarshal([]byte(data), &i)
+	for key, val := range i {
 		var v Inspect
-		s := models.Student{Id:val.StudentId}
+		s := models.Student{Id: val.StudentId}
 		o.Read(&s)
 		tm2, _ := time.Parse("2006-01-02", s.Birthday)
 		timestamp := time.Now().Unix()
 		ptime := tm2.Unix()
-		yue := float64((timestamp-ptime)/int64(30*24*3600))
+		yue := float64((timestamp - ptime) / int64(30*24*3600))
 		fmt.Println(yue)
-		types,_ := CompareHeight(int(s.Sex),yue,val.Height)
+		types, _ := CompareHeight(int(s.Sex), yue, val.Height)
 		v.AbnormalHeight = types
-		weight, _:=CompareWeight(int(s.Sex),yue,val.Weight)
+		weight, _ := CompareWeight(int(s.Sex), yue, val.Weight)
 		v.AbnormalWeight = weight
-		v.StudentId = val.StudentId//学生ID
-		v.Weight = val.Weight//体重
-		v.Height = val.Height//身高
+		v.StudentId = val.StudentId //学生ID
+		v.Weight = val.Weight       //体重
+		v.Height = val.Height       //身高
 		v.Types = val.Types
 		v.Date = time.Now().Format("2006-01-02")
 		v.Content = val.Content
 		v.Evaluate = val.Evaluate
-		v.ClassId = val.ClassId//班级ID
-		v.KindergartenId = val.KindergartenId//幼儿园ID
-		v.BodyId = val.BodyId//主题ID
+		v.ClassId = val.ClassId               //班级ID
+		v.KindergartenId = val.KindergartenId //幼儿园ID
+		v.BodyId = val.BodyId                 //主题ID
 		tmp_i := v
-		if create, id, err := o.ReadOrCreate(&v, "StudentId","ClassId","KindergartenId","BodyId"); err != nil {
-			some_err = append(some_err,err)
+		if create, id, err := o.ReadOrCreate(&v, "StudentId", "ClassId", "KindergartenId", "BodyId"); err != nil {
+			some_err = append(some_err, err)
 		} else {
 			if !create {
 				tmp_i.Id = int(id)
@@ -328,10 +328,10 @@ func AddlistInspect(data string) (some_err []interface{}) {
 			}
 			i[key].Info.StudentId = val.StudentId
 			i[key].Info.InspectId = int(id)
-			temp_c1 := Abnormal(i[key].Info,v.BodyId,yue)
+			temp_c1 := Abnormal(i[key].Info, v.BodyId, yue)
 			temp_c := temp_c1
-			if created, ide, err := o.ReadOrCreate(&temp_c, "StudentId","InspectId"); err != nil {
-				some_err = append(some_err,err)
+			if created, ide, err := o.ReadOrCreate(&temp_c, "StudentId", "InspectId"); err != nil {
+				some_err = append(some_err, err)
 			} else {
 				fmt.Println(temp_c.Column4)
 				temp_c1.Id = temp_c.Id
@@ -367,61 +367,61 @@ func AddlistInspect(data string) (some_err []interface{}) {
 					temp_c1.Column8 = temp_c.Column5
 					temp_c1.Abnormal8 = temp_c.Abnormal5
 				}
-				if created == false{
+				if created == false {
 					temp_c.Id = int(ide)
-					_,err =o.Update(&temp_c1)
+					_, err = o.Update(&temp_c1)
 
 				}
 			}
 		}
 	}
 
-	b := Body{Id:i[0].BodyId}
+	b := Body{Id: i[0].BodyId}
 	if err := o.Read(&b); err == nil {
 		var num Num
-		sql := "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(i[0].BodyId)
+		sql := "select count(a.id) as num from healthy_inspect a where a.body_id = " + strconv.Itoa(i[0].BodyId)
 		o.Raw(sql).QueryRow(&num)
 		b.Actual = num.Num
-		b.Rate = int(math.Ceil(float64(num.Num)/float64(b.Total)*100.0))
+		b.Rate = int(math.Ceil(float64(num.Num) / float64(b.Total) * 100.0))
 		o.Update(&b)
 	} else {
-		some_err = append(some_err,err)
+		some_err = append(some_err, err)
 	}
 	var c Class
-	if err := o.QueryTable("healthy_class").Filter("class_id", i[0].ClassId).Filter("body_id",i[0].BodyId).One(&c); err == nil{
+	if err := o.QueryTable("healthy_class").Filter("class_id", i[0].ClassId).Filter("body_id", i[0].BodyId).One(&c); err == nil {
 		var num Num
-		sql := "select count(a.id) as num from healthy_inspect a where a.body_id = "+strconv.Itoa(i[0].BodyId)+" and class_id="+strconv.Itoa(i[0].ClassId)
+		sql := "select count(a.id) as num from healthy_inspect a where a.body_id = " + strconv.Itoa(i[0].BodyId) + " and class_id=" + strconv.Itoa(i[0].ClassId)
 		o.Raw(sql).QueryRow(&num)
 		c.ClassActual = num.Num
-		c.ClassRate = int(math.Ceil(float64(num.Num)/float64(c.ClassTotal)*100.0))
+		c.ClassRate = int(math.Ceil(float64(num.Num) / float64(c.ClassTotal) * 100.0))
 		o.Update(&c)
 	} else {
-		some_err = append(some_err,err)
+		some_err = append(some_err, err)
 	}
 
 	if len(some_err) > 0 {
 		o.Rollback()
 	} else {
 		o.Commit()
-		return  nil
+		return nil
 	}
 
 	return some_err
 }
 
-func Abnormal(info Column,body_id int,yue float64)(ml Column){
+func Abnormal(info Column, body_id int, yue float64) (ml Column) {
 	var minfo map[string]interface{}
-	mjson,_ := json.Marshal(info)
+	mjson, _ := json.Marshal(info)
 	json.Unmarshal(mjson, &minfo)
 	o := orm.NewOrm()
-	body := Body{Id:body_id}
+	body := Body{Id: body_id}
 	o.Read(&body)
 	age := int(math.Ceil(float64(yue) / 12.0))
-	c_list :=strings.Split(body.Project,",")
+	c_list := strings.Split(body.Project, ",")
 
-	for _,val := range c_list {
-		c_one := strings.Split(val,":")
-		abnormal := strings.Replace(c_one[0],"column","abnormal",6)
+	for _, val := range c_list {
+		c_one := strings.Split(val, ":")
+		abnormal := strings.Replace(c_one[0], "column", "abnormal", 6)
 
 		if c_one[1] == "左眼" || c_one[1] == "右眼" {
 			if minfo[c_one[0]] != "" {
@@ -448,7 +448,7 @@ func Abnormal(info Column,body_id int,yue float64)(ml Column){
 			}
 		}
 	}
-	mljson,_ := json.Marshal(minfo)
+	mljson, _ := json.Marshal(minfo)
 	json.Unmarshal(mljson, &ml)
 	return ml
 }
@@ -464,13 +464,13 @@ func (f *Inspect) Baby(baby_id int) (Page, error) {
 		var student_id int
 		var student models.Student
 		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-		if err != nil{
+		if err != nil {
 			student_id = 0
-		}else {
+		} else {
 			student_id = student.Id
 		}
 
-		where += " AND student_id = "+ strconv.Itoa(student_id)
+		where += " AND student_id = " + strconv.Itoa(student_id)
 
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -489,17 +489,16 @@ func (f *Inspect) Situation(baby_id int) (map[string]interface{}, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1=1 "
-	if baby_id > 0{
-		where += "AND body_id  = "+strconv.Itoa(baby_id)
+	if baby_id > 0 {
+		where += "AND body_id  = " + strconv.Itoa(baby_id)
 	}
 	var Situation []orm.Params
-
 
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("*").From(f.TableName()).Where(where).OrderBy("id").Desc().Limit(1).Offset(0).String()
 
 	if _, err := o.Raw(sql, con).Values(&Situation); err == nil {
-		return Situation[0],nil
+		return Situation[0], nil
 	}
 
 	return nil, nil
@@ -523,9 +522,9 @@ func (f *Inspect) Abnormals(types, page, perPage, kindergarten_id, class_id int,
 	}
 	if date == "" {
 		day_time := time.Now().Format("2006-01-02")
-		where += " AND left(healthy_inspect.date,10) = '"+day_time+"'"
+		where += " AND left(healthy_inspect.date,10) = '" + day_time + "'"
 	} else {
-		where += " AND left(healthy_inspect.date,10) = '"+date+"'"
+		where += " AND left(healthy_inspect.date,10) = '" + date + "'"
 	}
 
 	if types != 0 {
@@ -533,7 +532,7 @@ func (f *Inspect) Abnormals(types, page, perPage, kindergarten_id, class_id int,
 		con = append(con, types)
 	}
 
-	if class_id != 0{
+	if class_id != 0 {
 		where += " AND healthy_inspect.class_id = ? "
 		con = append(con, class_id)
 	}
@@ -588,39 +587,39 @@ func (f *Inspect) Abnormals(types, page, perPage, kindergarten_id, class_id int,
 }
 
 //体检详情
-func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id,baby_id int, column string) (Page, error) {
+func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id, baby_id int, column string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
 	where += "AND healthy_inspect.types = 5 "
 
-	if class_id > 0{
-		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
+	if class_id > 0 {
+		where += " AND healthy_inspect.class_id = " + strconv.Itoa(class_id)
 	}
 	if baby_id > 0 {
 		var student_id int
 		var student models.Student
 		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-		if err != nil{
+		if err != nil {
 			student_id = 0
-		}else {
+		} else {
 			student_id = student.Id
 		}
-		where += " AND healthy_inspect.student_id = "+strconv.Itoa(student_id)
+		where += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
 	}
-	if body_id > 0{
-		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
+	if body_id > 0 {
+		where += " AND healthy_inspect.body_id = " + strconv.Itoa(body_id)
 	}
-	if kindergarten_id > 0{
-		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	if kindergarten_id > 0 {
+		where += " AND healthy_inspect.kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
-	if column != ""{
-		if column == "weight"{
+	if column != "" {
+		if column == "weight" {
 			where += " AND healthy_inspect.weight != 0"
-		}else {
-			where += " AND healthy_column."+ column +" != '' "
+		} else {
+			where += " AND healthy_column." + column + " != '' "
 		}
 	}
 	var total int
@@ -654,7 +653,7 @@ func (f *Inspect) Project(page, perPage, kindergarten_id, class_id, body_id,baby
 }
 
 //体检详情
-func (f *Inspect) ProjectNew(page, perPage, kindergarten_id, class_id, body_id,baby_id int, column string) (Page, error) {
+func (f *Inspect) ProjectNew(page, perPage, kindergarten_id, class_id, body_id, baby_id int, column string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
@@ -662,34 +661,34 @@ func (f *Inspect) ProjectNew(page, perPage, kindergarten_id, class_id, body_id,b
 
 	fmt.Println(where)
 
-	if class_id > 0{
-		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
+	if class_id > 0 {
+		where += " AND healthy_inspect.class_id = " + strconv.Itoa(class_id)
 	}
 	if baby_id > 0 {
 		var student_id int
 		var student models.Student
 		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-		if err != nil{
+		if err != nil {
 			student_id = 0
-		}else {
+		} else {
 			student_id = student.Id
 		}
-		where += " AND healthy_inspect.student_id = "+strconv.Itoa(student_id)
+		where += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
 	}
-	if body_id > 0{
-		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
+	if body_id > 0 {
+		where += " AND healthy_inspect.body_id = " + strconv.Itoa(body_id)
 	}
-	if kindergarten_id > 0{
-		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	if kindergarten_id > 0 {
+		where += " AND healthy_inspect.kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
 
-	if column != ""{
-		if column == "weight"{
+	if column != "" {
+		if column == "weight" {
 			where += " AND healthy_inspect.weight = 0 "
-		}else {
-			where += " AND healthy_column."+ column +" = '' "
+		} else {
+			where += " AND healthy_column." + column + " = '' "
 		}
 	}
 
@@ -730,23 +729,23 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 	where := "1 "
 	where += "AND ( healthy_inspect.types = 1 Or healthy_inspect.types = 2 Or healthy_inspect.types = 3 ) "
 	day_time := time.Now().Format("2006-01-02")
-	where += " AND left(date,10) = '"+day_time+"'"
-	wheres := " left(date,10) = '"+day_time+"'"
+	where += " AND left(date,10) = '" + day_time + "'"
+	wheres := " left(date,10) = '" + day_time + "'"
 	wheres += " AND abnormal is not null "
 	wheres += " AND ( types = 1 Or types = 2 Or types = 3 ) "
 	if baby_id != 0 {
 		var student_id int
 		var student models.Student
 		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-		if err != nil{
+		if err != nil {
 			student_id = 0
-		}else {
+		} else {
 			student_id = student.Id
 		}
 
 		where += " AND healthy_inspect.student_id = ? "
 		con = append(con, student_id)
-		wheres += " AND student_id = "+strconv.Itoa(student_id)
+		wheres += " AND student_id = " + strconv.Itoa(student_id)
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("count(*)").From(f.TableName()).Where(wheres).String()
@@ -764,8 +763,8 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 			OrderBy("id").Desc().
 			Limit(1).Offset(0).String()
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
-			if len(sxWords) != 0{
-				sxWords[0]["index"] = 100 - total *20
+			if len(sxWords) != 0 {
+				sxWords[0]["index"] = 100 - total*20
 
 				return sxWords, nil
 			}
@@ -776,93 +775,93 @@ func (f *Inspect) Personal(baby_id int) ([]orm.Params, error) {
 }
 
 //体重统计
-func (f *Inspect) Weights(kindergarten_id int,date string) ([]orm.Params, error)  {
+func (f *Inspect) Weights(kindergarten_id int, date string) ([]orm.Params, error) {
 	o := orm.NewOrm()
 	var counts []orm.Params
 	wheres := "1"
 	wheres += " AND (healthy_inspect.types = 4 Or healthy_inspect.types = 5)"
-	if date != ""{
-		wheres += " AND left( healthy_body.test_time,4) = '"+ date +"'"
+	if date != "" {
+		wheres += " AND left( healthy_body.test_time,4) = '" + date + "'"
 	}
 	wheres += " group by body_id"
 
 	wheres += " order by healthy_body.id desc "
 	wheres += " limit 6 "
 	_, err := o.Raw("SELECT healthy_body.test_time as date, sum(if(abnormal_weight = '肥胖',1,0)) as fat,sum(if(abnormal_weight = '超重',1,0)) as heavy ,sum(if(abnormal_weight = '瘦小',1,0)) as thin FROM healthy_inspect left join healthy_body on healthy_inspect.body_id = healthy_body.id  WHERE " + wheres).Values(&counts)
-	if err == nil{
-		return counts,nil
+	if err == nil {
+		return counts, nil
 	}
-	return nil , nil
+	return nil, nil
 }
 
 //身高统计
-func (f *Inspect) Heights(kindergarten_id int,date string) ([]orm.Params, error)  {
+func (f *Inspect) Heights(kindergarten_id int, date string) ([]orm.Params, error) {
 	o := orm.NewOrm()
 	var counts []orm.Params
 	wheres := "1"
 	wheres += " AND (healthy_inspect.types = 4 Or healthy_inspect.types = 5)"
-	if date != ""{
-		wheres += " AND left( healthy_body.test_time,4) = '"+ date +"'"
+	if date != "" {
+		wheres += " AND left( healthy_body.test_time,4) = '" + date + "'"
 	}
 	wheres += " group by body_id"
 
 	wheres += " order by healthy_body.id desc "
 	wheres += " limit 6 "
 	_, err := o.Raw("SELECT healthy_body.test_time as date, sum(if(abnormal_height = '超高',1,0)) as fat,sum(if(abnormal_height = '偏矮',1,0)) as heavy ,sum(if(abnormal_height = '矮小',1,0)) as thin FROM healthy_inspect left join healthy_body on healthy_inspect.body_id = healthy_body.id  WHERE " + wheres).Values(&counts)
-	if err == nil{
-		return counts,nil
+	if err == nil {
+		return counts, nil
 	}
-	return nil , nil
+	return nil, nil
 }
 
 //全园统计
-func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error)  {
+func (f *Inspect) Country(kindergarten_id int) ([]orm.Params, error) {
 	o := orm.NewOrm()
 	var counts []orm.Params
 	wheres := " 1 "
-	wheres += " AND kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	wheres += " AND kindergarten_id = " + strconv.Itoa(kindergarten_id)
 
 	wheres += " order by id desc "
 	wheres += " limit 6 "
 
 	_, err := o.Raw("SELECT test_time,(total - actual) as cha,actual,rate FROM healthy_body WHERE" + wheres).Values(&counts)
 
-	if err == nil{
-		return counts,nil
+	if err == nil {
+		return counts, nil
 	}
-	return nil , nil
+	return nil, nil
 }
 
 //后台体检项目
-func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id int,search string) (Page, error) {
+func (f *Inspect) Projects(page, perPage, kindergarten_id, class_id, body_id, baby_id int, search string) (Page, error) {
 	o := orm.NewOrm()
 	var con []interface{}
 	where := "1 "
 	where += "AND healthy_inspect.types = 5 "
 
-	if class_id > 0{
-		where += " AND healthy_inspect.class_id = "+strconv.Itoa(class_id)
+	if class_id > 0 {
+		where += " AND healthy_inspect.class_id = " + strconv.Itoa(class_id)
 	}
 
 	if baby_id > 0 {
 		var student_id int
 		var student models.Student
 		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-		if err != nil{
+		if err != nil {
 			student_id = 0
-		}else {
+		} else {
 			student_id = student.Id
 		}
-		where += " AND healthy_inspect.student_id = "+strconv.Itoa(student_id)
+		where += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
 	}
-	if body_id > 0{
-		where += " AND healthy_inspect.body_id = "+strconv.Itoa(body_id)
+	if body_id > 0 {
+		where += " AND healthy_inspect.body_id = " + strconv.Itoa(body_id)
 	}
-	if kindergarten_id > 0{
-		where += " AND healthy_inspect.kindergarten_id = "+strconv.Itoa(kindergarten_id)
+	if kindergarten_id > 0 {
+		where += " AND healthy_inspect.kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	}
-	if search != ""{
-		where += " AND student.name like " + "'%"+search+"%'"
+	if search != "" {
+		where += " AND student.name like " + "'%" + search + "%'"
 	}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	//sql := qb.Select("").From(f.TableName()).Where(where).String()
@@ -906,13 +905,13 @@ func DeleteStudent(id int) map[string]interface{} {
 	v := Inspect{Id: id}
 	err := o.Begin()
 	if err = o.Read(&v); err == nil {
-		_, err = o.Raw("UPDATE healthy_body SET actual = actual - 1 where id = ? ",v.BodyId ).Exec()
+		_, err = o.Raw("UPDATE healthy_body SET actual = actual - 1 where id = ? ", v.BodyId).Exec()
 		if err != nil {
 			err = o.Rollback()
 			return nil
 		}
-		_, err = o.Raw("UPDATE healthy_class SET class_actual = class_actual - 1 where class_id = ? and body_id = ? ",v.ClassId,v.BodyId ).Exec()
-		if err != nil{
+		_, err = o.Raw("UPDATE healthy_class SET class_actual = class_actual - 1 where class_id = ? and body_id = ? ", v.ClassId, v.BodyId).Exec()
+		if err != nil {
 			err = o.Rollback()
 			return nil
 		}
@@ -921,7 +920,7 @@ func DeleteStudent(id int) map[string]interface{} {
 			paginatorMap["data"] = num
 			o.Commit()
 			return paginatorMap
-		}else {
+		} else {
 			err = o.Rollback()
 			return nil
 		}

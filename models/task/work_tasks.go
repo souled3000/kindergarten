@@ -1,49 +1,49 @@
 package task
 
 import (
-	"time"
-	"github.com/astaxie/beego/orm"
 	"encoding/json"
 	"errors"
+	"github.com/astaxie/beego/orm"
+	"time"
 )
 
 type WorkTasks struct {
-	Id int `json:"id"`
-	Title string `json:"title"`
-	Describe string `json:"describe"`
-	Deadline time.Time `json:"deadline"`
-	SaveFolderId int `json:"save_folder_id"`
-	SaveFolderName string `json:"save_folder_name"`
-	Publisher int `json:"publisher"`
-	PublisherName string `json:"publisher_name"`
-	TaskNum int `json:"task_num"`
-	FinishNum int `json:"finish_num"`
-	Status int `json:"status"`
-	CreatedAt time.Time `json:"created_at" orm:"auto_now_add"`
-	UpdatedAt time.Time `json:"updated_at" orm:"auto_now"`
+	Id             int       `json:"id"`
+	Title          string    `json:"title"`
+	Describe       string    `json:"describe"`
+	Deadline       time.Time `json:"deadline"`
+	SaveFolderId   int       `json:"save_folder_id"`
+	SaveFolderName string    `json:"save_folder_name"`
+	Publisher      int       `json:"publisher"`
+	PublisherName  string    `json:"publisher_name"`
+	TaskNum        int       `json:"task_num"`
+	FinishNum      int       `json:"finish_num"`
+	Status         int       `json:"status"`
+	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt      time.Time `json:"updated_at" orm:"auto_now"`
 }
 
 type WorkTasksOperator struct {
-	Id int `json:"id"`
-	Operator int `json:"operator"`
-	OperatorName string `json:"operator_name"`
-	OperatorAvatar string `json:"operator_avatar"`
-	CoursewareId string `json:"courseware_id"`
-	CoursewareName string `json:"courseware_name"`
-	UploadTime time.Time `json:"upload_time" orm:"auto_now_add"`
-	WorkTasksId int `json:"work_tasks_id"`
-	Status int `json:"status"`
-	CreatedAt time.Time `json:"created_at" orm:"auto_now_add"`
-	UpdatedAt time.Time `json:"updated_at" orm:"auto_now"`
+	Id             int       `json:"id"`
+	Operator       int       `json:"operator"`
+	OperatorName   string    `json:"operator_name"`
+	OperatorAvatar string    `json:"operator_avatar"`
+	CoursewareId   string    `json:"courseware_id"`
+	CoursewareName string    `json:"courseware_name"`
+	UploadTime     time.Time `json:"upload_time" orm:"auto_now_add"`
+	WorkTasksId    int       `json:"work_tasks_id"`
+	Status         int       `json:"status"`
+	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt      time.Time `json:"updated_at" orm:"auto_now"`
 }
 
 type WorkTasksCc struct {
-	Id int `json:"id"`
-	Cc int `json:"cc"`
-	CcName string `json:"cc_name"`
-	WorkTasksId int `json:"work_tasks_id"`
-	CreatedAt time.Time `json:"created_at" orm:"auto_now_add"`
-	UpdatedAt time.Time `json:"updated_at" orm:"auto_now"`
+	Id          int       `json:"id"`
+	Cc          int       `json:"cc"`
+	CcName      string    `json:"cc_name"`
+	WorkTasksId int       `json:"work_tasks_id"`
+	CreatedAt   time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt   time.Time `json:"updated_at" orm:"auto_now"`
 }
 
 func (wt *WorkTasks) TableName() string {
@@ -58,7 +58,7 @@ func (wt *WorkTasksCc) TableName() string {
 	return "work_tasks_cc"
 }
 
-func init()  {
+func init() {
 	orm.RegisterModel(new(WorkTasks), new(WorkTasksOperator), new(WorkTasksCc))
 }
 
@@ -76,10 +76,10 @@ func (wt *WorkTasks) Save(operator, cc []map[string]interface{}) error {
 	for _, value := range operator {
 		recipientId := int(value["id"].(float64))
 		wtr := WorkTasksOperator{
-			Operator:recipientId,
-			OperatorName:value["name"].(string),
-			OperatorAvatar:value["avatar"].(string),
-			WorkTasksId:wt.Id,
+			Operator:       recipientId,
+			OperatorName:   value["name"].(string),
+			OperatorAvatar: value["avatar"].(string),
+			WorkTasksId:    wt.Id,
 		}
 		wtos = append(wtos, wtr)
 	}
@@ -93,7 +93,7 @@ func (wt *WorkTasks) Save(operator, cc []map[string]interface{}) error {
 		var wtcs []WorkTasksCc
 		for _, value := range cc {
 			ccId := int(value["id"].(float64))
-			wtc := WorkTasksCc{Cc:ccId, CcName:value["name"].(string), WorkTasksId:wt.Id}
+			wtc := WorkTasksCc{Cc: ccId, CcName: value["name"].(string), WorkTasksId: wt.Id}
 			wtcs = append(wtcs, wtc)
 		}
 
@@ -193,7 +193,7 @@ func (wt *WorkTasks) GetInfoById() (map[string]interface{}, error) {
 func (wt *WorkTasks) Complete(operator int, coursewareId, coursewareName, uploadTime string) error {
 	o := orm.NewOrm()
 
-	wto := WorkTasksOperator{Operator:operator, WorkTasksId:wt.Id}
+	wto := WorkTasksOperator{Operator: operator, WorkTasksId: wt.Id}
 	if err := o.Read(&wto); err != nil {
 		return err
 	}

@@ -1,28 +1,28 @@
 package healthy
 
 import (
-	"github.com/astaxie/beego/orm"
-	"time"
-	"math"
-	"github.com/hprose/hprose-golang/rpc"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+	"github.com/hprose/hprose-golang/rpc"
 	"kindergarten-service-go/models"
+	"math"
+	"time"
 )
 
 type Drug struct {
-	Id        		int			`json:"id" orm:"column(id);auto" description:"编号"`
-	StudentId 		int			`json:"student_id" orm:"column(student_id)" description:"学生ID"`
-	Drug      		string 		`json:"drug" orm:"column(drug)" description:"药片"`
-	Symptom	  		string		`json:"symptom" orm:"column(symptom)" description:"症状"`
-	Explain   		string 		`json:"explain" orm:"column(explain)" description:"用量说明"`
-	Url       		string		`json:"url" orm:"column(url)" description:"喂药申请图片"`
-	KindergartenId	int			`json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
-	ClassId			int			`json:"class_id" orm:"column(class_id)" description:"班级ID"`
-	ClassName		string		`json:"class_name" orm:"column(class_name)" description:"班级名称"`
-	UserId    		int			`json:"user_id" orm:"column(user_id)"`
-	Avatar			string		`json:"avatar" orm:"column(avatar)" description:"头像"`
-	NoteTaker		string		`json:"note_taker" orm:"column(note_taker)" description:"喂药申请人"`
-	CreatedAt   	time.Time	`json:"created_at" orm:"column(created_at);auto_now_add"`
+	Id             int       `json:"id" orm:"column(id);auto" description:"编号"`
+	StudentId      int       `json:"student_id" orm:"column(student_id)" description:"学生ID"`
+	Drug           string    `json:"drug" orm:"column(drug)" description:"药片"`
+	Symptom        string    `json:"symptom" orm:"column(symptom)" description:"症状"`
+	Explain        string    `json:"explain" orm:"column(explain)" description:"用量说明"`
+	Url            string    `json:"url" orm:"column(url)" description:"喂药申请图片"`
+	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
+	ClassId        int       `json:"class_id" orm:"column(class_id)" description:"班级ID"`
+	ClassName      string    `json:"class_name" orm:"column(class_name)" description:"班级名称"`
+	UserId         int       `json:"user_id" orm:"column(user_id)"`
+	Avatar         string    `json:"avatar" orm:"column(avatar)" description:"头像"`
+	NoteTaker      string    `json:"note_taker" orm:"column(note_taker)" description:"喂药申请人"`
+	CreatedAt      time.Time `json:"created_at" orm:"column(created_at);auto_now_add"`
 }
 
 var User *UserService
@@ -36,7 +36,7 @@ func init() {
 }
 
 type UserService struct {
-	GetBabyCall  func(userId, babyId int)  (map[string]map[string]interface{}, error)
+	GetBabyCall func(userId, babyId int) (map[string]map[string]interface{}, error)
 }
 
 //申请喂药
@@ -46,18 +46,18 @@ func (m Drug) Save(baby_id int) error {
 	//获取学生信息
 	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
 	client.UseService(&User)
-	if uk, err := User.GetBabyCall(tmp.UserId, baby_id);err != nil{
+	if uk, err := User.GetBabyCall(tmp.UserId, baby_id); err != nil {
 		return err
-	}else {
+	} else {
 		avatar := uk["baby"]["avatar"].(string)
-		note_taker := uk["baby"]["nickname"].(string)+"的"+uk["user_family"]["identity"].(string)
+		note_taker := uk["baby"]["nickname"].(string) + "的" + uk["user_family"]["identity"].(string)
 		tmp.Avatar = avatar
 		tmp.NoteTaker = note_taker
 	}
 
 	var student models.Student
 	err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
-	if err == nil{
+	if err == nil {
 		tmp.KindergartenId = student.KindergartenId
 		tmp.StudentId = student.Id
 		//通过学生ID获取班级ID
@@ -66,19 +66,19 @@ func (m Drug) Save(baby_id int) error {
 		if err == nil {
 			//通过组织架构ID获取班级ID
 			var organizational models.Organizational
-			err := o.QueryTable("organizational").Filter("id", member.OrganizationalId).Filter("type",2).Filter("level",3).One(&organizational)
-			if err == nil{
+			err := o.QueryTable("organizational").Filter("id", member.OrganizationalId).Filter("type", 2).Filter("level", 3).One(&organizational)
+			if err == nil {
 				tmp.ClassId = organizational.Id
 				tmp.ClassName = organizational.Name
-				o.Insert(&tmp);
-			}else {
+				o.Insert(&tmp)
+			} else {
 				return err
 			}
-		}else {
+		} else {
 			return err
 		}
 		return nil
-	}else {
+	} else {
 
 		return err
 	}

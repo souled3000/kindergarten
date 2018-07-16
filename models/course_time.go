@@ -8,12 +8,12 @@ import (
 )
 
 type CourseTime struct {
-	Id              int       `json:"id" orm:"column(id);auto;"`
-	CourseId              int       `json:"course_id" orm:"column(course_id)"`
-	Date       string    `json:"date" orm:"column(date);size(30)"`
-	Type 			int			`json:"type" orm:"type"`
-	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
-	KindergartenTimeId  int	`json:"kindergarten_time_id" orm:"kindergarten_time_id"`
+	Id                 int       `json:"id" orm:"column(id);auto;"`
+	CourseId           int       `json:"course_id" orm:"column(course_id)"`
+	Date               string    `json:"date" orm:"column(date);size(30)"`
+	Type               int       `json:"type" orm:"type"`
+	CreatedAt          time.Time `json:"created_at" orm:"auto_now_add"`
+	KindergartenTimeId int       `json:"kindergarten_time_id" orm:"kindergarten_time_id"`
 }
 
 func (t *CourseTime) TableName() string {
@@ -27,7 +27,7 @@ func init() {
 //添加
 func AddCourseTime(m []CourseTime) (err error) {
 	o := orm.NewOrm()
-	if _,err := o.InsertMulti(len(m),&m); err == nil {
+	if _, err := o.InsertMulti(len(m), &m); err == nil {
 		return err
 	}
 	return err
@@ -36,10 +36,10 @@ func AddCourseTime(m []CourseTime) (err error) {
 /*
 列表
 */
-func GetCourseTimeList(parent_id int,kindergarten_id int,status int,page,per_page int) (map[string]interface{},error) {
+func GetCourseTimeList(parent_id int, kindergarten_id int, status int, page, per_page int) (map[string]interface{}, error) {
 	var v []CourseTime
 	o := orm.NewOrm()
-	nums, err := o.QueryTable("course").Filter("status",status).Filter("kindergarten_id",kindergarten_id).Filter("parent_id",parent_id).All(&v)
+	nums, err := o.QueryTable("course").Filter("status", status).Filter("kindergarten_id", kindergarten_id).Filter("parent_id", parent_id).All(&v)
 	if err == nil && nums > 0 {
 		//根据nums总数，和prepage每页数量 生成分页总数
 		totalpages := int(math.Ceil(float64(nums) / float64(per_page))) //page总数
@@ -50,16 +50,16 @@ func GetCourseTimeList(parent_id int,kindergarten_id int,status int,page,per_pag
 			page = 1
 		}
 		limit := (page - 1) * per_page
-		num, err := o.QueryTable("course").Limit(per_page, limit).Filter("status",status).Filter("kindergarten_id",kindergarten_id).Filter("parent_id",parent_id).All(&v)
+		num, err := o.QueryTable("course").Limit(per_page, limit).Filter("status", status).Filter("kindergarten_id", kindergarten_id).Filter("parent_id", parent_id).All(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
 			paginatorMap["total"] = nums          //总条数
 			paginatorMap["data"] = v              //分页数据
 			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap,nil
+			return paginatorMap, nil
 		}
 	}
-	return nil,err
+	return nil, err
 
 }
 

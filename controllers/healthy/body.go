@@ -1,10 +1,10 @@
 package healthy
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"kindergarten-service-go/models/healthy"
 	"strconv"
-	"fmt"
 )
 
 // BodyController operations for Body
@@ -36,16 +36,16 @@ func (c *BodyController) URLMapping() {
 // @router / [post]
 func (c *BodyController) Post() {
 	theme := c.GetString("theme")
-	total,_ := c.GetInt("total")
-	actual,_ := c.GetInt("actual")
-	rate,_ := c.GetInt("rate")
+	total, _ := c.GetInt("total")
+	actual, _ := c.GetInt("actual")
+	rate, _ := c.GetInt("rate")
 	test_time := c.GetString("test_time")
-	mechanism,_ := c.GetInt("mechanism")
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	types,_ := c.GetInt("types")
+	mechanism, _ := c.GetInt("mechanism")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	types, _ := c.GetInt("types")
 	project := c.GetString("project")
 	fmt.Println(project)
-	if project == ""{
+	if project == "" {
 		project = "column1:左眼,column2:右眼,column3:血小板,column4:龋齿"
 		fmt.Println(project)
 	}
@@ -60,7 +60,7 @@ func (c *BodyController) Post() {
 	b.KindergartenId = kindergarten_id
 	b.Types = types
 	b.Project = project
-	if _,err := healthy.AddBody(&b); err == nil {
+	if _, err := healthy.AddBody(&b); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "添加成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "添加失败"}
@@ -87,13 +87,13 @@ func (c *BodyController) Put() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	theme := c.GetString("theme")
-	total,_ := c.GetInt("total")
-	actual,_ := c.GetInt("actual")
-	rate,_ := c.GetInt("rate")
+	total, _ := c.GetInt("total")
+	actual, _ := c.GetInt("actual")
+	rate, _ := c.GetInt("rate")
 	test_time := c.GetString("test_time")
-	mechanism,_ := c.GetInt("mechanism")
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	types,_ := c.GetInt("types")
+	mechanism, _ := c.GetInt("mechanism")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	types, _ := c.GetInt("types")
 	project := c.GetString("project")
 	var b healthy.Body
 	b.Id = id
@@ -133,11 +133,11 @@ func (c *BodyController) GetAll() {
 	if v, err := c.GetInt("per_page"); err == nil {
 		per_page = v
 	}
-	types,_ := c.GetInt("type")
+	types, _ := c.GetInt("type")
 	theme := c.GetString("theme")
 	search := c.GetString("search")
-	kindergarten_id,_ := c.GetInt("kindergarten_id")
-	if l,err := healthy.GetAllBody(kindergarten_id,page,per_page,types,theme,search); err == nil {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	if l, err := healthy.GetAllBody(kindergarten_id, page, per_page, types, theme, search); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}
@@ -155,15 +155,15 @@ func (c *BodyController) GetAll() {
 func (c *BodyController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-	class_id,_ := c.GetInt("class_id")
+	class_id, _ := c.GetInt("class_id")
 	if class_id > 0 {
-		if l,err := healthy.GetOneBodyClasss(id,class_id); err == nil {
+		if l, err := healthy.GetOneBodyClasss(id, class_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}
 		}
-	}else{
-		if l,err := healthy.GetOneBody(id); err == nil {
+	} else {
+		if l, err := healthy.GetOneBody(id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1001, err.Error(), "获取失败"}

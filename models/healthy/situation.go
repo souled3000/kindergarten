@@ -6,10 +6,10 @@ import (
 )
 
 type Situation struct {
-	Id       	int	   	  `json:"id" orm:"column(id);auto"`
-	Name     	string    `json:"name" orm:"column(name);"`
-	Type		int		  `json:"type" orm:"column(type)"`
-	CreatedAt   time.Time `json:"created_at" orm:"auto_now_add"`
+	Id        int       `json:"id" orm:"column(id);auto"`
+	Name      string    `json:"name" orm:"column(name);"`
+	Type      int       `json:"type" orm:"column(type)"`
+	CreatedAt time.Time `json:"created_at" orm:"auto_now_add"`
 }
 
 func init() {
@@ -21,11 +21,11 @@ func (t *Situation) TableName() string {
 }
 
 //创建异常记录
-func (m Situation) Post() error{
-		o := orm.NewOrm()
-		o.Insert(&m);
+func (m Situation) Post() error {
+	o := orm.NewOrm()
+	o.Insert(&m)
 
-		return nil
+	return nil
 }
 
 //删除

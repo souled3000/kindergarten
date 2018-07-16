@@ -350,21 +350,22 @@ func GotAttsByDayAndCls(day string, cid int) (rt map[string]interface{}) {
 func TotalCounting(day string, kid int) (rt []orm.Params) {
 	db := orm.NewOrm()
 	var sql string
-	sql = "select max(case name when 'denominator' then n else 0 end) 'denominator', max(case name when 'numerator' then n else 0 end) 'numerator' "+
-	" from ("+
-	" select 'denominator' name,count(*) n from student t1 where kindergarten_id = ? and status=1 "+
-	" union all"+
-	" select 'numerator' name,count(*) n from attendance t2,student t3 where t2.morning is not null and t2.afternoon is not null and t3.kindergarten_id =? and t3.student_id=t2.sid )z "
+	sql = "select max(case name when 'denominator' then n else 0 end) 'denominator', max(case name when 'numerator' then n else 0 end) 'numerator' " +
+		" from (" +
+		" select 'denominator' name,count(*) n from student t1 where kindergarten_id = ? and status=1 " +
+		" union all" +
+		" select 'numerator' name,count(*) n from attendance t2,student t3 where t2.morning is not null and t2.afternoon is not null and t3.kindergarten_id =? and t3.student_id=t2.sid )z "
 	db.Raw(sql, kid, day).Values(&rt)
 	return
 }
+
 /*
 * 根据学校id求年级
-*/
-func GotGradeByKid(kid int)(rt []orm.Params){
-	db:=orm.NewOrm()
+ */
+func GotGradeByKid(kid int) (rt []orm.Params) {
+	db := orm.NewOrm()
 	var sql string
-	sql =   "select t2.id,t2.name from organizational t ,organizational t2 where t.kindergarten_id = ? and t.level=1 and t.type =2 and t.id = t2.parent_id"
+	sql = "select t2.id,t2.name from organizational t ,organizational t2 where t.kindergarten_id = ? and t.level=1 and t.type =2 and t.id = t2.parent_id"
 	db.Raw(sql, kid).Values(&rt)
 	return
 }

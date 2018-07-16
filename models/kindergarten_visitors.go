@@ -1,20 +1,15 @@
 package models
 
-import(
+import (
 	"github.com/astaxie/beego/orm"
 	"math"
 )
 
-
-
 type Page struct {
-	Data []orm.Params `json:"data"`
-	Total int64 `json:"total"`
-	PageNum int `json:"page_num"`
+	Data    []orm.Params `json:"data"`
+	Total   int64        `json:"total"`
+	PageNum int          `json:"page_num"`
 }
-
-
-
 
 func GetVisitors(page int, limit int) (Page, error) {
 	o := orm.NewOrm()
@@ -46,7 +41,7 @@ func GetVisitors(page int, limit int) (Page, error) {
 
 		if _, err := o.Raw(sql).Values(&maps); err == nil {
 			pageNum := int(math.Ceil(float64(total) / float64(limit)))
-			return Page{maps,total, pageNum}, nil
+			return Page{maps, total, pageNum}, nil
 		}
 	}
 	return Page{}, nil

@@ -1,12 +1,12 @@
 package healthy
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/validation"
 	"kindergarten-service-go/models/healthy"
-	"fmt"
 	"strconv"
-	"github.com/astaxie/beego/orm"
 )
 
 //餐检
@@ -36,25 +36,25 @@ func (c *InspectController) URLMapping() {
 // @router / [post]
 func (c *InspectController) Post() {
 	class_name := c.GetString("class_name")
-	class_id, _:= c.GetInt("class_id")
-	student_id, _:= c.GetInt("student_id")
-	types, _:= c.GetInt("types")
+	class_id, _ := c.GetInt("class_id")
+	student_id, _ := c.GetInt("student_id")
+	types, _ := c.GetInt("types")
 	abnormal := c.GetString("abnormal")
 	handel := c.GetString("handel")
 	url := c.GetString("url")
-	infect, _:= c.GetInt("infect")
-	drug_id, _:= c.GetInt("drug_id")
-	teacher_id, _:= c.GetInt("teacher_id")
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	infect, _ := c.GetInt("infect")
+	drug_id, _ := c.GetInt("drug_id")
+	teacher_id, _ := c.GetInt("teacher_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	date := c.GetString("date")
 	content := c.GetString("content")
 
 	valid := validation.Validation{}
-	valid.Required(class_name,"class_name").Message("班级名称不能为空")
+	valid.Required(class_name, "class_name").Message("班级名称不能为空")
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
-	valid.Required(class_id,"class_id").Message("班级ID不能为空")
-	valid.Required(teacher_id,"teacher_id").Message("教师ID不能为空")
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
+	valid.Required(class_id, "class_id").Message("班级ID不能为空")
+	valid.Required(teacher_id, "teacher_id").Message("教师ID不能为空")
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
@@ -64,19 +64,19 @@ func (c *InspectController) Post() {
 	}
 
 	w := healthy.Inspect{
-		StudentId:student_id,
-		ClassId:class_id,
-		Types:types,
-		Abnormal:abnormal,
-		Handel:handel,
-		Url:url,
-		Infect:infect,
-		DrugId:drug_id,
-		TeacherId:teacher_id,
-		KindergartenId:kindergarten_id,
-		ClassName:class_name,
-		Date:date,
-		Content:content,
+		StudentId:      student_id,
+		ClassId:        class_id,
+		Types:          types,
+		Abnormal:       abnormal,
+		Handel:         handel,
+		Url:            url,
+		Infect:         infect,
+		DrugId:         drug_id,
+		TeacherId:      teacher_id,
+		KindergartenId: kindergarten_id,
+		ClassName:      class_name,
+		Date:           date,
+		Content:        content,
 	}
 	if err := w.Save(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "记录成功"}
@@ -104,26 +104,26 @@ func (c *InspectController) Post() {
 func (c *InspectController) GetAll() {
 	var f *healthy.Inspect
 	page, _ := c.GetInt("page")
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
-	class_id, _:= c.GetInt("class_id")
-	types, _:= c.GetInt("types")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
+	types, _ := c.GetInt("types")
 	perPage, _ := c.GetInt("per_page")
-	role, _:= c.GetInt("role")
+	role, _ := c.GetInt("role")
 	date := c.GetString("date")
-	bady_id, _:= c.GetInt("baby_id")
+	bady_id, _ := c.GetInt("baby_id")
 	search := c.GetString("search")
 
 	//验证参数是否为空
 	valid := validation.Validation{}
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
-	valid.Required(kindergarten_id,"role").Message("用户身份不能为空")
-	if valid.HasErrors(){
-		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
+	valid.Required(kindergarten_id, "role").Message("用户身份不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 		c.ServeJSON()
 		c.StopRun()
 	}
 	fmt.Println(date)
-	if works, err := f.GetAll(page, perPage, kindergarten_id, class_id, types, role, bady_id, date,search ); err == nil {
+	if works, err := f.GetAll(page, perPage, kindergarten_id, class_id, types, role, bady_id, date, search); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -160,12 +160,12 @@ func (c *InspectController) Delete() {
 // @Failure 1003 		获取失败
 // @router /counts/ [get]
 func (c *InspectController) Counts() {
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 
 	valid := validation.Validation{}
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	if valid.HasErrors() {
-		c.Data["json"] = JSONStruct{"error",1001, struct {}{},valid.Errors[0].Message}
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 
 		c.ServeJSON()
 		c.StopRun()
@@ -219,24 +219,24 @@ func (c *InspectController) Put() {
 	c.Ctx.Input.Bind(&id, ":id")
 
 	class_name := c.GetString("class_name")
-	class_id, _:= c.GetInt("class_id")
-	student_id, _:= c.GetInt("student_id")
-	types, _:= c.GetInt("types")
+	class_id, _ := c.GetInt("class_id")
+	student_id, _ := c.GetInt("student_id")
+	types, _ := c.GetInt("types")
 	abnormal := c.GetString("abnormal")
 	handel := c.GetString("handel")
 	url := c.GetString("url")
-	infect, _:= c.GetInt("infect")
-	drug_id, _:= c.GetInt("drug_id")
-	teacher_id, _:= c.GetInt("teacher_id")
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	infect, _ := c.GetInt("infect")
+	drug_id, _ := c.GetInt("drug_id")
+	teacher_id, _ := c.GetInt("teacher_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	content := c.GetString("content")
 	date := c.GetString("date")
 
 	valid := validation.Validation{}
 	valid.Required(student_id, "student_id").Message("学生ID不能为空")
-	valid.Required(class_id,"class_id").Message("班级ID不能为空")
-	valid.Required(types,"types").Message("检查类型不能为空")
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
+	valid.Required(class_id, "class_id").Message("班级ID不能为空")
+	valid.Required(types, "types").Message("检查类型不能为空")
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, "", valid.Errors[0].Message}
@@ -246,20 +246,20 @@ func (c *InspectController) Put() {
 	}
 
 	w := healthy.Inspect{
-		Id:id,
-		StudentId:student_id,
-		ClassId:class_id,
-		Types:types,
-		Abnormal:abnormal,
-		Handel:handel,
-		Url:url,
-		Infect:infect,
-		DrugId:drug_id,
-		TeacherId:teacher_id,
-		KindergartenId:kindergarten_id,
-		ClassName:class_name,
-		Content:content,
-		Date:date,
+		Id:             id,
+		StudentId:      student_id,
+		ClassId:        class_id,
+		Types:          types,
+		Abnormal:       abnormal,
+		Handel:         handel,
+		Url:            url,
+		Infect:         infect,
+		DrugId:         drug_id,
+		TeacherId:      teacher_id,
+		KindergartenId: kindergarten_id,
+		ClassName:      class_name,
+		Content:        content,
+		Date:           date,
 	}
 	if err := w.SaveInspect(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "申请成功"}
@@ -287,24 +287,24 @@ func (c *InspectController) Put() {
 func (c *InspectController) Abnormal() {
 	var f *healthy.Inspect
 	page, _ := c.GetInt("page")
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
-	class_id, _:= c.GetInt("class_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
 	perPage, _ := c.GetInt("per_page")
 	date := c.GetString("date")
 	search := c.GetString("search")
-	types, _:= c.GetInt("types")
+	types, _ := c.GetInt("types")
 
 	fmt.Println(date)
 
 	//验证参数是否为空
 	valid := validation.Validation{}
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
-	if valid.HasErrors(){
-		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 		c.ServeJSON()
 		c.StopRun()
 	}
-	if works, err := f.Abnormals(types, page, perPage, kindergarten_id, class_id, date, search ); err == nil {
+	if works, err := f.Abnormals(types, page, perPage, kindergarten_id, class_id, date, search); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -328,14 +328,14 @@ func (c *InspectController) Abnormal() {
 func (c *InspectController) Project() {
 	var f *healthy.Inspect
 	page, _ := c.GetInt("page")
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
-	class_id, _:= c.GetInt("class_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
 	perPage, _ := c.GetInt("per_page")
-	body_id, _:= c.GetInt("body_id")
-	baby_id, _:= c.GetInt("baby_id")
+	body_id, _ := c.GetInt("body_id")
+	baby_id, _ := c.GetInt("baby_id")
 	search := c.GetString("search")
 
-	if works, err := f.Projects(page, perPage, kindergarten_id, class_id, body_id,baby_id,search ); err == nil {
+	if works, err := f.Projects(page, perPage, kindergarten_id, class_id, body_id, baby_id, search); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -359,15 +359,14 @@ func (c *InspectController) Project() {
 func (c *InspectController) ProjectNew() {
 	var f *healthy.Inspect
 	page, _ := c.GetInt("page")
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
-	class_id, _:= c.GetInt("class_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	class_id, _ := c.GetInt("class_id")
 	perPage, _ := c.GetInt("per_page")
-	body_id, _:= c.GetInt("body_id")
-	baby_id, _:= c.GetInt("baby_id")
+	body_id, _ := c.GetInt("body_id")
+	baby_id, _ := c.GetInt("baby_id")
 	column := c.GetString("column")
 
-
-	if works, err := f.ProjectNew(page, perPage, kindergarten_id, class_id, body_id,baby_id, column); err == nil {
+	if works, err := f.ProjectNew(page, perPage, kindergarten_id, class_id, body_id, baby_id, column); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -388,18 +387,18 @@ func (c *InspectController) ProjectNew() {
 func (c *InspectController) Weight() {
 	var f *healthy.Inspect
 
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	date := c.GetString("date")
 
 	//验证参数是否为空
 	valid := validation.Validation{}
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
-	if valid.HasErrors(){
-		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 		c.ServeJSON()
 		c.StopRun()
 	}
-	if works, err :=f.Weights(kindergarten_id, date); err == nil {
+	if works, err := f.Weights(kindergarten_id, date); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -421,18 +420,18 @@ func (c *InspectController) Weight() {
 func (c *InspectController) Height() {
 	var f *healthy.Inspect
 
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	date := c.GetString("date")
 
 	//验证参数是否为空
 	valid := validation.Validation{}
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
-	if valid.HasErrors(){
-		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 		c.ServeJSON()
 		c.StopRun()
 	}
-	if works, err :=f.Heights(kindergarten_id, date); err == nil {
+	if works, err := f.Heights(kindergarten_id, date); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -453,16 +452,16 @@ func (c *InspectController) Height() {
 // @router /country/ [get]
 func (c *InspectController) Country() {
 	var f *healthy.Inspect
-	kindergarten_id, _:= c.GetInt("kindergarten_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 
 	valid := validation.Validation{}
-	valid.Required(kindergarten_id,"kindergarten_id").Message("幼儿园ID不能为空")
-	if valid.HasErrors(){
-		c.Data["json"] = JSONStruct{"error", 1001, struct {}{}, valid.Errors[0].Message}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, struct{}{}, valid.Errors[0].Message}
 		c.ServeJSON()
 		c.StopRun()
 	}
-	if works, err :=f.Country(kindergarten_id); err == nil {
+	if works, err := f.Country(kindergarten_id); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
@@ -498,10 +497,10 @@ func (c *InspectController) DeleteStudent() {
 // @Success 200 {string} put success!
 // @Failure 403 id is empty
 // @router /content/:id [put]
-func (c *InspectController)  Content(){
+func (c *InspectController) Content() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
-	f := healthy.Inspect{Id:id}
+	f := healthy.Inspect{Id: id}
 	content := c.GetString("content")
 	if err := f.Contents(content); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, f, "操作成功"}
