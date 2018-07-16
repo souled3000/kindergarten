@@ -90,7 +90,7 @@ func (this *AttCtl) ToAll() {
 }
 
 // @Title 请假
-// @Description 请假（用户使用）{"Sid":33,"Applicant":"lchj","Type":1,"Reason":"xxxxx","Beg":"2018-01-01T13:13:13Z","End":"2018-12-05T07:07:07Z"}
+// @Description 请假（用户使用）0:事假;1:病假 {"Sid":33,"Applicant":"lchj","Type":1,"Reason":"xxxxx","Beg":"2018-01-01T13:13:13Z","End":"2018-12-05T07:07:07Z"}
 // @Param	body	body	models.Leave	true	"json"
 // @Success 200	success
 // @Failure 403
@@ -191,6 +191,44 @@ func (this *AttCtl) AttDtl() {
 	cid, _ := this.GetInt("cid")
 	day := this.GetString("day", time.Now().Format("2006-01-02"))
 	r := models.GotAttsByDayAndCls(day, cid)
+	beego.Info(r)
+	if len(r) > 0 {
+		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
+	} else {
+		this.Data["json"] = JSONStruct{"success", 0, nil, "无考勤"}
+	}
+}
+// @Title 考勤总数统计
+// @Description 某日某学校的总统计
+// @Param	kid			query int	true	"学校ID"
+// @Param	day			query string	true	"2016-01-02"
+// @Success 200			success
+// @Failure 403
+// @router /total [get]
+func (this *AttCtl) TotalCounting() {
+	defer this.ServeJSON()
+	kid, _ := this.GetInt("kid")
+	day := this.GetString("day", time.Now().Format("2006-01-02"))
+	r := models.TotalCounting(day, kid)
+	beego.Info(r)
+	if len(r) > 0 {
+		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
+	} else {
+		this.Data["json"] = JSONStruct{"success", 0, nil, "无考勤"}
+	}
+}
+
+
+// @Title 根据学校id求年级
+// @Description 根据学校id求年级
+// @Param	kid			query int	true	"学校ID"
+// @Success 200			success
+// @Failure 403
+// @router /grade [get]
+func (this *AttCtl) Grade() {
+	defer this.ServeJSON()
+	kid, _ := this.GetInt("kid")
+	r := models.GotGradeByKid(kid)
 	beego.Info(r)
 	if len(r) > 0 {
 		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
