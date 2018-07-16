@@ -23,7 +23,7 @@ func (this *AttCtl) GotStdsByTeaID() {
 	defer this.ServeJSON()
 	cid, _ := this.GetInt("cid")
 	beego.Info("cid:", cid)
-	r := models.GotStdsByTeaID(cid)
+	r := models.GotStds(cid)
 	beego.Info(r)
 	if len(r) > 0 {
 		this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
@@ -198,6 +198,7 @@ func (this *AttCtl) AttDtl() {
 		this.Data["json"] = JSONStruct{"success", 0, nil, "无考勤"}
 	}
 }
+
 // @Title 考勤总数统计
 // @Description 某日某学校的总统计
 // @Param	kid			query int	true	"学校ID"
@@ -217,7 +218,6 @@ func (this *AttCtl) TotalCounting() {
 		this.Data["json"] = JSONStruct{"success", 0, nil, "无考勤"}
 	}
 }
-
 
 // @Title 根据学校id求年级
 // @Description 根据学校id求年级
