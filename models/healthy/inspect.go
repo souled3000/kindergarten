@@ -688,7 +688,7 @@ func (f *Inspect) ProjectNew(page, perPage, kindergarten_id, class_id, body_id, 
 		if column == "weight" {
 			where += " AND healthy_inspect.weight = 0 "
 		} else {
-			where += " AND healthy_column." + column + " = '' "
+			where += " AND (healthy_column."+ column +" is null Or healthy_column."+ column +" = '' )"
 		}
 	}
 
