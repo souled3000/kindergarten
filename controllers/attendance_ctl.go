@@ -236,3 +236,16 @@ func (this *AttCtl) Grade() {
 		this.Data["json"] = JSONStruct{"success", 0, nil, "无考勤"}
 	}
 }
+
+// @Title 获取考勤规则
+// @Description 获取考勤规则
+// @Param	kid			query int	true	"学校ID"
+// @Success 200			success
+// @Failure 403
+// @router /getrule [get]
+func (this *AttCtl) GotRule() {
+	defer this.ServeJSON()
+	kid, _ := this.GetInt("kid", 39)
+	r := models.GotRule(kid)
+	this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
+}
