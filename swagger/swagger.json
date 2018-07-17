@@ -2916,6 +2916,48 @@
                 }
             }
         },
+        "/app/attendance/remark": {
+            "post": {
+                "tags": [
+                    "app/attendance"
+                ],
+                "description": "获取考勤规则",
+                "operationId": "AttCtl.获取考勤规则",
+                "parameters": [
+                    {
+                        "in": "formData",
+                        "name": "lid",
+                        "description": "假ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "tye",
+                        "description": "类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "formData",
+                        "name": "reason",
+                        "description": "原因",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/app/attendance/rule": {
             "post": {
                 "tags": [

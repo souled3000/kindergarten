@@ -249,3 +249,17 @@ func (this *AttCtl) GotRule() {
 	r := models.GotRule(kid)
 	this.Data["json"] = JSONStruct{"success", 0, r, "成功"}
 }
+
+// @Title 获取考勤规则
+// @Description 获取考勤规则
+// @Param	lid			formData int	true	"假ID"
+// @Param	tye			formData int	true	"类型"
+// @Param	reason		formData string	true	"原因"
+// @Success 200			success
+// @Failure 403
+// @router /remark [post]
+func (this *AttCtl) Remark(lid, tye int, reason string) {
+	defer this.ServeJSON()
+	models.Remark(lid, reason, tye)
+	this.Data["json"] = JSONStruct{"success", 0, nil, "成功"}
+}
