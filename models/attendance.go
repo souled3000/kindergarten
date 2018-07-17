@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"time"
 	"strings"
+	"time"
 )
 
 type Attendance struct {
@@ -77,8 +77,11 @@ func AttRule(o AttendanceRule) (err error) {
 			db.Commit()
 		}
 	}()
-	created, id, err := db.ReadOrCreate(&o, "Kid")
+	var a AttendanceRule
+	a.Kid = o.Kid
+	created, id, err := db.ReadOrCreate(&a, "Kid")
 	if !created {
+		o.Id = a.Id
 		db.Update(&o)
 	}
 	beego.Debug(id, err)
@@ -238,7 +241,7 @@ func GotStds(cid int) (rt []orm.Params) {
 	r.Kid = t.KindergartenId
 	db.Read(&r, "Kid")
 
-	if !strings.Contains(r.Days, getWeekNum(now.Weekday().String())){
+	if !strings.Contains(r.Days, getWeekNum(now.Weekday().String())) {
 		return
 	}
 
@@ -277,8 +280,8 @@ func GotAbnDtl(tid int) (rt []orm.Params) {
 	var r AttendanceRule
 	r.Kid = t.KindergartenId
 	db.Read(&r, "Kid")
-	
-	if !strings.Contains(r.Days, getWeekNum(now.Weekday().String())){
+
+	if !strings.Contains(r.Days, getWeekNum(now.Weekday().String())) {
 		return
 	}
 
