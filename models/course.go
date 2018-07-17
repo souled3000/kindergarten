@@ -1,11 +1,11 @@
 package models
 
 import (
-	"math"
 	"time"
 
 	"encoding/json"
 	"github.com/astaxie/beego/orm"
+	"math"
 	"strconv"
 )
 
@@ -60,12 +60,12 @@ func UpdataCourse(id int, begin_date string, end_date string) error {
 	return err
 }
 
-/*
-列表
-*/
+//列表
+
 func GetCourseList(parent_id int, kindergarten_id int, status int, page, per_page int) (map[string]interface{}, error) {
 	var v []Course
 	o := orm.NewOrm()
+
 	nums, err := o.QueryTable("course").Filter("kindergarten_id", kindergarten_id).Filter("parent_id", parent_id).All(&v)
 	if err == nil && nums > 0 {
 		//根据nums总数，和prepage每页数量 生成分页总数
@@ -90,9 +90,7 @@ func GetCourseList(parent_id int, kindergarten_id int, status int, page, per_pag
 
 }
 
-/*
-Web -详情
-*/
+//详情
 func GetCourseInfo(id int) map[string]interface{} {
 	var v []Course
 	o := orm.NewOrm()
@@ -105,9 +103,7 @@ func GetCourseInfo(id int) map[string]interface{} {
 	return nil
 }
 
-/*
-删除
-*/
+//删除
 func DeleteCourse(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := Course{Id: id}
@@ -123,9 +119,7 @@ func DeleteCourse(id int) map[string]interface{} {
 	return nil
 }
 
-/*
-专题详情
-*/
+// 专题详情
 func InfoCourse(id int) (ml map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var list []Course

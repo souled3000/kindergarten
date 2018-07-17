@@ -1,10 +1,10 @@
 package models
 
 import (
-	"math"
 	"time"
 
 	"github.com/astaxie/beego/orm"
+	"strconv"
 )
 
 type CourseInfo struct {
@@ -37,16 +37,10 @@ func init() {
 /*
 添加
 */
-func AddCourseInfo(m *CourseInfo, class_course_time []CourseTime) (map[string]interface{}, error) {
+func AddCourseInfo(m *CourseInfo) (map[string]interface{}, error) {
 	o := orm.NewOrm()
 	id, err := o.Insert(m)
 	if err == nil {
-		if len(class_course_time) > 0 {
-			for key, _ := range class_course_time {
-				class_course_time[key].CourseId = int(id)
-			}
-			AddCourseTime(class_course_time)
-		}
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = id //返回数据
 		return paginatorMap, err
@@ -57,28 +51,17 @@ func AddCourseInfo(m *CourseInfo, class_course_time []CourseTime) (map[string]in
 /*
 列表
 */
-func GetCourseInfoList(parent_id int, kindergarten_id int, status int, page, per_page int) (map[string]interface{}, error) {
+func GetCourseInfoList(class_type int, kindergarten_id int, date string) (map[string]interface{}, error) {
 	var v []CourseInfo
 	o := orm.NewOrm()
-	nums, err := o.QueryTable("course").Filter("status", status).Filter("kindergarten_id", kindergarten_id).Filter("parent_id", parent_id).All(&v)
-	if err == nil && nums > 0 {
-		//根据nums总数，和prepage每页数量 生成分页总数
-		totalpages := int(math.Ceil(float64(nums) / float64(per_page))) //page总数
-		if page > totalpages {
-			page = totalpages
-		}
-		if page <= 0 {
-			page = 1
-		}
-		limit := (page - 1) * per_page
-		num, err := o.QueryTable("course").Limit(per_page, limit).Filter("status", status).Filter("kindergarten_id", kindergarten_id).Filter("parent_id", parent_id).All(&v)
-		if err == nil && num > 0 {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["total"] = nums          //总条数
-			paginatorMap["data"] = v              //分页数据
-			paginatorMap["page_num"] = totalpages //总页数
-			return paginatorMap, nil
-		}
+	sql := "select a.* from course_info a left join course b on a.course_id = b.id where b.begin_date <='" + date + "' and b.end_date >= '" + date + "' and b.class_type=" + strconv.Itoa(class_type) + " and b.kindergarten_id =" + strconv.Itoa(kindergarten_id)
+
+	_, err := o.Raw(sql).QueryRows(&v)
+	if err == nil {
+		paginatorMap := make(map[string]interface{})
+		paginatorMap["data"] = v //分页数据
+		return paginatorMap, nil
+
 	}
 	return nil, err
 
