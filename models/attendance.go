@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"time"
+	"strings"
 )
 
 type Attendance struct {
@@ -202,6 +203,24 @@ func AskForLeave(o Leave) (err error) {
 	beego.Debug(id, err)
 	return
 }
+func getWeekNum(weekname string) (n string) {
+	switch weekname {
+	case "Monday":
+		n = "1"
+	case "Tuesday":
+		n = "2"
+	case "Wednesday":
+		n = "3"
+	case "Thursday":
+		n = "4"
+	case "Friday":
+		n = "5"
+	case "Saturday":
+		n = "6"
+	case "Sunday":
+		n = "7"
+	}
+}
 
 /*
 *	获取教师下的学生 为教师页面
@@ -209,6 +228,7 @@ func AskForLeave(o Leave) (err error) {
 func GotStds(cid int) (rt []orm.Params) {
 	db := orm.NewOrm()
 	now := time.Now()
+
 	today := now.Format("2006-01-02")
 	var t Organizational
 	t.Id = cid
@@ -216,6 +236,10 @@ func GotStds(cid int) (rt []orm.Params) {
 	var r AttendanceRule
 	r.Kid = t.KindergartenId
 	db.Read(&r, "Kid")
+
+	if !strings.Contains(r.Days, getWeekNum(now.Weekday())){
+		return
+	}
 
 	//	mbeg, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Mbeg,time.Local)
 	mend, _ := time.ParseInLocation("2006-01-02 15:04", today+" "+r.Mend, time.Local)
@@ -252,6 +276,10 @@ func GotAbnDtl(tid int) (rt []orm.Params) {
 	var r AttendanceRule
 	r.Kid = t.KindergartenId
 	db.Read(&r, "Kid")
+	
+	if !strings.Contains(r.Days, getWeekNum(now.Weekday())){
+		return
+	}
 
 	//	mbeg, _ := time.ParseInLocation("2006-01-02 15:04:05", today+" "+r.Mbeg)
 	mend, _ := time.ParseInLocation("2006-01-02 15:04", today+" "+r.Mend, time.Local)
@@ -357,7 +385,7 @@ func GotAttsByDayAndCls(day string, cid int) (rt map[string]interface{}) {
 	sql += " union all "
 	sql += " select t1.sid,t4.name ,t1.type,t1.reason,null morning,null afternoon,t4.avatar from aleave t1,organizational t2,organizational_member t3, student t4 where t4.student_id=t1.sid and t2.id = ? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.beg < ? and t1.end >?"
 	var r2 []orm.Params
-	db.Raw(sql, cid, day, mend, abeg, aend,cid, aday, aday).Values(&r2)
+	db.Raw(sql, cid, day, mend, abeg, aend, cid, aday, aday).Values(&r2)
 	rt["att"] = r1
 	rt["leave"] = r2
 	return
@@ -386,5 +414,12 @@ func GotGradeByKid(kid int) (rt []orm.Params) {
 	var sql string
 	sql = "select t2.id,t2.name from organizational t ,organizational t2 where t.kindergarten_id = ? and t.level=1 and t.type =2 and t.id = t2.parent_id"
 	db.Raw(sql, kid).Values(&rt)
+	return
+}
+
+func GotRule(kid int) (r AttendanceRule) {
+	db := orm.NewOrm()
+	r.Kid = kid
+	db.Read(&r, "Kid")
 	return
 }

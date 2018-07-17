@@ -32,8 +32,7 @@ func init() {
 //添加时间段
 func AddKindergartenTime(m KindergartenTime) (info interface{}, err error) {
 	o := orm.NewOrm()
-	fmt.Println(m)
-	if _, err := o.Insert(&m); err != nil {
+	if _, err := o.Insert(&m); err == nil {
 		return m, nil
 	}
 	return nil, err

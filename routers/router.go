@@ -35,6 +35,18 @@ func init() {
 			),
 		),
 
+		beego.NSNamespace("/course_class",
+			beego.NSInclude(
+				&controllers.CourseClassController{},
+			),
+		),
+
+		beego.NSNamespace("/course_info",
+			beego.NSInclude(
+				&controllers.CourseInfoController{},
+			),
+		),
+
 		beego.NSNamespace("/healthy/drug",
 			beego.NSInclude(
 				&healthy.DrugController{},
