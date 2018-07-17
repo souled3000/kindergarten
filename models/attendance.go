@@ -77,8 +77,11 @@ func AttRule(o AttendanceRule) (err error) {
 			db.Commit()
 		}
 	}()
-	created, id, err := db.ReadOrCreate(&o, "Kid")
+	var a AttendanceRule
+	a.Kid = o.Kid
+	created, id, err := db.ReadOrCreate(&a, "Kid")
 	if !created {
+		o.Id = a.Id
 		db.Update(&o)
 	}
 	beego.Debug(id, err)
