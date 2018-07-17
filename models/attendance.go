@@ -220,6 +220,7 @@ func getWeekNum(weekname string) (n string) {
 	case "Sunday":
 		n = "7"
 	}
+	return n
 }
 
 /*
@@ -237,7 +238,7 @@ func GotStds(cid int) (rt []orm.Params) {
 	r.Kid = t.KindergartenId
 	db.Read(&r, "Kid")
 
-	if !strings.Contains(r.Days, getWeekNum(now.Weekday())){
+	if !strings.Contains(r.Days, getWeekNum(now.Weekday().String())){
 		return
 	}
 
@@ -277,7 +278,7 @@ func GotAbnDtl(tid int) (rt []orm.Params) {
 	r.Kid = t.KindergartenId
 	db.Read(&r, "Kid")
 	
-	if !strings.Contains(r.Days, getWeekNum(now.Weekday())){
+	if !strings.Contains(r.Days, getWeekNum(now.Weekday().String())){
 		return
 	}
 
