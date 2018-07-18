@@ -105,6 +105,22 @@ func GetCourseClassInfo(class_id int, date string, types int, kindergarten_id in
 	return nil
 }
 
+//课程表，一天的课程
+func GetCourseDayClassInfo(kindergarten_id int) map[string]interface{} {
+	o := orm.NewOrm()
+	var kt []KindergartenTime
+
+	sql := "select * from kindergarten_time where  kindergarten_id=" + strconv.Itoa(kindergarten_id) + " and class_id = 0 order by begin_time asc"
+	if _, err := o.Raw(sql).QueryRows(&kt); err == nil {
+
+	}
+	paginatorMap := make(map[string]interface{})
+	paginatorMap["data"] = kt
+	return paginatorMap
+
+	return nil
+}
+
 /*
 删除
 */
@@ -130,7 +146,38 @@ func PlanCourseClass(class_id int, date_time string) map[string]interface{} {
 	sql := "select * from course_class where class_id=" + strconv.Itoa(class_id) + " and left(begin_date,7) = '" + date_time + "' order by begin_date asc"
 	o.Raw(sql).QueryRows(&v)
 	ml := make(map[string]interface{})
-	ml["data"] = v
+	var list []map[string]interface{}
+	vjson,_ := json.Marshal(v)
+	json.Unmarshal(vjson,&list)
+	for key,v := range list {
+		type Course_myinfolist struct {
+			Date         string `json:"date"`
+			Name         string `json:"name"`
+			CourseInfoId int    `json:"course_info_id"`
+			CourseId     int    `json:"course_id"`
+		}
+		type Course_myinfo struct {
+			KindergartenTimeId int                 `json:"kindergarten_time_id"`
+			Time               string              `json:"time"`
+			Course             []Course_myinfolist `json:"course"`
+		}
+		var content []Course_myinfo
+		json.Unmarshal([]byte(v["content"].(string)), &content)
+		info_id := "0"
+		course_id := "0"
+		for _, va := range content {
+			for _, v := range va.Course {
+				info_id += "," + strconv.Itoa(v.CourseInfoId)
+				course_id += "," + strconv.Itoa(v.CourseId)
+			}
+		}
+		sql_info := "select a.name,a.aim,a.id from course a left join course b on a.id = b.parent_id where b.id in (" + course_id + ") group by a.id"
+		var zhuanti []orm.Params
+		o.Raw(sql_info).Values(&zhuanti)
+		list[key]["data"] = zhuanti
+		delete(list[key],"content")
+	}
+	ml["data"] = list
 	return ml
 }
 
@@ -197,4 +244,18 @@ func PlanInfoCourseClass(id int) map[string]interface{} {
 
 	}
 	return nil
+}
+
+func PlanInfonewCourseClass(id int,c_id int) map[string]interface{} {
+	list := PlanInfoCourseClass(id)
+	ljson,_ := json.Marshal(list["data"])
+	var l []map[string]interface{}
+	json.Unmarshal(ljson,&l)
+	ml := make(map[string]interface{})
+	for _,val := range l {
+		if val["id"].(string) == strconv.Itoa(c_id) {
+			ml["data"] = val
+		}
+	}
+	return ml
 }
