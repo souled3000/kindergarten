@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego/validation"
 	"kindergarten-service-go/models"
+	"strconv"
 )
 
 type CourseInfoController struct {
@@ -50,6 +51,8 @@ func (c *CourseInfoController) GetAll() {
 func (c *CourseInfoController) Add_info() {
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	course_id, _ := c.GetInt("course_id")
+	types, _ := c.GetInt("type")
+
 	tearcher_id, _ := c.GetInt("tearcher_id")
 	name := c.GetString("name")
 	aim := c.GetString("aim")
@@ -62,6 +65,7 @@ func (c *CourseInfoController) Add_info() {
 	activity := c.GetString("activity")
 	etc := c.GetString("etc")
 	list := c.GetString("list")
+	times := c.GetString("times")
 	job := c.GetString("job")
 	var course models.CourseInfo
 	course.CourseId = course_id
@@ -69,6 +73,7 @@ func (c *CourseInfoController) Add_info() {
 	course.TearcherName = tearcher_name
 	course.Name = name
 	course.Aim = aim
+	course.Type = types
 	course.Domain = domain
 	course.Intro = intro
 	course.Url = url
@@ -76,6 +81,7 @@ func (c *CourseInfoController) Add_info() {
 	course.Plan = plan
 	course.Activity = activity
 	course.Etc = etc
+	course.Times = times
 	course.List = list
 	course.Job = job
 	valid := validation.Validation{}
@@ -88,6 +94,44 @@ func (c *CourseInfoController) Add_info() {
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "保存失败"}
 		}
+	}
+	c.ServeJSON()
+}
+
+
+// GetOne ...
+// @Title 			课程详情
+// @Description 	课程详情
+// @Param	id		path 	string	true		"课程ID"
+// @Success 0 		{string} 	success
+// @Failure 1004		获取失败
+// @router /:id [get]
+func (c *CourseInfoController) GetOne() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	if l := models.GetCourseInfoInfo(id); l != nil {
+		c.Data["json"] = JSONStruct{"success", 0, l, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "获取失败"}
+	}
+	c.ServeJSON()
+}
+
+
+// Delete ...
+// @Title 			删除课程
+// @Description 		删除课程
+// @Param	id		path 	string	true		"课程ID"
+// @Success 0 		{string} 	success
+// @Failure 1004		删除失败
+// @router /:id [delete]
+func (c *CourseInfoController) Delete() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	if err := models.DeleteCourseInfo(id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, err, "删除成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	}
 	c.ServeJSON()
 }

@@ -176,6 +176,7 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
 			LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
 			Where(where).
+			OrderBy("healthy_inspect.id").Desc().
 			Limit(limit).Offset(start).String()
 
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {

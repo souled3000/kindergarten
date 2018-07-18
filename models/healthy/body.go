@@ -239,7 +239,7 @@ func GetAllBody(kindergarten_id, page int, per_page int, types int, theme string
 	var d []Body
 
 	ml = make(map[string]interface{})
-	if _, err = qs.Limit(per_page, (page-1)*per_page).OrderBy("-id").All(&d); err == nil {
+	if _, err = qs.Limit(per_page, (page-1)*per_page).OrderBy("-test_time").All(&d); err == nil {
 		num, _ := qs.Count()
 		var dd []map[string]interface{}
 		djson, _ := json.Marshal(d)
