@@ -170,7 +170,7 @@ func (c *InspectController) Counts() {
 		c.ServeJSON()
 		c.StopRun()
 	}
-	v := healthy.Counts(kindergarten_id)
+	v := healthy.Countss(kindergarten_id)
 
 	if v == nil {
 		c.Data["json"] = JSONStruct{"error", 1003, nil, "获取失败"}

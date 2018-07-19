@@ -945,3 +945,63 @@ func (f *Inspect) Contents(content string) error {
 
 	return nil
 }
+
+
+//SaaS统计
+func Countss(kindergarten_id int) map[string]interface{} {
+	o := orm.NewOrm()
+	counts := make(map[string]interface{})
+	numbers := make(map[string]int64)
+	numbers["Monday"] = 0
+	numbers["Tuesday"] = 1
+	numbers["Wednesday"] = 2
+	numbers["Thursday"] = 3
+	numbers["Friday"] = 4
+	numbers["Saturday"] = 5
+	numbers["Sunday"] = 6
+	//每天统计
+	where := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	day_time := time.Now().Format("2006-01-02")
+	where += " AND left(date,10) = '" + day_time + "'"
+	where += " AND (types = 1 Or types = 2 Or types = 3)"
+	where += " AND abnormal != '' "
+	type Counts struct {
+		Num int
+	}
+	var count []Counts
+	_, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where).QueryRows(&count)
+	if err == nil {
+		counts["day"] = count[0].Num
+	}
+	//每月统计
+	month_time := time.Now().Format("2006-01")
+	where2 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where2 += " AND (types = 1 Or types = 2 Or types = 3)"
+	where2 += " AND left(healthy_inspect.date,7) = '" + month_time + "'"
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect where" + where2).QueryRows(&count)
+	if err == nil {
+		counts["month"] = count[0].Num
+	}
+	//每周统计
+	t := time.Now()
+	date := time.Now().Unix() - 24*60*60*(numbers[t.Weekday().String()])
+	tm := time.Unix(date, 0)
+	startTime := tm.Format("2006-01-02 00:00:00")
+
+	where3 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where3 += " AND healthy_inspect.created_at >= '" + startTime + "'"
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect where" + where3).QueryRows(&count)
+	if err == nil {
+		counts["week"] = count[0].Num
+	}
+	//全部统计
+	where4 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where4 += " AND types = 1 Or types = 2 Or types = 3"
+	all, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where4).QueryRows(&count)
+	if err == nil {
+		fmt.Println(all)
+		counts["all"] = count[0].Num
+	}
+
+	return counts
+}
