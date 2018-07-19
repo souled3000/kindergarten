@@ -66,6 +66,25 @@ paths:
             $ref: '#/definitions/models.Kindergarten'
         "403":
           description: :id is empty
+    delete:
+      tags:
+      - admin/kindergarten
+      description: 删除幼儿园
+      operationId: KindergartenController.删除幼儿园
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
   /admin/kindergarten/{id}:
     get:
       tags:
@@ -78,6 +97,51 @@ paths:
         description: 幼儿园ID
         required: true
         type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - admin/kindergarten
+      description: 编辑幼儿园
+      operationId: KindergartenController.编辑幼儿园
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+  /admin/kindergarten/getkg:
+    get:
+      tags:
+      - admin/kindergarten
+      description: 登陆幼儿园信息
+      operationId: KindergartenController.登陆幼儿园信息
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -822,6 +886,38 @@ paths:
             $ref: '#/definitions/models.Permission'
         "403":
           description: :id is empty
+    put:
+      tags:
+      - admin/permission
+      description: 编辑权限
+      operationId: PermissionController.编辑权限
+      parameters:
+      - in: body
+        name: route
+        description: 路由功能
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Permission'
+        "403":
+          description: body is empty
+    delete:
+      tags:
+      - admin/permission
+      description: 删除权限
+      operationId: PermissionController.删除权限
+      parameters:
+      - in: body
+        name: id
+        description: 权限id
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Permission'
+        "403":
+          description: body is empty
   /admin/permission/option:
     get:
       tags:

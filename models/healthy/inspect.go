@@ -3,7 +3,9 @@ package healthy
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/astaxie/beego/orm"
+
 	"kindergarten-service-go/models"
 	"math"
 	"strconv"
@@ -218,7 +220,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	//每天统计
 	where := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	day_time := time.Now().Format("2006-01-02")
-	where += " AND left(created_at,10) = '" + day_time + "'"
+	where += " AND left(date,10) = '" + day_time + "'"
 	where += " AND (types = 1 Or types = 2 Or types = 3)"
 	where += " AND abnormal != '' "
 	type Counts struct {
@@ -231,7 +233,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	}
 	//实际检查人数
 	where1 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
-	where1 += " AND left(created_at,10) = '" + day_time + "'"
+	where1 += " AND left(date,10) = '" + day_time + "'"
 	_, err = o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1).QueryRows(&count)
 	if err == nil {
 		counts["day_actual"] = count[0].Num
@@ -239,7 +241,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	//每月统计
 	month_time := time.Now().Format("2006-01")
 	where2 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
-	where2 += " AND left(healthy_inspect.created_at,7) = '" + month_time + "'"
+	where2 += " AND left(healthy_inspect.date,7) = '" + month_time + "'"
 	where2 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
 	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where2).QueryRows(&count)
 	if err == nil {
@@ -689,7 +691,7 @@ func (f *Inspect) ProjectNew(page, perPage, kindergarten_id, class_id, body_id, 
 		if column == "weight" {
 			where += " AND healthy_inspect.weight = 0 "
 		} else {
-			where += " AND (healthy_column."+ column +" is null Or healthy_column."+ column +" = '' )"
+			where += " AND (healthy_column." + column + " is null Or healthy_column." + column + " = '' )"
 		}
 	}
 

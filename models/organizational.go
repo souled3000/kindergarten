@@ -533,7 +533,7 @@ func GetClassStudent(class_id int) (paginatorMapmap map[string]interface{}, err 
 	qb, _ := orm.NewQueryBuilder("mysql")
 	paginatorMap := make(map[string]interface{})
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name", "s.avatar").From("student as s").LeftJoin("organizational_member as om").
+	sql := qb.Select("s.student_id", "o.id as class_id", "o.name as class_name", "o.class_type", "s.name", "s.avatar", "s.phone").From("student as s").LeftJoin("organizational_member as om").
 		On("s.student_id = om.member_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("om.organizational_id = ?").And("om.type = 1").String()
 	num, err := o.Raw(sql, class_id).Values(&v)
@@ -594,7 +594,7 @@ func GetBabyClass(babyIds string) (paginatorMapmap map[string]interface{}, err e
 	paginatorMapmap = make(map[string]interface{})
 	for _, s := range baby_id {
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("s.name", "s.student_id", "s.baby_id", "o.name as class_name", "o.id as class_id", "class_type").From("student as s").LeftJoin("organizational_member as om").
+		sql := qb.Select("s.name", "s.student_id", "s.baby_id", "o.name as class_name", "o.id as class_id", "class_type", "s.kindergarten_id").From("student as s").LeftJoin("organizational_member as om").
 			On("s.student_id = om.member_id").LeftJoin("organizational as o").
 			On("om.organizational_id = o.id").Where("s.baby_id = ?").And("s.status = 1").And("om.type = 1").And("om.is_principal = 0").And("isnull(s.deleted_at)").String()
 		_, err = o.Raw(sql, s).Values(&v)

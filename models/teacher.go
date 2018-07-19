@@ -208,7 +208,6 @@ func GetTeacherInfo(id int) (paginatorMap map[string]interface{}, err error) {
 		paginatorMap["data"] = v
 		return paginatorMap, nil
 	}
-
 	return nil, err
 }
 
