@@ -56,7 +56,7 @@ func (c *ExceptionalChildController) GetAll() {
 // @Param	child_name			formData  string	true		"特殊儿童姓名"
 // @Param	class				formData  int 		true		"特殊儿童班级"
 // @Param	somatotype			formData  int		true		"体质类型"
-// @Param	allergen			formData  string	true		"过敏源"
+// @Param	allergen			formData  string	false		"过敏源"
 // @Param	source				formData  int		true		"信息来源"
 // @Param	kindergarten_id		formData  int		true		"幼儿园ID"
 // @Param	creator				formData  int		true		"创建人"
@@ -138,7 +138,7 @@ func (c *ExceptionalChildController) GetOne() {
 // @Param	child_name		body 	string	false		"特殊儿童姓名"
 // @Param	class			body 	int		false		"特殊儿童班级"
 // @Param	somatotype		body 	int		false		"体质类型"
-// @Param	allergen			body 	string	false		"过敏源"
+// @Param	allergen		body 	string	false		"过敏源"
 // @Param	student_id		body 	int		false		"学生ID"
 // @Success 0 				{json} 	JSONStruct
 // @Failure 1003			更新失败
