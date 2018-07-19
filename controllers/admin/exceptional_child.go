@@ -56,7 +56,7 @@ func (c *ExceptionalChildController) GetAll() {
 // @Param	child_name			formData  string	true		"特殊儿童姓名"
 // @Param	class				formData  int 		true		"特殊儿童班级"
 // @Param	somatotype			formData  int		true		"体质类型"
-// @Param	allergen			formData  string	true		"过敏源"
+// @Param	allergen			formData  string	false		"过敏源"
 // @Param	source				formData  int		true		"信息来源"
 // @Param	kindergarten_id		formData  int		true		"幼儿园ID"
 // @Param	creator				formData  int		true		"创建人"
@@ -87,7 +87,6 @@ func (c *ExceptionalChildController) Post() {
 	valid.Required(child_name, "child_name").Message("儿童姓名不能为空")
 	valid.Required(class, "class").Message("所在班级不能为空")
 	valid.Required(somatotype, "somatotype").Message("体质类型不能为空")
-	valid.Required(allergen, "allergen").Message("过敏源不能为空")
 	valid.Required(source, "source").Message("信息来源不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人不能为空")
@@ -139,7 +138,7 @@ func (c *ExceptionalChildController) GetOne() {
 // @Param	child_name		body 	string	false		"特殊儿童姓名"
 // @Param	class			body 	int		false		"特殊儿童班级"
 // @Param	somatotype		body 	int		false		"体质类型"
-// @Param	allergen			body 	string	false		"过敏源"
+// @Param	allergen		body 	string	false		"过敏源"
 // @Param	student_id		body 	int		false		"学生ID"
 // @Success 0 				{string} 	success
 // @Failure 1003			更新失败
