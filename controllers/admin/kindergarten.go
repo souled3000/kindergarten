@@ -152,3 +152,120 @@ func (c *KindergartenController) SetKindergarten() {
 		c.ServeJSON()
 	}
 }
+
+// delete ...
+// @Title 删除幼儿园
+// @Description 删除幼儿园
+// @Param	kindergarten_id		path 	int	true		"幼儿园ID"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router / [delete]
+func (c *KindergartenController) Delete() {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		err := models.DeleteKinder(kindergarten_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "删除失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+		}
+		c.ServeJSON()
+	}
+}
+
+// updata ...
+// @Title 编辑幼儿园
+// @Description 编辑幼儿园
+// @Param	kindergarten_id		path 	int	true		"幼儿园ID"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router /:id [put]
+func (c *KindergartenController) Update() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	name := c.GetString("name")
+	license_no, _ := c.GetInt("license_no")
+	kinder_grade := c.GetString("kinder_grade")
+	kinder_child_no, _ := c.GetInt("kinder_child_no")
+	address := c.GetString("address")
+	tenant_id, _ := c.GetInt("tenant_id")
+	valid := validation.Validation{}
+	valid.Required(name, "name").Message("幼儿园名称不能为空")
+	valid.Required(license_no, "license_no").Message("执照号不能为空")
+	valid.Required(kinder_grade, "kinder_grade").Message("幼儿园级别不能为空")
+	valid.Required(kinder_child_no, "kinder_child_no").Message("分校数")
+	valid.Required(address, "address").Message("地址不能为空")
+	valid.Required(tenant_id, "tenant_id").Message("企业编号不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		err := models.UpdataKinder(id, name, license_no, kinder_grade, kinder_child_no, address, tenant_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "编辑失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
+		}
+		c.ServeJSON()
+	}
+}
+
+// GetKg ...
+// @Title 登陆幼儿园信息
+// @Description 登陆幼儿园信息
+// @Param	kindergarten_id		path 	int	true		"幼儿园ID"
+// @Param	user_id		        path 	int	true		"用户ID"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router /getkg [get]
+func (c *KindergartenController) GetKg() {
+	user_id, _ := c.GetInt("user_id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	valid := validation.Validation{}
+	valid.Required(user_id, "user_id").Message("用户id为空")
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v, err := models.GetKg(user_id, kindergarten_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}
+
+// GetKinderMbmber ...
+// @Title oms-幼儿园所有成员
+// @Description oms-幼儿园所有成员
+// @Param	kindergarten_id		path 	int	true		"幼儿园ID"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router /get_member [get]
+func (c *KindergartenController) GetKinderMbmber() {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	prepage, _ := c.GetInt("per_page", 20)
+	page, _ := c.GetInt("page")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v, err := models.GetKinderMbmber(kindergarten_id, page, prepage)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}

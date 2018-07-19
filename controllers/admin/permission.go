@@ -99,3 +99,56 @@ func (c *PermissionController) Option() {
 	}
 	c.ServeJSON()
 }
+
+// Update ...
+// @Title 编辑权限
+// @Description 编辑权限
+// @Param	route		        body 	int 	false		"路由功能"
+// @Success 201 {int} models.Permission
+// @Failure 403 body is empty
+// @router /:id [put]
+func (c *PermissionController) Update() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	routeId := c.GetString("routeId")
+	valid := validation.Validation{}
+	valid.Required(routeId, "routeId").Message("路由不能空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		err := models.UpdatePermission(id, routeId)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "编辑失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "编辑成功"}
+		}
+		c.ServeJSON()
+	}
+}
+
+// Delete ...
+// @Title 删除权限
+// @Description 删除权限
+// @Param	id		        body 	int 	false		"权限id"
+// @Success 201 {int} models.Permission
+// @Failure 403 body is empty
+// @router /:id [delete]
+func (c *PermissionController) Delete() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	valid := validation.Validation{}
+	valid.Required(id, "id").Message("权限id不能空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		err := models.DeletePermission(id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "删除失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
+		}
+		c.ServeJSON()
+	}
+}
