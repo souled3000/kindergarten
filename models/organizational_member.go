@@ -53,12 +53,33 @@ func AddMembers(ty int, member_ids string, organizational_id int, is_principal i
 				if v[0]["type"] == "2" && v[0]["level"] == "3" {
 					//0教师 1学生
 					if ty == 0 {
-						_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
-							"status": 1,
-						})
-						if err != nil {
-							o.Rollback()
-							return err
+						if v[0]["class_type"] == "3" {
+							class_info := "大班" + v[0]["name"].(string) + ""
+							_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
+								"status": 1, "class_info": class_info,
+							})
+							if err != nil {
+								o.Rollback()
+								return err
+							}
+						} else if v[0]["class_type"] == "2" {
+							class_info := "中班" + v[0]["name"].(string) + ""
+							_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
+								"status": 1, "class_info": class_info,
+							})
+							if err != nil {
+								o.Rollback()
+								return err
+							}
+						} else {
+							class_info := "小班" + v[0]["name"].(string) + ""
+							_, err := o.QueryTable("teacher").Filter("teacher_id", value).Update(orm.Params{
+								"status": 1, "class_info": class_info,
+							})
+							if err != nil {
+								o.Rollback()
+								return err
+							}
 						}
 					} else {
 						if v[0]["class_type"] == "3" {

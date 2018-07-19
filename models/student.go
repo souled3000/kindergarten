@@ -419,6 +419,9 @@ func GetNameClass(name string, kindergarten_id int) (paginatorMap map[string]int
 	return nil, err
 }
 
+/*
+班级下的学生
+*/
 func ClassStudent(kindergarten_id int) (ml map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var class []orm.Params
