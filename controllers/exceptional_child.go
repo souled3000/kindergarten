@@ -30,11 +30,13 @@ func (c *ExceptionalChildController) GetSearch() {
 
 	// limit
 	limit, _ := c.GetInt64("per_page")
+	// 幼儿园ID
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 
-	if info, err := models.GetAllExceptionalChild("", 0, page, limit, keyword); err == nil {
+	if info, err := models.GetAllExceptionalChild("", 0, page, limit, keyword, kindergarten_id); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
 	c.ServeJSON()
 }
@@ -48,16 +50,19 @@ func (c *ExceptionalChildController) GetSearch() {
 // @router / [get]
 func (c *ExceptionalChildController) GetAllergenChild() {
 	allergen := c.GetString("allergen")
+	// 幼儿园ID
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	valid := validation.Validation{}
 	valid.Required(allergen, "allergen").Message("过敏源信息不能为空")
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if allergenChild, err := models.GetAllergenChild(allergen); err == nil {
+		if allergenChild, err := models.GetAllergenChild(allergen, kindergarten_id); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, allergenChild, "获取成功"}
 		} else {
-			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+			c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 		}
 	}
 	c.ServeJSON()
@@ -101,10 +106,15 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if _, err := models.AllergenPreparation(child_name, somatotype, allergen, source, kindergarten_id, creator, baby_id); err == nil {
-			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
+		if num, err := models.AllergenPreparation(child_name, somatotype, allergen, source, kindergarten_id, creator, baby_id); err == nil {
+			if num == 0 {
+				c.Data["json"] = JSONStruct{"error", 1007, nil, "已有此数据"}
+			} else {
+				c.Data["json"] = JSONStruct{"success", 0, nil, "保存成功"}
+			}
+
 		} else {
-			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
+			c.Data["json"] = JSONStruct{"error", 1003, err, "保存失败"}
 		}
 	}
 	c.ServeJSON()
@@ -119,10 +129,12 @@ func (c *ExceptionalChildController) AllergenPreparation() {
 func (c *ExceptionalChildController) GetAllergen() {
 	// 宝宝ID
 	id, _ := c.GetInt("baby_id")
-	if info, err := models.GetAllergen(id); err == nil {
+	// 幼儿园ID
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	if info, err := models.GetAllergen(id, kindergarten_id); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
 	c.ServeJSON()
 }
@@ -138,9 +150,9 @@ func (c *ExceptionalChildController) DelAllergen() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	if err := models.DeleteExceptionalChild(id); err == nil {
-		c.Data["json"] = JSONStruct{"success", 0, err, "删除成功"}
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
+		c.Data["json"] = JSONStruct{"error", 1004, err, "删除失败"}
 	}
 	c.ServeJSON()
 }
