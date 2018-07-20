@@ -1005,3 +1005,130 @@ func Countss(kindergarten_id int) map[string]interface{} {
 
 	return counts
 }
+
+//宝宝健康指数
+func (f *Inspect) PersonalInfo(baby_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND ( healthy_inspect.types = 1 Or healthy_inspect.types = 2 Or healthy_inspect.types = 3 ) "
+	day_time := time.Now().Format("2006-01-02")
+	where += " AND left(date,10) = '" + day_time + "'"
+	wheres := " left(date,10) = '" + day_time + "'"
+	wheres += " AND abnormal is not null "
+	wheres += " AND ( types = 1 Or types = 2 Or types = 3 ) "
+	var student_id int
+	if baby_id != 0 {
+		fmt.Println(baby_id)
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil {
+			student_id = 0
+		} else {
+			student_id = student.Id
+		}
+
+		fmt.Println(student_id)
+		where += " AND healthy_inspect.student_id = ? "
+		con = append(con, student_id)
+		wheres += " AND student_id = " + strconv.Itoa(student_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(wheres).String()
+
+	var total int
+	err := o.Raw(sql).QueryRow(&total)
+
+	if err == nil {
+		var sxWords []orm.Params
+
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.age,student.avatar").From(f.TableName()).
+			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+			Where(where).
+			OrderBy("id").Desc().
+			Limit(2).Offset(0).String()
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+			if len(sxWords) != 0 {
+				qb, _ := orm.NewQueryBuilder("mysql")
+				wheres2 := " types = 5 "
+				wheres2 += " AND student_id = " + strconv.Itoa(student_id)
+				sql1 := qb.Select("*").From(f.TableName()).Where(wheres2).OrderBy("id").Desc().Limit(1).Offset(0).String()
+				var Heights []orm.Params
+				if _, err := o.Raw(sql1).Values(&Heights); err == nil{
+					sxWords[0]["height"] = Heights[0]["height"]
+					sxWords[0]["weight"] = Heights[0]["weight"]
+				}
+				sxWords[0]["index"] = 100 - total*20
+				return Page{0, 0, total, sxWords}, nil
+			}else {
+				qb, _ := orm.NewQueryBuilder("mysql")
+				wheres2 := " healthy_inspect.types = 5 "
+				wheres2 += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
+				sql1 := qb.Select("healthy_inspect.*,student.name as student_name,student.age,student.avatar").From(f.TableName()).
+					LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+					Where(wheres2).
+					OrderBy("id").Desc().Limit(1).Offset(0).String()
+				var Heights []orm.Params
+				if _, err := o.Raw(sql1).Values(&Heights); err == nil{
+					Heights[0]["index"] = 100
+				}
+				return Page{0, 0, total, Heights}, nil
+			}
+		}
+	}
+
+	return Page{}, nil
+}
+
+//主题列表
+func (f *Inspect) Body(page, perPage, kindergarten_id, baby_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND healthy_inspect.types = 5 "
+	if baby_id > 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil {
+			student_id = 0
+		} else {
+			student_id = student.Id
+		}
+		where += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
+	}
+	if kindergarten_id > 0 {
+		where += " AND healthy_inspect.kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	var total int
+	err := o.Raw(sql, con).QueryRow(&total)
+	if err == nil {
+		var sxWords []orm.Params
+
+		limit := 10
+		if perPage != 0 {
+			limit = perPage
+		}
+		if page <= 0 {
+			page = 1
+		}
+		start := (page - 1) * limit
+		where += " AND healthy_body.status = 1 "
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_body.*").From(f.TableName()).
+			LeftJoin("healthy_body").On("healthy_inspect.body_id = healthy_body.id").
+			Where(where).
+			Limit(limit).Offset(start).String()
+
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+
+			pageNum := int(math.Ceil(float64(total) / float64(limit)))
+			return Page{pageNum, limit, total, sxWords}, nil
+		}
+	}
+
+	return Page{}, nil
+}

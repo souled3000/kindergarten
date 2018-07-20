@@ -90,7 +90,8 @@ func (m Drug) Save(baby_id int) error {
 func (f *Drug) GetAll(page, perPage, kindergarten_id, class_id, role, types int) (Page, error) {
 	var con []interface{}
 	where := "1 "
-
+	day_time := time.Now().Format("2006-01-02")
+	where += " AND left(created_at,10) = '" + day_time + "'"
 	if kindergarten_id != 0 {
 		where += "AND healthy_drug.kindergarten_id = ? "
 		con = append(con, kindergarten_id)
