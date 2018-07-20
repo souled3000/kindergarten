@@ -20,7 +20,7 @@ type Body struct {
 	Mechanism      int       `json:"mechanism" orm:"column(mechanism)" description:"体检机构"`
 	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
 	Types          int       `json:"types" orm:"column(types)"`
-	Status         int		 `json:"status" orm:"column(status)"`
+	Status         int       `json:"status" orm:"column(status)"`
 	Project        string    `json:"project" orm:"column(project)" description:"体检项目"`
 	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add" description:"创建时间"`
 }

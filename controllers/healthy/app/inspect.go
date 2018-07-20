@@ -491,7 +491,6 @@ func (c *InspectController) PersonalInfo() {
 	c.ServeJSON()
 }
 
-
 // GetAll ...
 // @Title GetAll
 // @Description 项目详情

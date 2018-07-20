@@ -3,8 +3,8 @@ package task
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
-	"time"
 	"kindergarten-service-go/models/task"
+	"time"
 )
 
 type WorkPlanController struct {
@@ -45,7 +45,7 @@ func (c *WorkPlanController) Post() {
 		c.StopRun()
 	}
 
-	wp := task.WorkPlan{Content:content, PlanTime:planTime, Creator:creator}
+	wp := task.WorkPlan{Content: content, PlanTime: planTime, Creator: creator}
 
 	if _, err := wp.Save(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, "", "创建成功"}
@@ -65,7 +65,7 @@ func (c *WorkPlanController) Post() {
 func (c *WorkPlanController) Get() {
 	uId, _ := c.GetInt("u_id")
 
-	wp := task.WorkPlan{Creator:uId}
+	wp := task.WorkPlan{Creator: uId}
 
 	if res, err := wp.Get(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}

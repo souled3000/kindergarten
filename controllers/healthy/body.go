@@ -3,9 +3,9 @@ package healthy
 import (
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 	"kindergarten-service-go/models/healthy"
 	"strconv"
-	"github.com/astaxie/beego/orm"
 )
 
 // BodyController operations for Body
@@ -200,10 +200,10 @@ func (c *BodyController) Delete() {
 // @Success 0 {object} healthy.Body
 // @Failure 1003 :id is not int
 // @router /push/:id [put]
-func (c *BodyController)  Push(){
+func (c *BodyController) Push() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
-	f := healthy.Body{Id:id}
+	f := healthy.Body{Id: id}
 	if err := f.Push(); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, f, "设置成功"}
 	} else if err == orm.ErrNoRows {

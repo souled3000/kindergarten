@@ -946,7 +946,6 @@ func (f *Inspect) Contents(content string) error {
 	return nil
 }
 
-
 //SaaS统计
 func Countss(kindergarten_id int) map[string]interface{} {
 	o := orm.NewOrm()
@@ -1055,13 +1054,13 @@ func (f *Inspect) PersonalInfo(baby_id int) (Page, error) {
 				wheres2 += " AND student_id = " + strconv.Itoa(student_id)
 				sql1 := qb.Select("*").From(f.TableName()).Where(wheres2).OrderBy("id").Desc().Limit(1).Offset(0).String()
 				var Heights []orm.Params
-				if _, err := o.Raw(sql1).Values(&Heights); err == nil{
+				if _, err := o.Raw(sql1).Values(&Heights); err == nil {
 					sxWords[0]["height"] = Heights[0]["height"]
 					sxWords[0]["weight"] = Heights[0]["weight"]
 				}
 				sxWords[0]["index"] = 100 - total*20
 				return Page{0, 0, total, sxWords}, nil
-			}else {
+			} else {
 				qb, _ := orm.NewQueryBuilder("mysql")
 				wheres2 := " healthy_inspect.types = 5 "
 				wheres2 += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
@@ -1070,7 +1069,7 @@ func (f *Inspect) PersonalInfo(baby_id int) (Page, error) {
 					Where(wheres2).
 					OrderBy("id").Desc().Limit(1).Offset(0).String()
 				var Heights []orm.Params
-				if _, err := o.Raw(sql1).Values(&Heights); err == nil{
+				if _, err := o.Raw(sql1).Values(&Heights); err == nil {
 					Heights[0]["index"] = 100
 				}
 				return Page{0, 0, total, Heights}, nil

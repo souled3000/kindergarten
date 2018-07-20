@@ -439,8 +439,8 @@ func Remark(aleaveId int, reason string, tye int) {
 	db := orm.NewOrm()
 	var a Leave
 	a.Id = aleaveId
-	db.Read(&a,"Id")
+	db.Read(&a, "Id")
 	a.Reason = reason
-	a.Type=tye
+	a.Type = tye
 	db.Update(&a)
 }

@@ -88,7 +88,6 @@ func (c *CourseClassController) GetTimeDay() {
 	c.ServeJSON()
 }
 
-
 // GetTimelist ...
 // @Title 获取班级课程表
 // @Description 获取班级课程表
@@ -144,7 +143,7 @@ func (c *CourseClassController) GetPlanInfo() {
 	id, _ := c.GetInt("id")
 	c_id, _ := c.GetInt("c_id")
 
-	if list := models.PlanInfonewCourseClass(id,c_id); list == nil {
+	if list := models.PlanInfonewCourseClass(id, c_id); list == nil {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
