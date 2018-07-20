@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"kindergarten-service-go/models/healthy"
 	"strconv"
+	"github.com/astaxie/beego/orm"
 )
 
 // BodyController operations for Body
@@ -189,5 +190,27 @@ func (c *BodyController) Delete() {
 	} else {
 		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	}
+	c.ServeJSON()
+}
+
+// Put ...
+// @Title Put
+// @Description 推送家长
+// @Param	id				path 		int	true		"id"
+// @Success 0 {object} healthy.Body
+// @Failure 1003 :id is not int
+// @router /push/:id [put]
+func (c *BodyController)  Push(){
+	var id int
+	c.Ctx.Input.Bind(&id, ":id")
+	f := healthy.Body{Id:id}
+	if err := f.Push(); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, f, "设置成功"}
+	} else if err == orm.ErrNoRows {
+		c.Data["json"] = JSONStruct{"error", 1002, err, "作品不存在"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1003, err, "设置失败"}
+	}
+
 	c.ServeJSON()
 }
