@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -53,7 +54,7 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 		exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 		exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 		if id, err := o.Insert(&exceptionalChild); err != nil && id <= 0 {
-			return id, err
+			return id, errors.New("保存失败")
 		} else {
 			return id, nil
 		}
@@ -80,7 +81,6 @@ func GetExceptionalChildById(id string, kindergarten_id int) (exceptionalChild i
 				v["class_name"] = nil
 			} else if v["class_type"].(string) == "3" {
 				v["class_name"] = "大班" + v["name"].(string) + ""
-
 			} else if v["class_type"].(string) == "2" {
 				v["class_name"] = "中班" + v["name"].(string) + ""
 			} else {
@@ -161,15 +161,12 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 				if v["somatotype"] == nil {
 					v["somatot_info"] = nil
-					v["allergen"] = "无"
 				} else if v["somatotype"].(string) == "3" {
 					v["somatot_info"] = v["allergen"].(string) + "过敏"
 				} else if v["somatotype"].(string) == "2" {
 					v["somatot_info"] = "肥胖"
-					v["allergen"] = "无"
 				} else {
 					v["somatot_info"] = "瘦小"
-					v["allergen"] = "无"
 				}
 
 				// 序号
@@ -209,7 +206,9 @@ func UpdateExceptionalChildById(id int, child_name string, class int, somatotype
 	o := orm.NewOrm()
 	exceptionalChild := ExceptionalChild{Id: id}
 	if err = o.Read(&exceptionalChild); err == nil {
-		if exceptionalChild.Somatotype == somatotype && exceptionalChild.StudentId == student_id && exceptionalChild.Allergen == allergen && exceptionalChild.KindergartenId == kindergarten_id {
+		var infos []orm.Params
+		where := " allergen like \"%" + string(allergen) + "%\" AND somatotype = " + strconv.Itoa(int(somatotype)) + " AND student_id = " + strconv.Itoa(student_id) + " AND kindergarten_id = " + strconv.Itoa(kindergarten_id)
+		if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE " + where).Values(&infos); er == nil && n > 0 {
 			// 已存在相同数据
 			return 0, nil
 		} else {
@@ -364,7 +363,8 @@ func AllergenPreparation(child_name string, somatotype int8, allergens string, s
 			}
 			id, err = o.InsertMulti(1, exceptionalChildList)
 		}
-		return id, err
+		return num, err
 	}
+	err = errors.New("该学生不存在")
 	return id, err
 }
