@@ -147,9 +147,9 @@ func PlanCourseClass(class_id int, date_time string) map[string]interface{} {
 	o.Raw(sql).QueryRows(&v)
 	ml := make(map[string]interface{})
 	var list []map[string]interface{}
-	vjson,_ := json.Marshal(v)
-	json.Unmarshal(vjson,&list)
-	for key,v := range list {
+	vjson, _ := json.Marshal(v)
+	json.Unmarshal(vjson, &list)
+	for key, v := range list {
 		type Course_myinfolist struct {
 			Date         string `json:"date"`
 			Name         string `json:"name"`
@@ -175,7 +175,7 @@ func PlanCourseClass(class_id int, date_time string) map[string]interface{} {
 		var zhuanti []orm.Params
 		o.Raw(sql_info).Values(&zhuanti)
 		list[key]["data"] = zhuanti
-		delete(list[key],"content")
+		delete(list[key], "content")
 	}
 	ml["data"] = list
 	return ml
@@ -246,13 +246,13 @@ func PlanInfoCourseClass(id int) map[string]interface{} {
 	return nil
 }
 
-func PlanInfonewCourseClass(id int,c_id int) map[string]interface{} {
+func PlanInfonewCourseClass(id int, c_id int) map[string]interface{} {
 	list := PlanInfoCourseClass(id)
-	ljson,_ := json.Marshal(list["data"])
+	ljson, _ := json.Marshal(list["data"])
 	var l []map[string]interface{}
-	json.Unmarshal(ljson,&l)
+	json.Unmarshal(ljson, &l)
 	ml := make(map[string]interface{})
-	for _,val := range l {
+	for _, val := range l {
 		if val["id"].(string) == strconv.Itoa(c_id) {
 			ml["data"] = val
 		}

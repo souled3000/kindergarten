@@ -98,7 +98,6 @@ func (c *CourseInfoController) Add_info() {
 	c.ServeJSON()
 }
 
-
 // GetOne ...
 // @Title 			课程详情
 // @Description 	课程详情
@@ -116,7 +115,6 @@ func (c *CourseInfoController) GetOne() {
 	}
 	c.ServeJSON()
 }
-
 
 // Delete ...
 // @Title 			删除课程

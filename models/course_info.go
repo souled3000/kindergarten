@@ -23,7 +23,7 @@ type CourseInfo struct {
 	Job          string    `json:"job" orm:"column(job)`
 	Etc          string    `json:"etc" orm:"column(etc)`
 	List         string    `json:"list" orm:"column(list)`
-	Type   		 int       `json:"type" orm:"column(type)"`
+	Type         int       `json:"type" orm:"column(type)"`
 	Times        string    `json:"times" orm:"column(times)`
 	CreatedAt    time.Time `json:"created_at" orm:"auto_now_add"`
 }

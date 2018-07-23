@@ -1,18 +1,17 @@
 package task
 
 import (
-	"time"
 	"github.com/astaxie/beego/orm"
 	"encoding/json"
 )
 
 type WorkPlan struct {
-	Id             int       `json:"id"`
-	Content        string    `json:"content"`
-	PlanTime       time.Time `json:"plan_time"`
-	Creator        int       `json:"creator"`
-	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
-	UpdatedAt      time.Time `json:"updated_at" orm:"auto_now"`
+	Id        int       `json:"id"`
+	Content   string    `json:"content"`
+	PlanTime  time.Time `json:"plan_time"`
+	Creator   int       `json:"creator"`
+	CreatedAt time.Time `json:"created_at" orm:"auto_now_add"`
+	UpdatedAt time.Time `json:"updated_at" orm:"auto_now"`
 }
 
 func (wp *WorkPlan) TableName() string {
