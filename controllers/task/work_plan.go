@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/validation"
 	"kindergarten-service-go/models/task"
+	"github.com/astaxie/beego/orm"
 	"time"
 )
 
@@ -71,6 +72,30 @@ func (c *WorkPlanController) Get() {
 		c.Data["json"] = JSONStruct{"success", 0, res, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, "", "获取失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// @Title 删除工作计划
+// @Description 删除工作计划
+// @Param   id     		path    int  	true        "工作计划ID"
+// @Success 0 {json} JSONStruct
+// @Failure 1002 工作计划不存在
+// @Failure 1004 删除失败
+// @router /:id [delete]
+func (c *WorkPlanController) Delete() {
+	var id int
+	c.Ctx.Input.Bind(&id, ":id")
+
+	wp := task.WorkPlan{Id:id}
+
+	if err := wp.Delete(); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, "", "删除成功"}
+	} else if err == orm.ErrNoRows {
+		c.Data["json"] = JSONStruct{"error", 1002, "", "工作计划不存在"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1004, "", "删除失败"}
 	}
 
 	c.ServeJSON()

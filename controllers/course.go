@@ -4,6 +4,7 @@ import (
 	"kindergarten-service-go/models"
 
 	"github.com/astaxie/beego/validation"
+	"strconv"
 )
 
 type CourseController struct {
@@ -85,27 +86,77 @@ func (c *CourseController) Post() {
 	c.ServeJSON()
 }
 
+// Add_use ...
+// @Title 专题时间安排
+// @Description 专题时间安排
+// @param 		id				query  	int    	true		"专题id"
+// @param 		begin_date			query  	string 	true		"开始时间"
+// @param 		end_date			query  	string 	true		"结束时间"
+// @param 		name			query  	string 	true		"名称"
+// @param 		url			query  	string 	true		"封面"
+// @router /adduse [post]
+func (c *CourseController) Add_use() {
+	id, _ := c.GetInt("id")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+
+	valid := validation.Validation{}
+	valid.Required(id, "id").Message("专题id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+	} else {
+		if err := models.UseCourse(id, kindergarten_id); err == nil {
+			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
+		} else {
+			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
+		}
+	}
+	c.ServeJSON()
+}
+
+
 // Add_time ...
 // @Title 专题时间安排
 // @Description 专题时间安排
 // @param 		id				query  	int    	true		"专题id"
 // @param 		begin_date			query  	string 	true		"开始时间"
 // @param 		end_date			query  	string 	true		"结束时间"
+// @param 		name			query  	string 	true		"名称"
+// @param 		url			query  	string 	true		"封面"
 // @router /addtime [post]
 func (c *CourseController) Add_time() {
 	id, _ := c.GetInt("id")
 	begin_date := c.GetString("begin_date")
 	end_date := c.GetString("end_date")
+	name := c.GetString("name")
+	url := c.GetString("url")
 	valid := validation.Validation{}
 	valid.Required(id, "id").Message("专题id不能为空")
 	if valid.HasErrors() {
 		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
 	} else {
-		if err := models.UpdataCourse(id, begin_date, end_date); err == nil {
+		if err := models.UpdataCourse(id, begin_date, end_date, name, url); err == nil {
 			c.Data["json"] = JSONStruct{"success", 0, err, "保存成功"}
 		} else {
 			c.Data["json"] = JSONStruct{"error", 1003, nil, "保存失败"}
 		}
+	}
+	c.ServeJSON()
+}
+
+// DelCourse ...
+// @Title 			删除
+// @Description 		删除
+// @Param	id		path 	string	true		"特殊儿童ID"
+// @Success 0 		{string} 	success
+// @Failure 1004		删除失败
+// @router /:id [delete]
+func (c *CourseController) DelCourse() {
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.Atoi(idStr)
+	if err := models.DeleteCourse(id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, err, "删除成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
 	}
 	c.ServeJSON()
 }
@@ -119,8 +170,8 @@ func (c *CourseController) Add_time() {
 // @router /courseinfo [get]
 func (c *CourseController) GetCourse() {
 	id, _ := c.GetInt("id")
-
-	if list, err := models.InfoCourse(id); err == nil {
+	sass, _ := c.GetInt("sass")
+	if list, err := models.InfoCourse(id,sass); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
 	} else {
 		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
