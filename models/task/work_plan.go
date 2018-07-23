@@ -3,6 +3,7 @@ package task
 import (
 	"time"
 	"github.com/astaxie/beego/orm"
+	"encoding/json"
 )
 
 type WorkPlan struct {
@@ -26,10 +27,36 @@ func (wp *WorkPlan) Save() (int64, error) {
 	return orm.NewOrm().Insert(wp)
 }
 
-func (wp *WorkPlan) Get() ([]WorkPlan, error) {
+func (wp *WorkPlan) Get() ([]map[string]interface{}, error) {
 	var wps []WorkPlan
+	var res []map[string]interface{}
 
-	_, err := orm.NewOrm().QueryTable(wp).Filter("creator", wp.Creator).All(&wps)
+	if num, err := orm.NewOrm().QueryTable(wp).Filter("creator", wp.Creator).All(&wps); err == nil && num > 0 {
+		for _, val := range wps {
+			jsons, _ := json.Marshal(val)
+			var maps map[string]interface{}
+			json.Unmarshal(jsons, &maps)
+			maps["plan_time"] = val.PlanTime.Format("15:04")
 
-	return wps, err
+			res = append(res, maps)
+		}
+
+		return res, err
+	} else {
+		return res, err
+	}
+}
+
+func (wp *WorkPlan) Delete() error {
+	o := orm.NewOrm()
+
+	if err := o.Read(wp); err != nil {
+		return err
+	}
+
+	if _, err := o.Delete(wp); err != nil {
+		return err
+	}
+
+	return nil
 }
