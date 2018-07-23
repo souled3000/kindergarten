@@ -47,14 +47,41 @@ func AddCourse(m *Course) (map[string]interface{}, error) {
 }
 
 //修改
-func UpdataCourse(id int, begin_date string, end_date string) error {
+func UpdataCourse(id int, begin_date string, end_date string, name string,url string) error {
 	o := orm.NewOrm()
 	m := Course{Id: id}
 	err := o.Read(&m)
 	if err == nil {
-		m.BeginDate = begin_date
-		m.EndDate = end_date
+		if begin_date != ""{
+			m.BeginDate = begin_date
+		}
+		if end_date != ""{
+			m.EndDate = end_date
+		}
+		if name != ""{
+			m.Name = name
+		}
+		if url != ""{
+			m.Url = url
+		}
 		o.Update(&m)
+		return nil
+	}
+	return err
+}
+
+//采用
+func UseCourse(id int, kindergarten_id int) error {
+	o := orm.NewOrm()
+	m := Course{Id: id}
+	err := o.Read(&m)
+	if err == nil {
+		p, _ := o.Raw("UPDATE course SET status = 0 WHERE parent_id=0 and kindergarten_id = "+strconv.Itoa(kindergarten_id)).Prepare()
+		p.Exec()
+		p.Close()
+		m.Status = 1
+		o.Update(&m)
+
 		return nil
 	}
 	return err
@@ -90,37 +117,21 @@ func GetCourseList(parent_id int, kindergarten_id int, status int, page, per_pag
 
 }
 
-//详情
-func GetCourseInfo(id int) map[string]interface{} {
-	var v []Course
-	o := orm.NewOrm()
-	err := o.QueryTable("course").Filter("Id", id).One(&v)
-	if err == nil {
-		paginatorMap := make(map[string]interface{})
-		paginatorMap["data"] = v
-		return paginatorMap
-	}
-	return nil
-}
-
 //删除
-func DeleteCourse(id int) map[string]interface{} {
+func DeleteCourse(id int) (err error) {
 	o := orm.NewOrm()
 	v := Course{Id: id}
-	// ascertain id exists in the database
 	if err := o.Read(&v); err == nil {
-		var num int64
-		if num, err = o.Delete(&Course{Id: id}); err == nil {
-			paginatorMap := make(map[string]interface{})
-			paginatorMap["data"] = num //返回数据
-			return paginatorMap
+		if _, err = o.Delete(&Course{Id: id}); err == nil {
+
+			return nil
 		}
 	}
-	return nil
+	return err
 }
 
 // 专题详情
-func InfoCourse(id int) (ml map[string]interface{}, err error) {
+func InfoCourse(id int, sass int) (ml map[string]interface{}, err error) {
 	o := orm.NewOrm()
 	var list []Course
 	if _, err = o.Raw("select * from course where parent_id=" + strconv.Itoa(id)).QueryRows(&list); err == nil && len(list) > 0 {
@@ -150,6 +161,13 @@ func InfoCourse(id int) (ml map[string]interface{}, err error) {
 		}
 		ml = make(map[string]interface{})
 		ml["data"] = data
+		if sass == 1 {
+			var cv Course
+			cv.Id = id
+			o.Read(&cv)
+			ml["info"] = cv
+		}
+
 		return ml, err
 	}
 
