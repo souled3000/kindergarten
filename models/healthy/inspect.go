@@ -1069,7 +1069,7 @@ func (f *Inspect) PersonalInfo(baby_id int) (Page, error) {
 					Where(wheres2).
 					OrderBy("id").Desc().Limit(1).Offset(0).String()
 				var Heights []orm.Params
-				if _, err := o.Raw(sql1).Values(&Heights); err == nil {
+				if baby, err := o.Raw(sql1).Values(&Heights); err == nil && baby != 0{
 					Heights[0]["index"] = 100
 				}
 				return Page{0, 0, total, Heights}, nil
