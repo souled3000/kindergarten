@@ -465,3 +465,56 @@ func (c *InspectController) Personal() {
 
 	c.ServeJSON()
 }
+
+// GetAll ...
+// @Title GetAll
+// @Description 宝宝健康信息
+// @Param	page			query	int		false		"第几页"
+// @Param	per_page		query	int		true		"页数"
+// @Param	class_id		query	int		false		"班级ID"
+// @Param	role			query	int		true		"身份类型"
+// @Param	date			query	string	true		"餐检时间"
+// @Success 0 {object} 		healthy.Inspect
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /personalInfo/ [get]
+func (c *InspectController) PersonalInfo() {
+	var f *healthy.Inspect
+	baby_id, _ := c.GetInt("baby_id")
+
+	if personal, err := f.PersonalInfo(baby_id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, personal, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}
+
+// GetAll ...
+// @Title GetAll
+// @Description 项目详情
+// @Param	page			query	int		false		"第几页"
+// @Param	per_page		query	int		true		"页数"
+// @Param	class_id		query	int		false		"班级ID"
+// @Param	role			query	int		true		"身份类型"
+// @Param	date			query	string	true		"餐检时间"
+// @Success 0 {object} 		healthy.Inspect
+// @Failure 1001 		参数不能为空
+// @Failure 1005 		获取失败
+// @router /body/ [get]
+func (c *InspectController) Body() {
+	var f *healthy.Inspect
+	page, _ := c.GetInt("page")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	perPage, _ := c.GetInt("per_page")
+	baby_id, _ := c.GetInt("baby_id")
+
+	if works, err := f.Body(page, perPage, kindergarten_id, baby_id); err == nil {
+		c.Data["json"] = JSONStruct{"success", 0, works, "获取成功"}
+	} else {
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
+	}
+
+	c.ServeJSON()
+}

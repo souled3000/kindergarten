@@ -1355,7 +1355,6 @@ paths:
       - in: formData
         name: allergen
         description: 过敏源
-        required: true
         type: string
       - in: formData
         name: source
@@ -3030,6 +3029,49 @@ paths:
           description: 补全信息
         "1003":
           description: 获取失败
+  /app/healthy/inspect/body/:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 项目详情
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        type: integer
+        format: int64
+      - in: query
+        name: role
+        description: 身份类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: date
+        description: 餐检时间
+        required: true
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Inspect'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
   /app/healthy/inspect/counts/:
     get:
       tags:
@@ -3057,6 +3099,49 @@ paths:
       tags:
       - app/healthy/inspect
       description: 宝宝健康指数
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        type: integer
+        format: int64
+      - in: query
+        name: role
+        description: 身份类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: date
+        description: 餐检时间
+        required: true
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Inspect'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
+  /app/healthy/inspect/personalInfo/:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 宝宝健康信息
       operationId: InspectController.GetAll
       parameters:
       - in: query
@@ -3546,6 +3631,93 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
+
+  /course_info/{id}:
+    get:
+      tags:
+      - course_info
+      description: 课程详情
+      operationId: CourseInfoController.课程详情
+      parameters:
+      - in: path
+        name: id
+        description: 课程ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{string} \tsuccess"
+        "1004":
+          description: 获取失败
+    delete:
+      tags:
+      - course_info
+      description: 删除课程
+      operationId: CourseInfoController.删除课程
+      parameters:
+      - in: path
+        name: id
+        description: 课程ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{string} \tsuccess"
+        "1004":
+          description: 删除失败
+  /course_info/addinfo:
+    post:
+      tags:
+      - course_info
+      description: 添加园本课程，专题，课程
+      operationId: CourseInfoController.添加园本课程，专题，课程
+  /healthy/body/:
+    get:
+      tags:
+      - course_class
+      description: 计划详情
+      operationId: CourseClassController.计划详情
+      parameters:
+      - in: query
+        name: id
+        description: 计划列表id
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1005":
+          description: 获取失败
+  /course_info/:
+    get:
+      tags:
+      - course_info
+      description: 课程列表
+      operationId: CourseInfoController.课程列表
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: date
+        description: 日期
+        required: true
+        type: string
+      - in: query
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1005":
+          description: 获取失败
   /course_info/{id}:
     get:
       tags:
@@ -3870,6 +4042,26 @@ paths:
           description: '{string} delete success!'
         "1003":
           description: id is empty
+  /healthy/body/push/{id}:
+    put:
+      tags:
+      - healthy/body
+      description: 推送家长
+      operationId: BodyController.Put
+      parameters:
+      - in: path
+        name: id
+        description: id
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Body'
+        "1003":
+          description: :id is not int
   /healthy/class/:
     get:
       tags:
@@ -5836,6 +6028,53 @@ paths:
           description: '{string} delete success!'
         "403":
           description: student_id is empty
+  /task/work_plan/:
+    get:
+      tags:
+      - task/work_plan
+      description: 获取工作计划
+      operationId: WorkPlanController.获取工作计划
+      parameters:
+      - in: query
+        name: u_id
+        description: 创建人
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1005":
+          description: 获取失败
+    post:
+      tags:
+      - task/work_plan
+      description: 创建工作计划
+      operationId: WorkPlanController.创建工作计划
+      parameters:
+      - in: formData
+        name: content
+        description: 内容
+        required: true
+        type: string
+      - in: formData
+        name: plan_time
+        description: 计划时间
+        required: true
+        type: string
+      - in: formData
+        name: creator
+        description: 创建人
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1001":
+          description: 参数验证
+        "1003":
+          description: 创建失败
   /task/work_tasks/:
     get:
       tags:
@@ -6593,6 +6832,9 @@ definitions:
         type: string
       rate:
         description: 合格率
+        type: integer
+        format: int64
+      status:
         type: integer
         format: int64
       test_time:

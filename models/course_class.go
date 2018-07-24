@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/orm"
 	"strconv"
+	"github.com/astaxie/beego"
 )
 
 type CourseClass struct {
@@ -147,9 +148,9 @@ func PlanCourseClass(class_id int, date_time string) map[string]interface{} {
 	o.Raw(sql).QueryRows(&v)
 	ml := make(map[string]interface{})
 	var list []map[string]interface{}
-	vjson,_ := json.Marshal(v)
-	json.Unmarshal(vjson,&list)
-	for key,v := range list {
+	vjson, _ := json.Marshal(v)
+	json.Unmarshal(vjson, &list)
+	for key, v := range list {
 		type Course_myinfolist struct {
 			Date         string `json:"date"`
 			Name         string `json:"name"`
@@ -175,7 +176,9 @@ func PlanCourseClass(class_id int, date_time string) map[string]interface{} {
 		var zhuanti []orm.Params
 		o.Raw(sql_info).Values(&zhuanti)
 		list[key]["data"] = zhuanti
-		delete(list[key],"content")
+
+		list[key]["date"] = beego.Substr(list[key]["begin_date"].(string),8,2)+"~"+beego.Substr(list[key]["end_date"].(string),8,2)
+		delete(list[key], "content")
 	}
 	ml["data"] = list
 	return ml
@@ -218,7 +221,7 @@ func PlanInfoCourseClass(id int) map[string]interface{} {
 			var zhuanti []orm.Params
 			o.Raw(sql_info).Values(&zhuanti)
 
-			sql_course := "select b.name as bname,b.aim as baim,a.url,a.course_id,a.name,a.id from course_info a left join course b on a.course_id= b.id where a.id in (" + info_id + ")"
+			sql_course := "select b.name as bname,b.aim as baim,a.url,a.course_id,a.name,a.id,a.created_at,a.type from course_info a left join course b on a.course_id= b.id where a.id in (" + info_id + ")"
 			var mapsc []orm.Params
 			o.Raw(sql_course).Values(&mapsc)
 			for key, val := range zhuanti {
@@ -246,13 +249,13 @@ func PlanInfoCourseClass(id int) map[string]interface{} {
 	return nil
 }
 
-func PlanInfonewCourseClass(id int,c_id int) map[string]interface{} {
+func PlanInfonewCourseClass(id int, c_id int) map[string]interface{} {
 	list := PlanInfoCourseClass(id)
-	ljson,_ := json.Marshal(list["data"])
+	ljson, _ := json.Marshal(list["data"])
 	var l []map[string]interface{}
-	json.Unmarshal(ljson,&l)
+	json.Unmarshal(ljson, &l)
 	ml := make(map[string]interface{})
-	for _,val := range l {
+	for _, val := range l {
 		if val["id"].(string) == strconv.Itoa(c_id) {
 			ml["data"] = val
 		}
