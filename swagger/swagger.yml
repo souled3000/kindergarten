@@ -3416,6 +3416,23 @@ paths:
       - course
       description: 添加园本课程，专题，课程
       operationId: CourseController.添加园本课程，专题，课程
+  /course/{id}:
+    delete:
+      tags:
+      - course
+      description: 删除
+      operationId: CourseController.删除
+      parameters:
+      - in: path
+        name: id
+        description: 特殊儿童ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{string} \tsuccess"
+        "1004":
+          description: 删除失败
   /course/add_time:
     post:
       tags:
@@ -3423,6 +3440,12 @@ paths:
       description: 幼儿园添加时间安排(时间段)
       operationId: CourseController.幼儿园添加时间安排(时间段添加)
   /course/addtime:
+    post:
+      tags:
+      - course
+      description: 专题时间安排
+      operationId: CourseController.专题时间安排
+  /course/adduse:
     post:
       tags:
       - course
@@ -3585,93 +3608,6 @@ paths:
         "1005":
           description: 获取失败
   /course_class/planinfo:
-    get:
-      tags:
-      - course_class
-      description: 计划详情
-      operationId: CourseClassController.计划详情
-      parameters:
-      - in: query
-        name: id
-        description: 计划列表id
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "0":
-          description: "{json} \tJSONStruct"
-        "1005":
-          description: 获取失败
-  /course_info/:
-    get:
-      tags:
-      - course_info
-      description: 课程列表
-      operationId: CourseInfoController.课程列表
-      parameters:
-      - in: query
-        name: kindergarten_id
-        description: 幼儿园id
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: date
-        description: 日期
-        required: true
-        type: string
-      - in: query
-        name: class_type
-        description: 班级类型
-        required: true
-        type: integer
-        format: int64
-      responses:
-        "0":
-          description: "{json} \tJSONStruct"
-        "1005":
-          description: 获取失败
-
-  /course_info/{id}:
-    get:
-      tags:
-      - course_info
-      description: 课程详情
-      operationId: CourseInfoController.课程详情
-      parameters:
-      - in: path
-        name: id
-        description: 课程ID
-        required: true
-        type: string
-      responses:
-        "0":
-          description: "{string} \tsuccess"
-        "1004":
-          description: 获取失败
-    delete:
-      tags:
-      - course_info
-      description: 删除课程
-      operationId: CourseInfoController.删除课程
-      parameters:
-      - in: path
-        name: id
-        description: 课程ID
-        required: true
-        type: string
-      responses:
-        "0":
-          description: "{string} \tsuccess"
-        "1004":
-          description: 删除失败
-  /course_info/addinfo:
-    post:
-      tags:
-      - course_info
-      description: 添加园本课程，专题，课程
-      operationId: CourseInfoController.添加园本课程，专题，课程
-  /healthy/body/:
     get:
       tags:
       - course_class
@@ -6075,6 +6011,26 @@ paths:
           description: 参数验证
         "1003":
           description: 创建失败
+  /task/work_plan/{id}:
+    delete:
+      tags:
+      - task/work_plan
+      description: 删除工作计划
+      operationId: WorkPlanController.删除工作计划
+      parameters:
+      - in: path
+        name: id
+        description: 工作计划ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1002":
+          description: 工作计划不存在
+        "1004":
+          description: 删除失败
   /task/work_tasks/:
     get:
       tags:
