@@ -135,10 +135,10 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	list2["column"] = "weight"
 	list2["columnh"] = "height"
 	list2["name"] = "身高体重"
+	list2["number"] = num.Num
 	list = append(list, list2)
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id=" + strconv.Itoa(class_id) + " and a.body_id = " + strconv.Itoa(id) + " and height != '' "
 	o.Raw(sql).QueryRow(&num)
-	fmt.Println(num.Num)
 	//list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 	//list3["name"] = "身高"
 	//list = append(list,list3)
@@ -159,6 +159,7 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 				list1["bili"] = 0
 			} else {
 				list1["bili"] = bili
+				list1["number"] = num.Num
 			}
 			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
