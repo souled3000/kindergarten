@@ -146,3 +146,9 @@ func (c *KindergartenServer) StudentNotice(class_type int, kindergarten_id int) 
 	}
 	return nil, err
 }
+
+//获取班级名字
+func (c *KindergartenServer) ClassName(class_type int, kindergarten_id int) (interface{}, error) {
+	v, err := models.Class(class_type, kindergarten_id)
+	return v, err
+}

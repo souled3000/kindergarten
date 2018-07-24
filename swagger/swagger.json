@@ -123,6 +123,104 @@
                 }
             }
         },
+        "/admin/kindergarten/food_class": {
+            "get": {
+                "tags": [
+                    "admin/kindergarten"
+                ],
+                "description": "饮食班级",
+                "operationId": "KindergartenController.饮食班级",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Kindergarten"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
+        "/admin/kindergarten/food_scale": {
+            "get": {
+                "tags": [
+                    "admin/kindergarten"
+                ],
+                "description": "饮食比例",
+                "operationId": "KindergartenController.饮食比例",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "class_type",
+                        "description": "班级类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "path",
+                        "name": "is_muslim",
+                        "description": "是否清真",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Kindergarten"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
+        "/admin/kindergarten/get_member": {
+            "get": {
+                "tags": [
+                    "admin/kindergarten"
+                ],
+                "description": "oms-幼儿园所有成员",
+                "operationId": "KindergartenController.oms-幼儿园所有成员",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Kindergarten"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
         "/admin/kindergarten/getkg": {
             "get": {
                 "tags": [
@@ -450,6 +548,57 @@
                     }
                 }
             },
+            "put": {
+                "tags": [
+                    "admin/kindergarten_life"
+                ],
+                "description": "编辑园内生活",
+                "operationId": "KindergartenLifeController.编辑园内生活",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "template",
+                        "description": "公告内容",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.KindergartenLife"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
             "delete": {
                 "tags": [
                     "admin/kindergarten_life"
@@ -480,7 +629,7 @@
                 "tags": [
                     "admin/notice"
                 ],
-                "description": "Web-公告列表",
+                "description": "公告列表",
                 "operationId": "NoticeController.公告列表",
                 "parameters": [
                     {
@@ -590,6 +739,56 @@
                     },
                     "403": {
                         "description": ":编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "admin/notice"
+                ],
+                "description": "编辑公告",
+                "operationId": "NoticeController.编辑公告",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "公告内容",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Notice"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
                     }
                 }
             },
@@ -2447,6 +2646,36 @@
                         "in": "query",
                         "name": "per_page",
                         "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/admin/teacher/getut": {
+            "get": {
+                "tags": [
+                    "admin/teacher"
+                ],
+                "description": "用户id获取教师id用户id获取教师id",
+                "operationId": "TeacherController.用户id获取教师id",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user_id",
+                        "description": "用户ID",
+                        "required": true,
                         "type": "integer",
                         "format": "int64"
                     }
@@ -4597,8 +4826,8 @@
                 "tags": [
                     "course"
                 ],
-                "description": "园本课程，专题，课程列表",
-                "operationId": "CourseController.园本课程，专题，课程列表",
+                "description": "园本课程，专题，目标",
+                "operationId": "CourseController.园本课程，专题，目标",
                 "parameters": [
                     {
                         "in": "query",
@@ -4663,26 +4892,8 @@
                 "tags": [
                     "course"
                 ],
-                "description": "幼儿园添加时间安排",
-                "operationId": "CourseController.幼儿园添加时间安排"
-            }
-        },
-        "/course/add_time_class": {
-            "post": {
-                "tags": [
-                    "course"
-                ],
-                "description": "班级课程安排",
-                "operationId": "CourseController.班级课程安排"
-            }
-        },
-        "/course/addinfo": {
-            "post": {
-                "tags": [
-                    "course"
-                ],
-                "description": "添加园本课程，专题，课程",
-                "operationId": "CourseController.添加园本课程，专题，课程"
+                "description": "幼儿园添加时间安排(时间段)",
+                "operationId": "CourseController.幼儿园添加时间安排(时间段添加)"
             }
         },
         "/course/addtime": {
@@ -4692,76 +4903,6 @@
                 ],
                 "description": "专题时间安排",
                 "operationId": "CourseController.专题时间安排"
-            }
-        },
-        "/course/class_course": {
-            "get": {
-                "tags": [
-                    "course"
-                ],
-                "description": "获取班级课程表",
-                "operationId": "CourseController.获取班级课程表",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "class_id",
-                        "description": "班级id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "0": {
-                        "description": "{string} \tsuccess"
-                    },
-                    "1005": {
-                        "description": "获取失败"
-                    }
-                }
-            }
-        },
-        "/course/class_day": {
-            "get": {
-                "tags": [
-                    "course"
-                ],
-                "description": "获取班级某一天课程",
-                "operationId": "CourseController.获取班级某一天课程",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "class_id",
-                        "description": "班级id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "0": {
-                        "description": "{string} \tsuccess"
-                    },
-                    "1005": {
-                        "description": "获取失败"
-                    }
-                }
             }
         },
         "/course/courseinfo": {
@@ -4791,22 +4932,58 @@
                 }
             }
         },
-        "/course/infolist": {
+        "/course/time_list": {
             "get": {
                 "tags": [
                     "course"
                 ],
-                "description": "园本课程，专题，课程列表",
-                "operationId": "CourseController.园本课程，专题，课程列表",
+                "description": "幼儿园时间安排列表",
+                "operationId": "CourseController.幼儿园时间安排列表",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "parent_id",
-                        "description": "上级id",
+                        "name": "class_id",
+                        "description": "班级id",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
                     },
+                    {
+                        "in": "query",
+                        "name": "class_type",
+                        "description": "班级类型  1，2，3",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/": {
+            "post": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "班级课程安排",
+                "operationId": "CourseClassController.班级课程安排"
+            }
+        },
+        "/course_class/class_course": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "获取班级课程表",
+                "operationId": "CourseClassController.获取班级课程表",
+                "parameters": [
                     {
                         "in": "query",
                         "name": "kindergarten_id",
@@ -4817,24 +4994,8 @@
                     },
                     {
                         "in": "query",
-                        "name": "status",
-                        "description": "状态",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "page",
-                        "description": "页",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "per_page",
-                        "description": "每页条数",
+                        "name": "class_id",
+                        "description": "班级id",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -4842,7 +5003,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{string} \tsuccess"
+                        "description": "{json} \tJSONStruct"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4850,17 +5011,17 @@
                 }
             }
         },
-        "/course/time_info": {
+        "/course_class/class_day": {
             "get": {
                 "tags": [
-                    "course"
+                    "course_class"
                 ],
-                "description": "幼儿园时间安排详情",
-                "operationId": "CourseController.幼儿园时间安排详情",
+                "description": "获取班级某一天课程",
+                "operationId": "CourseClassController.获取班级某一天课程",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "id",
+                        "name": "kindergarten_id",
                         "description": "幼儿园id",
                         "required": true,
                         "type": "integer",
@@ -4869,10 +5030,423 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{string} \tsuccess"
+                        "description": "{json} \tJSONStruct"
                     },
                     "1005": {
                         "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/classday": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "获取班级某一天课程",
+                "operationId": "CourseClassController.获取班级某一天课程",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/plan": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "计划列表",
+                "operationId": "CourseClassController.计划列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/plan_info": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "计划详情",
+                "operationId": "CourseClassController.计划详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "计划列表id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/planinfo": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "计划详情",
+                "operationId": "CourseClassController.计划详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "计划列表id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_info/": {
+            "get": {
+                "tags": [
+                    "course_info"
+                ],
+                "description": "课程列表",
+                "operationId": "CourseInfoController.课程列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "日期",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_type",
+                        "description": "班级类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_info/addinfo": {
+            "post": {
+                "tags": [
+                    "course_info"
+                ],
+                "description": "添加园本课程，专题，课程",
+                "operationId": "CourseInfoController.添加园本课程，专题，课程"
+            }
+        },
+        "/course_info/{id}": {
+            "get": {
+                "tags": [
+                    "course_info"
+                ],
+                "description": "课程详情",
+                "operationId": "CourseInfoController.课程详情",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "课程ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{string} \tsuccess"
+                    },
+                    "1004": {
+                        "description": "获取失败"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "course_info"
+                ],
+                "description": "删除课程",
+                "operationId": "CourseInfoController.删除课程",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "课程ID",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{string} \tsuccess"
+                    },
+                    "1004": {
+                        "description": "删除失败"
+                    }
+                }
+            }
+        },
+        "/facilities_display/": {
+            "get": {
+                "tags": [
+                    "facilities_display"
+                ],
+                "description": "设施列表",
+                "operationId": "FacilitiesDisplayController.设施列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.FacilitiesDisplay"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "facilities_display"
+                ],
+                "description": "保存设施",
+                "operationId": "FacilitiesDisplayController.保存设施",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "picture",
+                        "description": "图片",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "排序",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.FacilitiesDisplay"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/facilities_display/{id}": {
+            "get": {
+                "tags": [
+                    "facilities_display"
+                ],
+                "description": "设施详情",
+                "operationId": "FacilitiesDisplayController.设施详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "主键ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.FacilitiesDisplay"
+                        }
+                    },
+                    "403": {
+                        "description": ":编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "facilities_display"
+                ],
+                "description": "编辑设施",
+                "operationId": "FacilitiesDisplayController.编辑设施",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "排序",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "picture",
+                        "description": "图片",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.FacilitiesDisplay"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "facilities_display"
+                ],
+                "description": "删除设施",
+                "operationId": "FacilitiesDisplayController.删除设施",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "用户编号",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -6275,6 +6849,401 @@
                 }
             }
         },
+        "/kindergarten_life/": {
+            "get": {
+                "tags": [
+                    "kindergarten_life"
+                ],
+                "description": "Web-园内生活列表",
+                "operationId": "KindergartenLifeController.园内生活列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.KindergartenLife"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "kindergarten_life"
+                ],
+                "description": "Web-保存园内生活",
+                "operationId": "KindergartenLifeController.保存园内生活",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "template",
+                        "description": "公告内容",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.KindergartenLife"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/kindergarten_life/{id}": {
+            "get": {
+                "tags": [
+                    "kindergarten_life"
+                ],
+                "description": "Web-园内生活详情",
+                "operationId": "KindergartenLifeController.园内生活详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "主键ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.KindergartenLife"
+                        }
+                    },
+                    "403": {
+                        "description": ":编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "kindergarten_life"
+                ],
+                "description": "编辑园内生活",
+                "operationId": "KindergartenLifeController.编辑园内生活",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "template",
+                        "description": "公告内容",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.KindergartenLife"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "kindergarten_life"
+                ],
+                "description": "Web-删除园内生活",
+                "operationId": "KindergartenLifeController.Web-删除园内生活",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "自增id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
+        "/notice/": {
+            "get": {
+                "tags": [
+                    "notice"
+                ],
+                "description": "公告列表",
+                "operationId": "NoticeController.公告列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Notice"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "notice"
+                ],
+                "description": "Web-保存公告",
+                "operationId": "NoticeController.保存公告",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "公告内容",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Notice"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/notice/{id}": {
+            "get": {
+                "tags": [
+                    "notice"
+                ],
+                "description": "Web-公告详情",
+                "operationId": "NoticeController.公告详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "主键ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Notice"
+                        }
+                    },
+                    "403": {
+                        "description": ":编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "notice"
+                ],
+                "description": "编辑公告",
+                "operationId": "NoticeController.编辑公告",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "公告内容",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Notice"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "notice"
+                ],
+                "description": "Web-删除公告",
+                "operationId": "NoticeController.删除公告",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "用户编号",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
         "/organizational/": {
             "get": {
                 "tags": [
@@ -7017,6 +7986,206 @@
                     },
                     "403": {
                         "description": ":没有该服务"
+                    }
+                }
+            }
+        },
+        "/slide_show/": {
+            "get": {
+                "tags": [
+                    "slide_show"
+                ],
+                "description": "轮播图列表",
+                "operationId": "SideShowController.轮播图列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SideShow"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "slide_show"
+                ],
+                "description": "保存轮播图",
+                "operationId": "SideShowController.保存轮播图",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "内容",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "picture",
+                        "description": "图片",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.SideShow"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/slide_show/{id}": {
+            "get": {
+                "tags": [
+                    "slide_show"
+                ],
+                "description": "轮播图详情",
+                "operationId": "SideShowController.轮播图详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "主键ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SideShow"
+                        }
+                    },
+                    "403": {
+                        "description": ":编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "slide_show"
+                ],
+                "description": "编辑轮播图",
+                "operationId": "SideShowController.编辑轮播图",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "title",
+                        "description": "标题",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "content",
+                        "description": "内容",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "picture",
+                        "description": "图片",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/.SideShow"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "slide_show"
+                ],
+                "description": "删除轮播图",
+                "operationId": "SideShowController.删除轮播图",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "自增id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
                     }
                 }
             }
@@ -8014,6 +9183,201 @@
                 }
             }
         },
+        "/teachers_show/": {
+            "get": {
+                "tags": [
+                    "teachers_show"
+                ],
+                "description": "教师展示列表",
+                "operationId": "TeachersShowController.教师展示列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.TeachersShow"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "teachers_show"
+                ],
+                "description": "保存教师展示",
+                "operationId": "TeachersShowController.保存教师展示",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "teacher_id",
+                        "description": "教师id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "introduction",
+                        "description": "介绍",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.TeachersShow"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/teachers_show/{id}": {
+            "get": {
+                "tags": [
+                    "teachers_show"
+                ],
+                "description": "Web-公告详情",
+                "operationId": "TeachersShowController.公告详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "主键ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "页数",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "per_page",
+                        "description": "每页显示条数",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.TeachersShow"
+                        }
+                    },
+                    "403": {
+                        "description": ":编号为空"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "teachers_show"
+                ],
+                "description": "编辑教师展示",
+                "operationId": "TeachersShowController.编辑教师展示",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "教师编号",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "teacher_id",
+                        "description": "教师id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "introduction",
+                        "description": "介绍",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园ID",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Teacher"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "teachers_show"
+                ],
+                "description": "删除教师展示",
+                "operationId": "TeachersShowController.删除教师展示",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "用户编号",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
         "/user_permission/": {
             "post": {
                 "tags": [
@@ -8257,6 +9621,9 @@
         }
     },
     "definitions": {
+        ".SideShow": {
+            "type": "object"
+        },
         "healthy.Body": {
             "title": "Body",
             "type": "object",
@@ -8619,6 +9986,36 @@
                 }
             }
         },
+        "models.FacilitiesDisplay": {
+            "title": "FacilitiesDisplay",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "kindergarten_id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "order": {
+                    "description": "排序",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "picture": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "string"
+                }
+            }
+        },
         "models.Kindergarten": {
             "title": "Kindergarten",
             "type": "object",
@@ -8705,7 +10102,7 @@
                 "template": {
                     "description": "模板",
                     "type": "integer",
-                    "format": "int32"
+                    "format": "int64"
                 },
                 "update_at": {
                     "type": "string",
@@ -9153,6 +10550,38 @@
                 }
             }
         },
+        "models.TeachersShow": {
+            "title": "TeachersShow",
+            "type": "object",
+            "properties": {
+                "CreatedAt": {
+                    "type": "string",
+                    "format": "string"
+                },
+                "Id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Introduction": {
+                    "description": "介绍",
+                    "type": "string"
+                },
+                "KindergartenId": {
+                    "description": "幼儿园ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "TeacherId": {
+                    "description": "教师ID",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "UpdatedAt": {
+                    "type": "string",
+                    "format": "string"
+                }
+            }
+        },
         "models.UserPermission": {
             "title": "UserPermission",
             "type": "object",
@@ -9230,7 +10659,23 @@
             "description": "园内生活\n"
         },
         {
+            "name": "kindergarten_life",
+            "description": "园内生活\n"
+        },
+        {
+            "name": "facilities_display",
+            "description": "发布公告\n"
+        },
+        {
+            "name": "slide_show",
+            "description": "轮播图\n"
+        },
+        {
             "name": "admin/notice",
+            "description": "发布公告\n"
+        },
+        {
+            "name": "notice",
             "description": "发布公告\n"
         },
         {
@@ -9272,6 +10717,10 @@
         {
             "name": "student",
             "description": "学生\n"
+        },
+        {
+            "name": "teachers_show",
+            "description": "组织架构\n"
         },
         {
             "name": "teacher",
