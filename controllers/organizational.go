@@ -11,13 +11,6 @@ type OrganizationalController struct {
 	BaseController
 }
 
-type JSONStruct struct {
-	Status string      `json:"status";`
-	Code   int         `json:"code";`
-	Result interface{} `json:"result";`
-	Msg    string      `json:"msg";`
-}
-
 type UserService struct {
 	GetOne   func(string) (int, error)
 	GetUK    func(string) error
