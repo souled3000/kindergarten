@@ -7,40 +7,40 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
-type Notice struct {
+type FacilitiesDisplay struct {
 	Id             int       `json:"id" orm:"column(id);auto;"`
-	Title          string    `json:"title" orm:"column(title);size(50)"; description:"标题"`
-	Content        string    `json:"content" orm:"column(content);size(255)" description:"公告内容"`
+	Picture        string    `json:"picture" orm:"column(picture);"; description:"图片"`
+	Order          int       `json:"order" orm:"column(order);" description:"排序"`
 	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)";description:"幼儿园ID"`
 	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add"`
 	UpdatedAt      time.Time `json:"updated_at" orm:"auto_now"`
 }
 
-func (t *Notice) TableName() string {
-	return "notice"
+func (t *FacilitiesDisplay) TableName() string {
+	return "facilities_display"
 }
 
 func init() {
-	orm.RegisterModel(new(Notice))
+	orm.RegisterModel(new(FacilitiesDisplay))
 }
 
 /*
-添加公告
+添加设施
 */
-func AddNotice(title string, content string, kindergarten_id int) (err error) {
+func Store(order int, picture string, kindergarten_id int) (err error) {
 	o := orm.NewOrm()
-	m := Notice{Title: title, Content: content, KindergartenId: kindergarten_id}
-	_, err = o.Insert(&m)
+	facli := FacilitiesDisplay{Order: order, Picture: picture, KindergartenId: kindergarten_id}
+	_, err = o.Insert(&facli)
 	return err
 }
 
 /*
-公告列表
+设施列表
 */
-func GetNoticeList(page int, prepage int, kindergarten_id int) (ml map[string]interface{}, err error) {
+func GetList(page int, prepage int, kindergarten_id int) (ml map[string]interface{}, err error) {
 	var v []Notice
 	o := orm.NewOrm()
-	nums, err := o.QueryTable("notice").Filter("kindergarten_id", kindergarten_id).All(&v)
+	nums, err := o.QueryTable("facilities_display").Filter("kindergarten_id", kindergarten_id).All(&v)
 	if err == nil && nums > 0 {
 		//根据nums总数，和prepage每页数量 生成分页总数
 		totalpages := int(math.Ceil(float64(nums) / float64(prepage))) //page总数
@@ -65,12 +65,12 @@ func GetNoticeList(page int, prepage int, kindergarten_id int) (ml map[string]in
 }
 
 /*
-Web -公告详情
+设施详情
 */
-func GetNoticeInfo(id int) (ml map[string]interface{}, err error) {
-	var v []Notice
+func GetOne(id int) (ml map[string]interface{}, err error) {
+	var v []FacilitiesDisplay
 	o := orm.NewOrm()
-	err = o.QueryTable("notice").Filter("Id", id).One(&v)
+	err = o.QueryTable("facilities_display").Filter("Id", id).One(&v)
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = v
@@ -80,21 +80,21 @@ func GetNoticeInfo(id int) (ml map[string]interface{}, err error) {
 }
 
 /*
-删除公告
+删除设施
 */
-func DeleteNotice(id int) (err error) {
+func Delete(id int) (err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable("notice").Filter("id", id).Delete()
+	_, err = o.QueryTable("facilities_display").Filter("id", id).Delete()
 	return err
 }
 
 /*
-编辑公告
+编辑设施
 */
-func UpdateNotice(id int, title string, content string, kindergarten_id int) (err error) {
+func Update(id int, picture string, order int, kindergarten_id int) (err error) {
 	o := orm.NewOrm()
-	_, err = o.QueryTable("notice").Filter("id", id).Update(orm.Params{
-		"title": title, "content": content, "kindergarten_id": kindergarten_id,
+	_, err = o.QueryTable("facilities_display").Filter("id", id).Update(orm.Params{
+		"order": order, "picture": picture, "kindergarten_id": kindergarten_id,
 	})
 	return err
 }

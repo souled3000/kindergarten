@@ -1,4 +1,4 @@
-package admin
+package controllers
 
 import (
 	"kindergarten-service-go/models"
@@ -70,10 +70,11 @@ func (c *KindergartenLifeController) GetKindergartenLifeInfo() {
 }
 
 // GetKindergartenLifeList ...
-// @Title Web-园内生活列表
+// @Title 园内生活列表
 // @Description Web-园内生活列表
 // @Param	page     query	int	 false		"页数"
 // @Param	per_page query	int	 false		"每页显示条数"
+// @Param	kindergarten_id query	int	 false		"幼儿园id"
 // @Success 200 {object} models.KindergartenLife
 // @Failure 403
 // @router / [get]

@@ -131,9 +131,33 @@ func init() {
 			),
 		),
 
+		beego.NSNamespace("/kindergarten_life",
+			beego.NSInclude(
+				&controllers.KindergartenLifeController{},
+			),
+		),
+
+		beego.NSNamespace("/facilities_display",
+			beego.NSInclude(
+				&controllers.FacilitiesDisplayController{},
+			),
+		),
+
+		beego.NSNamespace("/slide_show",
+			beego.NSInclude(
+				&controllers.SideShowController{},
+			),
+		),
+
 		beego.NSNamespace("/admin/notice",
 			beego.NSInclude(
 				&admin.NoticeController{},
+			),
+		),
+
+		beego.NSNamespace("/notice",
+			beego.NSInclude(
+				&controllers.NoticeController{},
 			),
 		),
 
@@ -194,6 +218,12 @@ func init() {
 		beego.NSNamespace("/student",
 			beego.NSInclude(
 				&controllers.StudentController{},
+			),
+		),
+
+		beego.NSNamespace("/teachers_show",
+			beego.NSInclude(
+				&controllers.TeachersShowController{},
 			),
 		),
 

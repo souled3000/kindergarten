@@ -269,3 +269,56 @@ func (c *KindergartenController) GetKinderMbmber() {
 		c.ServeJSON()
 	}
 }
+
+// FoodClass ...
+// @Title 饮食班级
+// @Description 饮食班级
+// @Param	kindergarten_id		path 	int	true		"幼儿园ID"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router /food_class [get]
+func (c *KindergartenController) FoodClass() {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v, err := models.FoodClass(kindergarten_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}
+
+// FoodScale ...
+// @Title 饮食比例
+// @Description 饮食比例
+// @Param	class_type		    path 	int	true		"班级类型"
+// @Param	is_muslim		    path 	int	true		"是否清真"
+// @Success 200 {object} models.Kindergarten
+// @Failure 403 :id is empty
+// @router /food_scale [get]
+func (c *KindergartenController) FoodScale() {
+	is_muslim, _ := c.GetInt("is_muslim")
+	class_type := c.GetString("class_type")
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	valid := validation.Validation{}
+	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v, err := models.FoodScale(is_muslim, kindergarten_id, class_type)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1003, err.Error(), "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}
