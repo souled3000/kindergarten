@@ -24,7 +24,14 @@ func (t *Attendance) TableName() string {
 	return "attendance"
 }
 func init() {
+
 	orm.RegisterModel(new(Attendance))
+	orm.RegisterModel(new(Leave))
+	orm.RegisterModel(new(AttendanceRule))
+	//	beego.SetLevel(beego.LevelDebug)
+	//	beego.SetLogFuncCall(true)
+	//	beego.BeeLogger.DelLogger("console")
+	//	beego.SetLogger("file", `{"filename":"/Users/lichunjiang/logs/test.log"}`)
 }
 
 type Leave struct {
@@ -42,9 +49,6 @@ type Leave struct {
 func (t *Leave) TableName() string {
 	return "aleave"
 }
-func init() {
-	orm.RegisterModel(new(Leave))
-}
 
 type AttendanceRule struct {
 	Id   int    `json:"id" orm:"column(id);auto"`
@@ -58,9 +62,6 @@ type AttendanceRule struct {
 
 func (this *AttendanceRule) TableName() string {
 	return "attendance_rule"
-}
-func init() {
-	orm.RegisterModel(new(AttendanceRule))
 }
 
 /*
@@ -330,7 +331,6 @@ func GotAbnDtl(tid int) (rt []orm.Params) {
 func CountByGrade(day string, grade int) (rt []orm.Params) {
 	db := orm.NewOrm()
 	beego.Info(day)
-	aday, _ := time.ParseInLocation("2006-01-02", day, time.Local)
 	var t Organizational
 	t.Id = grade
 	db.Read(&t, "Id")
@@ -346,11 +346,23 @@ func CountByGrade(day string, grade int) (rt []orm.Params) {
 	aend, _ := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Aend, time.Local)
 	var sql string
 	sql += "select name,id,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ("
-	sql += " select t1.name,t1.id,-1 type,count(*) amount from organizational t1 , organizational_member t2 , attendance t3 where t1.parent_id= ? and t1.id = t2.organizational_id and t2.member_id = t3.sid and t3.today = ? and t3.morning < ? and t3.afternoon between ? and ?  group by t1.id"
+	sql += " select name,id,type,sum(amount) amount from ( "
+	sql += " select t1.name,t1.id,-1 type,count(*) amount "
+	sql += " from organizational t1 , organizational_member t2 , attendance t3 "
+	sql += " where t1.parent_id= ? and t1.id = t2.organizational_id "
+	sql += " and t2.member_id = t3.sid and t3.today = ? and t3.morning < ? and "
+	sql += " t3.afternoon between ? and ?  group by t1.id"
 	sql += " union all"
-	sql += " select t4.name,t4.id,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid and t6.beg < ? and t6.end > ? group by t4.id"
-	sql += " ) z group by name"
-	db.Raw(sql, grade, day, mend, abeg, aend, grade, aday, aday).Values(&rt)
+	sql += " select name,id,-1 type,0 amount from organizational t where t.parent_id = ?)z group by id"
+	sql += " union all "
+	sql += " select name,id,type,sum(amount) amount from ("
+	sql += " select t4.name,t4.id,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 "
+	sql += " where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid and t6.beg <= now() and t6.end >= now() group by t4.id ,type "
+	sql += " union all "
+	sql += " select name,id,1 type,0 amount from organizational t where t.parent_id = ? "
+	sql += " union all "
+	sql += " select name,id,0 type,0 amount from organizational t where t.parent_id = ?)z group by id,type)v group by id order by name "
+	db.Raw(sql, grade, day, mend, abeg, aend, grade, grade, grade, grade).Values(&rt)
 	//	sql += "select name,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ("
 	//	sql += " select t1.name,-1 type,count(*) amount from organizational t1 , organizational_member t2 , attendance t3 where t1.parent_id=? and t1.id = t2.organizational_id and t2.member_id = t3.sid and t3.today = ? group by t1.id"
 	//	sql += " union all"
@@ -435,12 +447,12 @@ func GotRule(kid int) (r AttendanceRule) {
 	return
 }
 
-func Remark(aleaveId int, reason string, tye int) {
+func Remark(aleaveId int, reason string, tye int) (int64, error) {
 	db := orm.NewOrm()
 	var a Leave
 	a.Id = aleaveId
-	db.Read(&a,"Id")
+	db.Read(&a, "Id")
 	a.Reason = reason
-	a.Type=tye
-	db.Update(&a)
+	a.Type = tye
+	return db.Update(&a)
 }

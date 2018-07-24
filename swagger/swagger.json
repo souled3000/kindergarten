@@ -4455,8 +4455,8 @@
                 "tags": [
                     "course"
                 ],
-                "description": "园本课程，专题，课程列表",
-                "operationId": "CourseController.园本课程，专题，课程列表",
+                "description": "园本课程，专题，目标",
+                "operationId": "CourseController.园本课程，专题，目标",
                 "parameters": [
                     {
                         "in": "query",
@@ -4521,26 +4521,8 @@
                 "tags": [
                     "course"
                 ],
-                "description": "幼儿园添加时间安排",
-                "operationId": "CourseController.幼儿园添加时间安排"
-            }
-        },
-        "/course/add_time_class": {
-            "post": {
-                "tags": [
-                    "course"
-                ],
-                "description": "班级课程安排",
-                "operationId": "CourseController.班级课程安排"
-            }
-        },
-        "/course/addinfo": {
-            "post": {
-                "tags": [
-                    "course"
-                ],
-                "description": "添加园本课程，专题，课程",
-                "operationId": "CourseController.添加园本课程，专题，课程"
+                "description": "幼儿园添加时间安排(时间段)",
+                "operationId": "CourseController.幼儿园添加时间安排(时间段添加)"
             }
         },
         "/course/addtime": {
@@ -4550,76 +4532,6 @@
                 ],
                 "description": "专题时间安排",
                 "operationId": "CourseController.专题时间安排"
-            }
-        },
-        "/course/class_course": {
-            "get": {
-                "tags": [
-                    "course"
-                ],
-                "description": "获取班级课程表",
-                "operationId": "CourseController.获取班级课程表",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "class_id",
-                        "description": "班级id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "0": {
-                        "description": "{string} \tsuccess"
-                    },
-                    "1005": {
-                        "description": "获取失败"
-                    }
-                }
-            }
-        },
-        "/course/class_day": {
-            "get": {
-                "tags": [
-                    "course"
-                ],
-                "description": "获取班级某一天课程",
-                "operationId": "CourseController.获取班级某一天课程",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "class_id",
-                        "description": "班级id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "0": {
-                        "description": "{string} \tsuccess"
-                    },
-                    "1005": {
-                        "description": "获取失败"
-                    }
-                }
             }
         },
         "/course/courseinfo": {
@@ -4649,22 +4561,58 @@
                 }
             }
         },
-        "/course/infolist": {
+        "/course/time_list": {
             "get": {
                 "tags": [
                     "course"
                 ],
-                "description": "园本课程，专题，课程列表",
-                "operationId": "CourseController.园本课程，专题，课程列表",
+                "description": "幼儿园时间安排列表",
+                "operationId": "CourseController.幼儿园时间安排列表",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "parent_id",
-                        "description": "上级id",
+                        "name": "class_id",
+                        "description": "班级id",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
                     },
+                    {
+                        "in": "query",
+                        "name": "class_type",
+                        "description": "班级类型  1，2，3",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/": {
+            "post": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "班级课程安排",
+                "operationId": "CourseClassController.班级课程安排"
+            }
+        },
+        "/course_class/class_course": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "获取班级课程表",
+                "operationId": "CourseClassController.获取班级课程表",
+                "parameters": [
                     {
                         "in": "query",
                         "name": "kindergarten_id",
@@ -4675,24 +4623,8 @@
                     },
                     {
                         "in": "query",
-                        "name": "status",
-                        "description": "状态",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "page",
-                        "description": "页",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "per_page",
-                        "description": "每页条数",
+                        "name": "class_id",
+                        "description": "班级id",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -4700,7 +4632,7 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{string} \tsuccess"
+                        "description": "{json} \tJSONStruct"
                     },
                     "1005": {
                         "description": "获取失败"
@@ -4708,18 +4640,26 @@
                 }
             }
         },
-        "/course/time_info": {
+        "/course_class/class_day": {
             "get": {
                 "tags": [
-                    "course"
+                    "course_class"
                 ],
-                "description": "幼儿园时间安排详情",
-                "operationId": "CourseController.幼儿园时间安排详情",
+                "description": "获取班级某一天课程",
+                "operationId": "CourseClassController.获取班级某一天课程",
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "id",
+                        "name": "kindergarten_id",
                         "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级id",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -4727,12 +4667,125 @@
                 ],
                 "responses": {
                     "0": {
-                        "description": "{string} \tsuccess"
+                        "description": "{json} \tJSONStruct"
                     },
                     "1005": {
                         "description": "获取失败"
                     }
                 }
+            }
+        },
+        "/course_class/plan": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "计划列表",
+                "operationId": "CourseClassController.计划列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_id",
+                        "description": "班级id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_class/plan_info": {
+            "get": {
+                "tags": [
+                    "course_class"
+                ],
+                "description": "计划详情",
+                "operationId": "CourseClassController.计划详情",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "计划列表id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_info/": {
+            "get": {
+                "tags": [
+                    "course_info"
+                ],
+                "description": "课程列表",
+                "operationId": "CourseInfoController.课程列表",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "kindergarten_id",
+                        "description": "幼儿园id",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "description": "日期",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "class_type",
+                        "description": "班级类型",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "0": {
+                        "description": "{json} \tJSONStruct"
+                    },
+                    "1005": {
+                        "description": "获取失败"
+                    }
+                }
+            }
+        },
+        "/course_info/addinfo": {
+            "post": {
+                "tags": [
+                    "course_info"
+                ],
+                "description": "添加园本课程，专题，课程",
+                "operationId": "CourseInfoController.添加园本课程，专题，课程"
             }
         },
         "/healthy/body/": {

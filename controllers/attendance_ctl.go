@@ -260,6 +260,11 @@ func (this *AttCtl) GotRule() {
 // @router /remark [post]
 func (this *AttCtl) Remark(lid, tye int, reason string) {
 	defer this.ServeJSON()
-	models.Remark(lid, reason, tye)
-	this.Data["json"] = JSONStruct{"success", 0, nil, "成功"}
+	id, e := models.Remark(lid, reason, tye)
+	if e == nil {
+		this.Data["json"] = JSONStruct{"success", 0, nil, "成功"}
+	} else {
+		this.Data["json"] = JSONStruct{"success", 0, e, "成功"}
+	}
+	beego.Debug("Remark for:", id)
 }
