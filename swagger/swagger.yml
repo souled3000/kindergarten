@@ -5314,6 +5314,26 @@ paths:
           description: 参数验证
         "1003":
           description: 创建失败
+  /task/work_plan/{id}:
+    delete:
+      tags:
+      - task/work_plan
+      description: 删除工作计划
+      operationId: WorkPlanController.删除工作计划
+      parameters:
+      - in: path
+        name: id
+        description: 工作计划ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1002":
+          description: 工作计划不存在
+        "1004":
+          description: 删除失败
   /task/work_tasks/:
     get:
       tags:
