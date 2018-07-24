@@ -28,7 +28,7 @@ func (c *WorkTaskController) URLMapping() {
 	c.Mapping("Complete", c.Complete)
 	c.Mapping("Schedule", c.Schedule)
 	c.Mapping("Delete", c.Delete)
-	c.Mapping("Finish", c.Finish)
+	c.Mapping("Finished", c.Finished)
 }
 
 // @Title 发布任务
@@ -268,7 +268,7 @@ func (c *WorkTaskController) Delete() {
 // @Failure 1002 任务不存在
 // @Failure 1003 设置结束失败
 // @router /finish/:id [put]
-func (c *WorkTaskController) Finish() {
+func (c *WorkTaskController) Finished() {
 	var id int
 	c.Ctx.Input.Bind(&id, ":id")
 

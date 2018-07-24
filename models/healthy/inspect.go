@@ -301,6 +301,9 @@ func AddlistInspect(data string) (some_err []interface{}) {
 	for key, val := range i {
 		var v Inspect
 		s := models.Student{Id: val.StudentId}
+		if s.Id ==  0  {
+			continue
+		}
 		o.Read(&s)
 		tm2, _ := time.Parse("2006-01-02", s.Birthday)
 		timestamp := time.Now().Unix()
