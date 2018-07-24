@@ -8,7 +8,7 @@ import (
 	"github.com/astaxie/beego/validation"
 )
 
-//组织架构
+//教师展示
 type TeachersShowController struct {
 	BaseController
 }

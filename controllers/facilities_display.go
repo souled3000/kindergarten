@@ -8,7 +8,7 @@ import (
 	"github.com/astaxie/beego/validation"
 )
 
-//发布公告
+//设施展示
 type FacilitiesDisplayController struct {
 	BaseController
 }

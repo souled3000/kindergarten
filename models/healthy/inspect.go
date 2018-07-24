@@ -254,7 +254,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	startTime := tm.Format("2006-01-02 00:00:00")
 
 	where3 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
-	where3 += " AND healthy_inspect.created_at >= '" + startTime + "'"
+	where3 += " AND healthy_inspect.date >= '" + startTime + "'"
 	where3 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
 	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where3).QueryRows(&count)
 	if err == nil {
@@ -1069,7 +1069,7 @@ func (f *Inspect) PersonalInfo(baby_id int) (Page, error) {
 					Where(wheres2).
 					OrderBy("id").Desc().Limit(1).Offset(0).String()
 				var Heights []orm.Params
-				if baby, err := o.Raw(sql1).Values(&Heights); err == nil && baby != 0{
+				if baby, err := o.Raw(sql1).Values(&Heights); err == nil && baby != 0 {
 					Heights[0]["index"] = 100
 				}
 				return Page{0, 0, total, Heights}, nil
