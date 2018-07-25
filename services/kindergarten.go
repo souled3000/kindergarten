@@ -36,7 +36,7 @@ func (c *KindergartenServer) GetKg(user_id int, kindergarten_id int) (value map[
 	_, err = o.Raw(sql, user_id).Values(&permission)
 	//班级信息
 	qb, _ = orm.NewQueryBuilder("mysql")
-	sql = qb.Select("o.id as class_id", "o.name as class_name").From("teacher as t").LeftJoin("organizational_member as om").
+	sql = qb.Select("o.id as class_id", "o.name as class_name", "o.class_type").From("teacher as t").LeftJoin("organizational_member as om").
 		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
 		On("om.organizational_id = o.id").Where("t.user_id = ?").And("o.type = 2").And("o.level = 3").String()
 	_, err = o.Raw(sql, user_id).Values(&v)
@@ -90,9 +90,9 @@ func (c *KindergartenServer) GetClass(kindergarten_id int) (ml map[string]interf
 	return ml
 }
 
-func (c *KindergartenServer) GetAllergenChild(allergen string) (ml interface{}) {
+func (c *KindergartenServer) GetAllergenChild(allergen string, kindergarten_id int) (ml interface{}) {
 
-	if allergenChild, err := models.GetAllergenChild(allergen); err == nil {
+	if allergenChild, err := models.GetAllergenChild(allergen, kindergarten_id); err == nil {
 
 		jsonData, _ := json.Marshal(allergenChild)
 		return string(jsonData)
@@ -145,4 +145,10 @@ func (c *KindergartenServer) StudentNotice(class_type int, kindergarten_id int) 
 		return v, nil
 	}
 	return nil, err
+}
+
+//获取班级名字
+func (c *KindergartenServer) ClassName(class_type int, kindergarten_id int) (interface{}, error) {
+	v, err := models.Class(class_type, kindergarten_id)
+	return v, err
 }

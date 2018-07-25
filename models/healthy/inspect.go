@@ -3,7 +3,9 @@ package healthy
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/astaxie/beego/orm"
+
 	"kindergarten-service-go/models"
 	"math"
 	"strconv"
@@ -176,6 +178,7 @@ func (f *Inspect) GetAll(page, perPage, kindergarten_id, class_id, types, role, 
 			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
 			LeftJoin("teacher").On("healthy_inspect.teacher_id = teacher.teacher_id").
 			Where(where).
+			OrderBy("healthy_inspect.id").Desc().
 			Limit(limit).Offset(start).String()
 
 		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
@@ -217,7 +220,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	//每天统计
 	where := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	day_time := time.Now().Format("2006-01-02")
-	where += " AND left(created_at,10) = '" + day_time + "'"
+	where += " AND left(date,10) = '" + day_time + "'"
 	where += " AND (types = 1 Or types = 2 Or types = 3)"
 	where += " AND abnormal != '' "
 	type Counts struct {
@@ -230,7 +233,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	}
 	//实际检查人数
 	where1 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
-	where1 += " AND left(created_at,10) = '" + day_time + "'"
+	where1 += " AND left(date,10) = '" + day_time + "'"
 	_, err = o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where1).QueryRows(&count)
 	if err == nil {
 		counts["day_actual"] = count[0].Num
@@ -238,7 +241,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	//每月统计
 	month_time := time.Now().Format("2006-01")
 	where2 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
-	where2 += " AND left(healthy_inspect.created_at,7) = '" + month_time + "'"
+	where2 += " AND left(healthy_inspect.date,7) = '" + month_time + "'"
 	where2 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
 	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where2).QueryRows(&count)
 	if err == nil {
@@ -251,7 +254,7 @@ func Counts(kindergarten_id int) map[string]interface{} {
 	startTime := tm.Format("2006-01-02 00:00:00")
 
 	where3 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
-	where3 += " AND healthy_inspect.created_at >= '" + startTime + "'"
+	where3 += " AND healthy_inspect.date >= '" + startTime + "'"
 	where3 += " AND (abnormal != '' Or abnormal_weight = '瘦小' Or abnormal_weight = '肥胖' Or abnormal_weight = '矮小' Or abnormal_weight = '超高' Or abnormal2 = '异常' Or abnormal3 = '重度贫血') "
 	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect left join healthy_column  on healthy_inspect.id = healthy_column.inspect_id where" + where3).QueryRows(&count)
 	if err == nil {
@@ -298,6 +301,9 @@ func AddlistInspect(data string) (some_err []interface{}) {
 	for key, val := range i {
 		var v Inspect
 		s := models.Student{Id: val.StudentId}
+		if s.Id ==  0  {
+			continue
+		}
 		o.Read(&s)
 		tm2, _ := time.Parse("2006-01-02", s.Birthday)
 		timestamp := time.Now().Unix()
@@ -688,7 +694,7 @@ func (f *Inspect) ProjectNew(page, perPage, kindergarten_id, class_id, body_id, 
 		if column == "weight" {
 			where += " AND healthy_inspect.weight = 0 "
 		} else {
-			where += " AND (healthy_column."+ column +" is null Or healthy_column."+ column +" = '' )"
+			where += " AND (healthy_column." + column + " is null Or healthy_column." + column + " = '' )"
 		}
 	}
 
@@ -941,4 +947,190 @@ func (f *Inspect) Contents(content string) error {
 	}
 
 	return nil
+}
+
+//SaaS统计
+func Countss(kindergarten_id int) map[string]interface{} {
+	o := orm.NewOrm()
+	counts := make(map[string]interface{})
+	numbers := make(map[string]int64)
+	numbers["Monday"] = 0
+	numbers["Tuesday"] = 1
+	numbers["Wednesday"] = 2
+	numbers["Thursday"] = 3
+	numbers["Friday"] = 4
+	numbers["Saturday"] = 5
+	numbers["Sunday"] = 6
+	//每天统计
+	where := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	day_time := time.Now().Format("2006-01-02")
+	where += " AND left(date,10) = '" + day_time + "'"
+	where += " AND (types = 1 Or types = 2 Or types = 3)"
+	where += " AND abnormal != '' "
+	type Counts struct {
+		Num int
+	}
+	var count []Counts
+	_, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where).QueryRows(&count)
+	if err == nil {
+		counts["day"] = count[0].Num
+	}
+	//每月统计
+	month_time := time.Now().Format("2006-01")
+	where2 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where2 += " AND (types = 1 Or types = 2 Or types = 3)"
+	where2 += " AND left(healthy_inspect.date,7) = '" + month_time + "'"
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect where" + where2).QueryRows(&count)
+	if err == nil {
+		counts["month"] = count[0].Num
+	}
+	//每周统计
+	t := time.Now()
+	date := time.Now().Unix() - 24*60*60*(numbers[t.Weekday().String()])
+	tm := time.Unix(date, 0)
+	startTime := tm.Format("2006-01-02 00:00:00")
+
+	where3 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where3 += " AND healthy_inspect.created_at >= '" + startTime + "'"
+	_, err = o.Raw("SELECT count(healthy_inspect.id) as num FROM healthy_inspect where" + where3).QueryRows(&count)
+	if err == nil {
+		counts["week"] = count[0].Num
+	}
+	//全部统计
+	where4 := " kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	where4 += " AND types = 1 Or types = 2 Or types = 3"
+	all, err := o.Raw("SELECT count(id) as num FROM healthy_inspect where" + where4).QueryRows(&count)
+	if err == nil {
+		fmt.Println(all)
+		counts["all"] = count[0].Num
+	}
+
+	return counts
+}
+
+//宝宝健康指数
+func (f *Inspect) PersonalInfo(baby_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND ( healthy_inspect.types = 1 Or healthy_inspect.types = 2 Or healthy_inspect.types = 3 ) "
+	day_time := time.Now().Format("2006-01-02")
+	where += " AND left(date,10) = '" + day_time + "'"
+	wheres := " left(date,10) = '" + day_time + "'"
+	wheres += " AND abnormal is not null "
+	wheres += " AND ( types = 1 Or types = 2 Or types = 3 ) "
+	var student_id int
+	if baby_id != 0 {
+		fmt.Println(baby_id)
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil {
+			student_id = 0
+		} else {
+			student_id = student.Id
+		}
+
+		fmt.Println(student_id)
+		where += " AND healthy_inspect.student_id = ? "
+		con = append(con, student_id)
+		wheres += " AND student_id = " + strconv.Itoa(student_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(wheres).String()
+
+	var total int
+	err := o.Raw(sql).QueryRow(&total)
+
+	if err == nil {
+		var sxWords []orm.Params
+
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_inspect.*,student.name as student_name,student.age,student.avatar").From(f.TableName()).
+			LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+			Where(where).
+			OrderBy("id").Desc().
+			Limit(2).Offset(0).String()
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+			if len(sxWords) != 0 {
+				qb, _ := orm.NewQueryBuilder("mysql")
+				wheres2 := " types = 5 "
+				wheres2 += " AND student_id = " + strconv.Itoa(student_id)
+				sql1 := qb.Select("*").From(f.TableName()).Where(wheres2).OrderBy("id").Desc().Limit(1).Offset(0).String()
+				var Heights []orm.Params
+				if _, err := o.Raw(sql1).Values(&Heights); err == nil {
+					sxWords[0]["height"] = Heights[0]["height"]
+					sxWords[0]["weight"] = Heights[0]["weight"]
+				}
+				sxWords[0]["index"] = 100 - total*20
+				return Page{0, 0, total, sxWords}, nil
+			} else {
+				qb, _ := orm.NewQueryBuilder("mysql")
+				wheres2 := " healthy_inspect.types = 5 "
+				wheres2 += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
+				sql1 := qb.Select("healthy_inspect.*,student.name as student_name,student.age,student.avatar").From(f.TableName()).
+					LeftJoin("student").On("healthy_inspect.student_id = student.student_id").
+					Where(wheres2).
+					OrderBy("id").Desc().Limit(1).Offset(0).String()
+				var Heights []orm.Params
+				if baby, err := o.Raw(sql1).Values(&Heights); err == nil && baby != 0 {
+					Heights[0]["index"] = 100
+				}
+				return Page{0, 0, total, Heights}, nil
+			}
+		}
+	}
+
+	return Page{}, nil
+}
+
+//主题列表
+func (f *Inspect) Body(page, perPage, kindergarten_id, baby_id int) (Page, error) {
+	o := orm.NewOrm()
+	var con []interface{}
+	where := "1 "
+	where += "AND healthy_inspect.types = 5 "
+	if baby_id > 0 {
+		var student_id int
+		var student models.Student
+		err := o.QueryTable("student").Filter("baby_id", baby_id).One(&student)
+		if err != nil {
+			student_id = 0
+		} else {
+			student_id = student.Id
+		}
+		where += " AND healthy_inspect.student_id = " + strconv.Itoa(student_id)
+	}
+	if kindergarten_id > 0 {
+		where += " AND healthy_inspect.kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	}
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*)").From(f.TableName()).Where(where).String()
+	var total int
+	err := o.Raw(sql, con).QueryRow(&total)
+	if err == nil {
+		var sxWords []orm.Params
+
+		limit := 10
+		if perPage != 0 {
+			limit = perPage
+		}
+		if page <= 0 {
+			page = 1
+		}
+		start := (page - 1) * limit
+		where += " AND healthy_body.status = 1 "
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("healthy_body.*").From(f.TableName()).
+			LeftJoin("healthy_body").On("healthy_inspect.body_id = healthy_body.id").
+			Where(where).
+			Limit(limit).Offset(start).String()
+
+		if _, err := o.Raw(sql, con).Values(&sxWords); err == nil {
+
+			pageNum := int(math.Ceil(float64(total) / float64(limit)))
+			return Page{pageNum, limit, total, sxWords}, nil
+		}
+	}
+
+	return Page{}, nil
 }

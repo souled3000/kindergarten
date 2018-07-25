@@ -48,6 +48,10 @@ func AddPermission(name string, identification string, parent_id int, route stri
 	var ident []orm.Params
 	var r map[string]interface{}
 	json.Unmarshal([]byte(route), &r)
+	timeLayout := "2006-01-02 15:04:05" //转化所需模板
+	loc, _ := time.LoadLocation("")
+	timenow := time.Now().Format("2006-01-02 15:04:05")
+	createTime, _ := time.ParseInLocation(timeLayout, timenow, loc)
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Select("p.*").From("permission as p").Where("p.identification = ?").String()
 	num, err := o.Raw(sql, identification).Values(&ident)
@@ -69,23 +73,24 @@ func AddPermission(name string, identification string, parent_id int, route stri
 		if leve >= 2 {
 			err = errors.New("最多两级")
 			return err
-		}
-		qb, _ = orm.NewQueryBuilder("mysql")
-		sql = "insert into permission set parent_id = ?,name = ?,level = ?,identification = ?"
-		res, err := o.Raw(sql, v[0]["id"], name, lev, identification).Exec()
-		id, _ := res.LastInsertId()
-		for _, v := range r {
+		} else {
 			qb, _ = orm.NewQueryBuilder("mysql")
-			sql = "insert into permission_route set permission_id = ?,route_id = ?"
-			_, _ = o.Raw(sql, id, v).Exec()
-		}
-		if err == nil {
-			return nil
+			sql = "insert into permission set parent_id = ?,name = ?,level = ?,identification = ?,created_at = ?"
+			res, err := o.Raw(sql, v[0]["id"], name, lev, identification, createTime).Exec()
+			id, _ := res.LastInsertId()
+			for _, v := range r {
+				qb, _ = orm.NewQueryBuilder("mysql")
+				sql = "insert into permission_route set permission_id = ?,route_id = ?"
+				_, _ = o.Raw(sql, id, v).Exec()
+			}
+			if err == nil {
+				return nil
+			}
 		}
 	} else {
 		qb, _ = orm.NewQueryBuilder("mysql")
-		sql = "insert into permission set name = ?,identification = ?"
-		res, err := o.Raw(sql, name, identification).Exec()
+		sql = "insert into permission set name = ?,identification = ?,created_at = ?"
+		res, err := o.Raw(sql, name, identification, createTime).Exec()
 		id, _ := res.LastInsertId()
 		for _, v := range r {
 			qb, _ = orm.NewQueryBuilder("mysql")
@@ -272,4 +277,50 @@ func getGroupChild(posts []Organizational, id int) (Organizational []Organizatio
 		}
 	}
 	return Organizational
+}
+
+/*
+编辑权限
+*/
+func UpdatePermission(id int, routeId string) (err error) {
+	o := orm.NewOrm()
+	o.Begin()
+	var r map[string]interface{}
+	json.Unmarshal([]byte(routeId), &r)
+	_, err = o.QueryTable("permission_route").Filter("permission_id", id).Delete()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	for _, v := range r {
+		sql := "insert into permission_route set permission_id = ?,route_id = ?"
+		_, err = o.Raw(sql, id, v).Exec()
+	}
+	if err == nil {
+		o.Commit()
+		return nil
+	}
+	o.Rollback()
+	return err
+}
+
+/*
+编辑权限
+*/
+func DeletePermission(id int) (err error) {
+	o := orm.NewOrm()
+	o.Begin()
+	_, err = o.QueryTable("permission").Filter("id", id).Delete()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	_, err = o.QueryTable("permission_route").Filter("permission_id", id).Delete()
+	if err != nil {
+		o.Rollback()
+		return err
+	} else {
+		o.Commit()
+		return nil
+	}
 }

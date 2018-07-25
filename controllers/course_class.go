@@ -49,11 +49,30 @@ func (c *CourseClassController) Post() {
 // @Title 获取班级某一天课程
 // @Description 获取班级某一天课程
 // @Param	kindergarten_id	query	int	true	"幼儿园id"
-// @Param	class_id	query	int	true	"班级id"
 // @Success 0 			{json} 	JSONStruct
 // @Failure 1005 获取失败
 // @router /class_day [get]
 func (c *CourseClassController) GetTimeOne() {
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+
+	if list := models.GetCourseDayClassInfo(kindergarten_id); list == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
+	}
+
+	c.ServeJSON()
+}
+
+// GetTimeOne ...
+// @Title 获取班级某一天课程
+// @Description 获取班级某一天课程
+// @Param	kindergarten_id	query	int	true	"幼儿园id"
+// @Param	class_id	query	int	true	"班级id"
+// @Success 0 			{json} 	JSONStruct
+// @Failure 1005 获取失败
+// @router /classday [get]
+func (c *CourseClassController) GetTimeDay() {
 
 	kindergarten_id, _ := c.GetInt("kindergarten_id")
 	class_id, _ := c.GetInt("class_id")
@@ -121,6 +140,26 @@ func (c *CourseClassController) GetPlan() {
 // @Failure 1005 获取失败
 // @router /plan_info [get]
 func (c *CourseClassController) GetPlanInfo() {
+	id, _ := c.GetInt("id")
+	c_id, _ := c.GetInt("c_id")
+
+	if list := models.PlanInfonewCourseClass(id, c_id); list == nil {
+		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+	} else {
+		c.Data["json"] = JSONStruct{"success", 0, list, "获取成功"}
+	}
+
+	c.ServeJSON()
+}
+
+// GetPlan ...
+// @Title 计划详情
+// @Description 计划详情
+// @Param	id	query	int	true	"计划列表id"
+// @Success 0 			{json} 	JSONStruct
+// @Failure 1005 获取失败
+// @router /planinfo [get]
+func (c *CourseClassController) GetPlanInfoNew() {
 	id, _ := c.GetInt("id")
 
 	if list := models.PlanInfoCourseClass(id); list == nil {

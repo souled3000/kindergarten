@@ -23,6 +23,8 @@ type CourseInfo struct {
 	Job          string    `json:"job" orm:"column(job)`
 	Etc          string    `json:"etc" orm:"column(etc)`
 	List         string    `json:"list" orm:"column(list)`
+	Type         int       `json:"type" orm:"column(type)"`
+	Times        string    `json:"times" orm:"column(times)`
 	CreatedAt    time.Time `json:"created_at" orm:"auto_now_add"`
 }
 
@@ -73,7 +75,7 @@ Web -详情
 func GetCourseInfoInfo(id int) map[string]interface{} {
 	var v []CourseInfo
 	o := orm.NewOrm()
-	err := o.QueryTable("course").Filter("Id", id).One(&v)
+	err := o.QueryTable("course_info").Filter("Id", id).One(&v)
 	if err == nil {
 		paginatorMap := make(map[string]interface{})
 		paginatorMap["data"] = v
@@ -88,7 +90,6 @@ func GetCourseInfoInfo(id int) map[string]interface{} {
 func DeleteCourseInfo(id int) map[string]interface{} {
 	o := orm.NewOrm()
 	v := CourseInfo{Id: id}
-	// ascertain id exists in the database
 	if err := o.Read(&v); err == nil {
 		var num int64
 		if num, err = o.Delete(&CourseInfo{Id: id}); err == nil {

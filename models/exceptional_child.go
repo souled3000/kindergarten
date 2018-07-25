@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -37,8 +38,9 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 	var exceptionalChild ExceptionalChild
 	o := orm.NewOrm()
 	var infos []orm.Params
-	where := " allergen like \"%" + string(allergen) + "%\" AND student_id = ? AND kindergarten_id = ? "
-	if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er == nil && n > 0 {
+	where := " allergen like \"%" + string(allergen) + "%\" AND somatotype = " + strconv.Itoa(int(somatotype)) + " AND student_id = " + strconv.Itoa(student_id) + " AND kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE " + where).Values(&infos); er == nil && n > 0 {
+		// 已存在相同数据
 		return 0, err
 	} else {
 		exceptionalChild.ChildName = child_name
@@ -52,7 +54,7 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 		exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 		exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 		if id, err := o.Insert(&exceptionalChild); err != nil && id <= 0 {
-			return id, err
+			return id, errors.New("保存失败")
 		} else {
 			return id, nil
 		}
@@ -62,10 +64,15 @@ func AddExceptionalChild(child_name string, class int, somatotype int8, allergen
 
 // GetExceptionalChildById retrieves ExceptionalChild by Id. Returns error if
 // Id doesn't exist
-func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error) {
+func GetExceptionalChildById(id string, kindergarten_id int) (exceptionalChild interface{}, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where("ex.id=" + id).String()
+	var where string
+	where = " ex.id=" + id
+	if kindergarten_id != 0 {
+		where += " AND ex.kindergarten_id = " + strconv.Itoa(kindergarten_id)
+	}
+	sql := qb.Select("ex.id, ex.child_name, ex.somatotype, ex.allergen, ex.source, ex.kindergarten_id, ex.creator, ex.student_id, ex.created_at, ex.updated_at, o.id as class_id, o.name, o.class_type").From("exceptional_child as ex").LeftJoin("organizational as o").On("o.id = ex.class").Where(where).String()
 	var maps []orm.Params
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 		var newMaps []orm.Params
@@ -74,7 +81,6 @@ func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error
 				v["class_name"] = nil
 			} else if v["class_type"].(string) == "3" {
 				v["class_name"] = "大班" + v["name"].(string) + ""
-
 			} else if v["class_type"].(string) == "2" {
 				v["class_name"] = "中班" + v["name"].(string) + ""
 			} else {
@@ -94,7 +100,7 @@ func GetExceptionalChildById(id string) (exceptionalChild interface{}, err error
 
 // GetAllExceptionalChild retrieves all ExceptionalChild matches certain condition. Returns empty list if
 // no records exist
-func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limit int64, keyword string) (Page, error) {
+func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limit int64, keyword string, kindergarten_id int) (Page, error) {
 	o := orm.NewOrm()
 	where := "1=1 "
 
@@ -112,6 +118,10 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 	if keyword != "" {
 		where += " AND ex.child_name like \"%" + string(keyword) + "%\" OR ex.allergen like \"%" + string(keyword) + "%\""
 
+	}
+
+	if kindergarten_id != 0 {
+		where += " AND ex.kindergarten_id = " + strconv.Itoa(kindergarten_id)
 	}
 
 	totalqb, _ := orm.NewQueryBuilder("mysql")
@@ -137,7 +147,7 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 		if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
 
 			var newMap []orm.Params
-			for _, v := range maps {
+			for k, v := range maps {
 
 				if v["class_type"] == nil {
 					v["class_name"] = nil
@@ -151,17 +161,16 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 				if v["somatotype"] == nil {
 					v["somatot_info"] = nil
-					v["allergen"] = "无"
 				} else if v["somatotype"].(string) == "3" {
 					v["somatot_info"] = v["allergen"].(string) + "过敏"
 				} else if v["somatotype"].(string) == "2" {
 					v["somatot_info"] = "肥胖"
-					v["allergen"] = "无"
 				} else {
 					v["somatot_info"] = "瘦小"
-					v["allergen"] = "无"
 				}
 
+				// 序号
+				v["index"] = k + 1
 				t := time.Now()
 				currentTime := t.Unix() - (24 * 3600 * 3) //当前时间戳
 				BeCharge := v["updated_at"]
@@ -193,39 +202,46 @@ func GetAllExceptionalChild(child_name string, somatotype int8, page int64, limi
 
 // UpdateExceptionalChild updates ExceptionalChild by Id and returns error if
 // the record to be updated doesn't exist
-func UpdateExceptionalChildById(id int, child_name string, class int, somatotype int8, allergen string, student_id int) (err error) {
+func UpdateExceptionalChildById(id int, child_name string, class int, somatotype int8, allergen string, student_id int, kindergarten_id int) (num int, err error) {
 	o := orm.NewOrm()
 	exceptionalChild := ExceptionalChild{Id: id}
 	if err = o.Read(&exceptionalChild); err == nil {
-		if child_name != "" {
-			exceptionalChild.ChildName = child_name
-		}
-
-		if class != 0 {
-			exceptionalChild.Class = class
-		}
-
-		if somatotype != 0 {
-			exceptionalChild.Somatotype = somatotype
-		}
-
-		if allergen != "" {
-			exceptionalChild.Allergen = allergen
-		}
-
-		exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-
-		if student_id != 0 {
-			exceptionalChild.StudentId = student_id
-		}
-
-		if _, err := o.Update(&exceptionalChild); err == nil {
-			return err
+		var infos []orm.Params
+		where := " allergen like \"%" + string(allergen) + "%\" AND somatotype = " + strconv.Itoa(int(somatotype)) + " AND student_id = " + strconv.Itoa(student_id) + " AND kindergarten_id = " + strconv.Itoa(kindergarten_id)
+		if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE " + where).Values(&infos); er == nil && n > 0 {
+			// 已存在相同数据
+			return 0, nil
 		} else {
-			return err
+			if child_name != "" {
+				exceptionalChild.ChildName = child_name
+			}
+
+			if class != 0 {
+				exceptionalChild.Class = class
+			}
+
+			if somatotype != 0 {
+				exceptionalChild.Somatotype = somatotype
+			}
+
+			if allergen != "" {
+				exceptionalChild.Allergen = allergen
+			}
+
+			exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+
+			if student_id != 0 {
+				exceptionalChild.StudentId = student_id
+			}
+
+			if num, err := o.Update(&exceptionalChild); err == nil {
+				return int(num), err
+			} else {
+				return 1, err
+			}
 		}
 	}
-	return err
+	return 1, err
 }
 
 // DeleteExceptionalChild deletes ExceptionalChild by Id and returns error if
@@ -243,7 +259,7 @@ func DeleteExceptionalChild(id int) (err error) {
 }
 
 // 根据过敏源获取过敏儿童
-func GetAllergenChild(allergen string) (allergenChild []map[string]interface{}, err error) {
+func GetAllergenChild(allergen string, kindergarten_id int) (allergenChild []map[string]interface{}, err error) {
 	param := strings.Split(allergen, ",")
 	o := orm.NewOrm()
 	var allergens []orm.Params
@@ -251,7 +267,7 @@ func GetAllergenChild(allergen string) (allergenChild []map[string]interface{}, 
 		if v != "" {
 			maps := make(map[string]interface{})
 
-			where := " allergen like \"%" + string(v) + "%\""
+			where := " allergen like \"%" + string(v) + "%\" AND kindergarten_id =" + strconv.Itoa(kindergarten_id)
 			if _, err := o.Raw("SELECT allergen FROM `exceptional_child` WHERE " + where).Values(&allergens); err == nil {
 				if childName, childNum, err := GetChildName(v); err == nil {
 					maps["allergen"] = v
@@ -292,11 +308,11 @@ func GetChildName(val string) (childName string, childNum int64, err error) {
 }
 
 // 根据baby_id获取过敏源
-func GetAllergen(id int) (allergen []interface{}, err error) {
+func GetAllergen(id int, kindergarten_id int) (allergen []interface{}, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	idStr := strconv.Itoa(id)
-	where := " stu.baby_id=" + idStr
+	where := " stu.baby_id=" + idStr + " AND kindergarten_id=" + strconv.Itoa(kindergarten_id)
 	var maps []orm.Params
 	sql := qb.Select("ex.allergen, ex.id, COUNT(DISTINCT ex.allergen) as field").From("student as stu").LeftJoin("exceptional_child as ex").On("ex.student_id = stu.student_id").Where(where).GroupBy("ex.`allergen`").String()
 	if num, err := o.Raw(sql).Values(&maps); err == nil && num > 0 {
@@ -324,7 +340,7 @@ func AllergenPreparation(child_name string, somatotype int8, allergens string, s
 			for _, v := range allergen {
 				if v != "" {
 					var infos []orm.Params
-					where := " allergen like \"%" + string(v) + "%\" AND student_id = ? AND kindergarten_id = ? "
+					where := " allergen like \"%" + string(v) + "%\" AND somatotype = " + strconv.Itoa(int(somatotype)) + " AND student_id = ? AND kindergarten_id = ? "
 					if n, er := o.Raw("SELECT allergen FROM `exceptional_child` WHERE "+where, student_id, kindergarten_id).Values(&infos); er != nil || n == 0 {
 						var exceptionalChild ExceptionalChild
 						exceptionalChild.Id = 0
@@ -339,16 +355,16 @@ func AllergenPreparation(child_name string, somatotype int8, allergens string, s
 						exceptionalChild.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 						exceptionalChild.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 						exceptionalChildList = append(exceptionalChildList, exceptionalChild)
+					} else {
+						// 已存在相同数据
+						return 0, nil
 					}
 				}
 			}
-			if id, err = o.InsertMulti(1, exceptionalChildList); err != nil && id <= 0 {
-				return id, err
-			} else {
-				return id, err
-			}
+			id, err = o.InsertMulti(1, exceptionalChildList)
 		}
-		return id, err
+		return num, err
 	}
+	err = errors.New("该学生不存在")
 	return id, err
 }

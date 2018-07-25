@@ -119,8 +119,8 @@ func (wt *WorkTasks) Get(uId int) ([]map[string]interface{}, error) {
 		From("work_tasks as wt").
 		LeftJoin("work_tasks_cc as wtc").On("wt.id = wtc.work_tasks_id").
 		LeftJoin("work_tasks_operator as wto").On("wt.id = wto.work_tasks_id").
-		Where("wt.publisher = ? or wto.operator = ? or wtc.cc = ? and wt.status <> 2").
-		GroupBy("wt.id").String()
+		Where("(wt.publisher = ? or wto.operator = ? or wtc.cc = ?) and wt.status <> 2").
+		GroupBy("wt.id").OrderBy("wt.id").Desc().String()
 
 	if num, err := o.Raw(sql, uId, uId, uId).QueryRows(&tasks); err != nil {
 		return res, err
@@ -226,7 +226,7 @@ func (wt *WorkTasks) Complete(operator int, coursewareId, coursewareName, upload
 	}
 	if wt.TaskNum == wt.FinishNum {
 		wt.Status = 0
-		if _, err := o.Update(wt); err != nil {
+		if _, err := o.Update(wt, "status"); err != nil {
 			o.Rollback()
 
 			return err
@@ -256,7 +256,7 @@ func (wt *WorkTasks) Delete() error {
 	}
 
 	wt.Status = 2
-	if _, err := o.Update(wt); err != nil {
+	if _, err := o.Update(wt, "status"); err != nil {
 		return err
 	}
 
@@ -271,7 +271,7 @@ func (wt *WorkTasks) Finish() error {
 	}
 
 	wt.Status = 3
-	if _, err := o.Update(wt); err != nil {
+	if _, err := o.Update(wt, "status"); err != nil {
 		return err
 	}
 

@@ -337,3 +337,28 @@ func (c *TeacherController) OrganizationalTeacher() {
 		c.ServeJSON()
 	}
 }
+
+// GetUT ...
+// @Title 用户id获取教师id
+// @Description 用户id获取教师id用户id获取教师id
+// @Param	user_id       query	int	     true		"用户ID"
+// @Success 200 {object} models.Teacher
+// @Failure 403
+// @router /getut [get]
+func (c *TeacherController) GetUT() {
+	user_id, _ := c.GetInt("user_id")
+	valid := validation.Validation{}
+	valid.Required(user_id, "user_id").Message("用户id不能为空")
+	if valid.HasErrors() {
+		c.Data["json"] = JSONStruct{"error", 1001, nil, valid.Errors[0].Message}
+		c.ServeJSON()
+	} else {
+		v, err := models.GetUt(user_id)
+		if err != nil {
+			c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
+		}
+		c.ServeJSON()
+	}
+}

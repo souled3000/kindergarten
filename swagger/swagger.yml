@@ -66,6 +66,25 @@ paths:
             $ref: '#/definitions/models.Kindergarten'
         "403":
           description: :id is empty
+    delete:
+      tags:
+      - admin/kindergarten
+      description: 删除幼儿园
+      operationId: KindergartenController.删除幼儿园
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
   /admin/kindergarten/{id}:
     get:
       tags:
@@ -78,6 +97,117 @@ paths:
         description: 幼儿园ID
         required: true
         type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+    put:
+      tags:
+      - admin/kindergarten
+      description: 编辑幼儿园
+      operationId: KindergartenController.编辑幼儿园
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+  /admin/kindergarten/food_class:
+    get:
+      tags:
+      - admin/kindergarten
+      description: 饮食班级
+      operationId: KindergartenController.饮食班级
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+  /admin/kindergarten/food_scale:
+    get:
+      tags:
+      - admin/kindergarten
+      description: 饮食比例
+      operationId: KindergartenController.饮食比例
+      parameters:
+      - in: path
+        name: class_type
+        description: 班级类型
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: is_muslim
+        description: 是否清真
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+  /admin/kindergarten/get_member:
+    get:
+      tags:
+      - admin/kindergarten
+      description: oms-幼儿园所有成员
+      operationId: KindergartenController.oms-幼儿园所有成员
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Kindergarten'
+        "403":
+          description: :id is empty
+  /admin/kindergarten/getkg:
+    get:
+      tags:
+      - admin/kindergarten
+      description: 登陆幼儿园信息
+      operationId: KindergartenController.登陆幼儿园信息
+      parameters:
+      - in: path
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      - in: path
+        name: user_id
+        description: 用户ID
+        required: true
+        type: integer
+        format: int64
       responses:
         "200":
           description: ""
@@ -246,6 +376,42 @@ paths:
             $ref: '#/definitions/models.KindergartenLife'
         "403":
           description: :编号为空
+    put:
+      tags:
+      - admin/kindergarten_life
+      description: 编辑园内生活
+      operationId: KindergartenLifeController.编辑园内生活
+      parameters:
+      - in: path
+        name: id
+        description: 编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: content
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: template
+        description: 公告内容
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.KindergartenLife'
+        "403":
+          description: :id is not int
     delete:
       tags:
       - admin/kindergarten_life
@@ -266,7 +432,7 @@ paths:
     get:
       tags:
       - admin/notice
-      description: Web-公告列表
+      description: 公告列表
       operationId: NoticeController.公告列表
       parameters:
       - in: query
@@ -343,6 +509,41 @@ paths:
             $ref: '#/definitions/models.Notice'
         "403":
           description: :编号为空
+    put:
+      tags:
+      - admin/notice
+      description: 编辑公告
+      operationId: NoticeController.编辑公告
+      parameters:
+      - in: path
+        name: id
+        description: 编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: title
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: content
+        description: 公告内容
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Notice'
+        "403":
+          description: :id is not int
     delete:
       tags:
       - admin/notice
@@ -822,6 +1023,38 @@ paths:
             $ref: '#/definitions/models.Permission'
         "403":
           description: :id is empty
+    put:
+      tags:
+      - admin/permission
+      description: 编辑权限
+      operationId: PermissionController.编辑权限
+      parameters:
+      - in: body
+        name: route
+        description: 路由功能
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Permission'
+        "403":
+          description: body is empty
+    delete:
+      tags:
+      - admin/permission
+      description: 删除权限
+      operationId: PermissionController.删除权限
+      parameters:
+      - in: body
+        name: id
+        description: 权限id
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Permission'
+        "403":
+          description: body is empty
   /admin/permission/option:
     get:
       tags:
@@ -1122,7 +1355,6 @@ paths:
       - in: formData
         name: allergen
         description: 过敏源
-        required: true
         type: string
       - in: formData
         name: source
@@ -1639,6 +1871,26 @@ paths:
       - in: query
         name: per_page
         description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: ""
+  /admin/teacher/getut:
+    get:
+      tags:
+      - admin/teacher
+      description: 用户id获取教师id用户id获取教师id
+      operationId: TeacherController.用户id获取教师id
+      parameters:
+      - in: query
+        name: user_id
+        description: 用户ID
+        required: true
         type: integer
         format: int64
       responses:
@@ -2777,6 +3029,49 @@ paths:
           description: 补全信息
         "1003":
           description: 获取失败
+  /app/healthy/inspect/body/:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 项目详情
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        type: integer
+        format: int64
+      - in: query
+        name: role
+        description: 身份类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: date
+        description: 餐检时间
+        required: true
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Inspect'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
   /app/healthy/inspect/counts/:
     get:
       tags:
@@ -2804,6 +3099,49 @@ paths:
       tags:
       - app/healthy/inspect
       description: 宝宝健康指数
+      operationId: InspectController.GetAll
+      parameters:
+      - in: query
+        name: page
+        description: 第几页
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 页数
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级ID
+        type: integer
+        format: int64
+      - in: query
+        name: role
+        description: 身份类型
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: date
+        description: 餐检时间
+        required: true
+        type: string
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Inspect'
+        "1001":
+          description: 参数不能为空
+        "1005":
+          description: 获取失败
+  /app/healthy/inspect/personalInfo/:
+    get:
+      tags:
+      - app/healthy/inspect
+      description: 宝宝健康信息
       operationId: InspectController.GetAll
       parameters:
       - in: query
@@ -3078,6 +3416,28 @@ paths:
       - course
       description: 添加园本课程，专题，课程
       operationId: CourseController.添加园本课程，专题，课程
+  /course/{id}:
+    delete:
+      tags:
+      - course
+<<<<<<< HEAD
+      description: 幼儿园添加时间安排(时间段)
+      operationId: CourseController.幼儿园添加时间安排(时间段添加)
+  /course/addtime:
+=======
+      description: 删除
+      operationId: CourseController.删除
+      parameters:
+      - in: path
+        name: id
+        description: 特殊儿童ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{string} \tsuccess"
+        "1004":
+          description: 删除失败
   /course/add_time:
     post:
       tags:
@@ -3085,6 +3445,13 @@ paths:
       description: 幼儿园添加时间安排(时间段)
       operationId: CourseController.幼儿园添加时间安排(时间段添加)
   /course/addtime:
+    post:
+      tags:
+      - course
+      description: 专题时间安排
+      operationId: CourseController.专题时间安排
+  /course/adduse:
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
     post:
       tags:
       - course
@@ -3172,6 +3539,43 @@ paths:
       - in: query
         name: kindergarten_id
         description: 幼儿园id
+<<<<<<< HEAD
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: class_id
+        description: 班级id
+=======
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1005":
+          description: 获取失败
+<<<<<<< HEAD
+  /course_class/plan:
+    get:
+      tags:
+      - course_class
+      description: 计划列表
+      operationId: CourseClassController.计划列表
+      parameters:
+      - in: query
+=======
+  /course_class/classday:
+    get:
+      tags:
+      - course_class
+      description: 获取班级某一天课程
+      operationId: CourseClassController.获取班级某一天课程
+      parameters:
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
         required: true
         type: integer
         format: int64
@@ -3194,6 +3598,7 @@ paths:
       operationId: CourseClassController.计划列表
       parameters:
       - in: query
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
         name: kindergarten_id
         description: 幼儿园id
         required: true
@@ -3202,6 +3607,8 @@ paths:
       - in: query
         name: class_id
         description: 班级id
+<<<<<<< HEAD
+=======
         required: true
         type: integer
         format: int64
@@ -3211,6 +3618,29 @@ paths:
         "1005":
           description: 获取失败
   /course_class/plan_info:
+    get:
+      tags:
+      - course_class
+      description: 计划详情
+      operationId: CourseClassController.计划详情
+      parameters:
+      - in: query
+        name: id
+        description: 计划列表id
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: "{json} \tJSONStruct"
+        "1005":
+          description: 获取失败
+<<<<<<< HEAD
+  /course_class/plan_info:
+=======
+  /course_class/planinfo:
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
     get:
       tags:
       - course_class
@@ -3257,12 +3687,180 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
+<<<<<<< HEAD
+=======
+  /course_info/{id}:
+    get:
+      tags:
+      - course_info
+      description: 课程详情
+      operationId: CourseInfoController.课程详情
+      parameters:
+      - in: path
+        name: id
+        description: 课程ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{string} \tsuccess"
+        "1004":
+          description: 获取失败
+    delete:
+      tags:
+      - course_info
+      description: 删除课程
+      operationId: CourseInfoController.删除课程
+      parameters:
+      - in: path
+        name: id
+        description: 课程ID
+        required: true
+        type: string
+      responses:
+        "0":
+          description: "{string} \tsuccess"
+        "1004":
+          description: 删除失败
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
   /course_info/addinfo:
     post:
       tags:
       - course_info
       description: 添加园本课程，专题，课程
       operationId: CourseInfoController.添加园本课程，专题，课程
+<<<<<<< HEAD
+=======
+  /facilities_display/:
+    get:
+      tags:
+      - facilities_display
+      description: 设施列表
+      operationId: FacilitiesDisplayController.设施列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.FacilitiesDisplay'
+        "403":
+          description: ""
+    post:
+      tags:
+      - facilities_display
+      description: 保存设施
+      operationId: FacilitiesDisplayController.保存设施
+      parameters:
+      - in: query
+        name: picture
+        description: 图片
+        required: true
+        type: string
+      - in: query
+        name: order
+        description: 排序
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.FacilitiesDisplay'
+        "403":
+          description: body is empty
+  /facilities_display/{id}:
+    get:
+      tags:
+      - facilities_display
+      description: 设施详情
+      operationId: FacilitiesDisplayController.设施详情
+      parameters:
+      - in: query
+        name: id
+        description: 主键ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.FacilitiesDisplay'
+        "403":
+          description: :编号为空
+    put:
+      tags:
+      - facilities_display
+      description: 编辑设施
+      operationId: FacilitiesDisplayController.编辑设施
+      parameters:
+      - in: path
+        name: id
+        description: 编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: order
+        description: 排序
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: picture
+        description: 图片
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.FacilitiesDisplay'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - facilities_display
+      description: 删除设施
+      operationId: FacilitiesDisplayController.删除设施
+      parameters:
+      - in: path
+        name: id
+        description: 用户编号
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+>>>>>>> e0307d02b035df54389362af210fb3182b781e4d
   /healthy/body/:
     get:
       tags:
@@ -3419,6 +4017,26 @@ paths:
           description: '{string} delete success!'
         "1003":
           description: id is empty
+  /healthy/body/push/{id}:
+    put:
+      tags:
+      - healthy/body
+      description: 推送家长
+      operationId: BodyController.Put
+      parameters:
+      - in: path
+        name: id
+        description: id
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: ""
+          schema:
+            $ref: '#/definitions/healthy.Body'
+        "1003":
+          description: :id is not int
   /healthy/class/:
     get:
       tags:
@@ -4219,6 +4837,277 @@ paths:
           description: '{string} delete success!'
         "1003":
           description: id is empty
+  /kindergarten_life/:
+    get:
+      tags:
+      - kindergarten_life
+      description: Web-园内生活列表
+      operationId: KindergartenLifeController.园内生活列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.KindergartenLife'
+        "403":
+          description: ""
+    post:
+      tags:
+      - kindergarten_life
+      description: Web-保存园内生活
+      operationId: KindergartenLifeController.保存园内生活
+      parameters:
+      - in: query
+        name: content
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: template
+        description: 公告内容
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.KindergartenLife'
+        "403":
+          description: body is empty
+  /kindergarten_life/{id}:
+    get:
+      tags:
+      - kindergarten_life
+      description: Web-园内生活详情
+      operationId: KindergartenLifeController.园内生活详情
+      parameters:
+      - in: query
+        name: id
+        description: 主键ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.KindergartenLife'
+        "403":
+          description: :编号为空
+    put:
+      tags:
+      - kindergarten_life
+      description: 编辑园内生活
+      operationId: KindergartenLifeController.编辑园内生活
+      parameters:
+      - in: path
+        name: id
+        description: 编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: content
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: template
+        description: 公告内容
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.KindergartenLife'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - kindergarten_life
+      description: Web-删除园内生活
+      operationId: KindergartenLifeController.Web-删除园内生活
+      parameters:
+      - in: path
+        name: id
+        description: 自增id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
+  /notice/:
+    get:
+      tags:
+      - notice
+      description: 公告列表
+      operationId: NoticeController.公告列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Notice'
+        "403":
+          description: ""
+    post:
+      tags:
+      - notice
+      description: Web-保存公告
+      operationId: NoticeController.保存公告
+      parameters:
+      - in: query
+        name: title
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: content
+        description: 公告内容
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.Notice'
+        "403":
+          description: body is empty
+  /notice/{id}:
+    get:
+      tags:
+      - notice
+      description: Web-公告详情
+      operationId: NoticeController.公告详情
+      parameters:
+      - in: query
+        name: id
+        description: 主键ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Notice'
+        "403":
+          description: :编号为空
+    put:
+      tags:
+      - notice
+      description: 编辑公告
+      operationId: NoticeController.编辑公告
+      parameters:
+      - in: path
+        name: id
+        description: 编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: title
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: content
+        description: 公告内容
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Notice'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - notice
+      description: Web-删除公告
+      operationId: NoticeController.删除公告
+      parameters:
+      - in: path
+        name: id
+        description: 用户编号
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
   /organizational/:
     get:
       tags:
@@ -4726,6 +5615,143 @@ paths:
           description: success
         "403":
           description: :没有该服务
+  /slide_show/:
+    get:
+      tags:
+      - slide_show
+      description: 轮播图列表
+      operationId: SideShowController.轮播图列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园id
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.SideShow'
+        "403":
+          description: ""
+    post:
+      tags:
+      - slide_show
+      description: 保存轮播图
+      operationId: SideShowController.保存轮播图
+      parameters:
+      - in: query
+        name: title
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: content
+        description: 内容
+        required: true
+        type: string
+      - in: query
+        name: picture
+        description: 图片
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.SideShow'
+        "403":
+          description: body is empty
+  /slide_show/{id}:
+    get:
+      tags:
+      - slide_show
+      description: 轮播图详情
+      operationId: SideShowController.轮播图详情
+      parameters:
+      - in: query
+        name: id
+        description: 主键ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.SideShow'
+        "403":
+          description: :编号为空
+    put:
+      tags:
+      - slide_show
+      description: 编辑轮播图
+      operationId: SideShowController.编辑轮播图
+      parameters:
+      - in: path
+        name: id
+        description: 编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: title
+        description: 标题
+        required: true
+        type: string
+      - in: query
+        name: content
+        description: 内容
+        required: true
+        type: string
+      - in: query
+        name: picture
+        description: 图片
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/.SideShow'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - slide_show
+      description: 删除轮播图
+      operationId: SideShowController.删除轮播图
+      parameters:
+      - in: path
+        name: id
+        description: 自增id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
   /student/:
     get:
       tags:
@@ -4977,6 +6003,73 @@ paths:
           description: '{string} delete success!'
         "403":
           description: student_id is empty
+  /task/work_plan/:
+    get:
+      tags:
+      - task/work_plan
+      description: 获取工作计划
+      operationId: WorkPlanController.获取工作计划
+      parameters:
+      - in: query
+        name: u_id
+        description: 创建人
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1005":
+          description: 获取失败
+    post:
+      tags:
+      - task/work_plan
+      description: 创建工作计划
+      operationId: WorkPlanController.创建工作计划
+      parameters:
+      - in: formData
+        name: content
+        description: 内容
+        required: true
+        type: string
+      - in: formData
+        name: plan_time
+        description: 计划时间
+        required: true
+        type: string
+      - in: formData
+        name: creator
+        description: 创建人
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1001":
+          description: 参数验证
+        "1003":
+          description: 创建失败
+  /task/work_plan/{id}:
+    delete:
+      tags:
+      - task/work_plan
+      description: 删除工作计划
+      operationId: WorkPlanController.删除工作计划
+      parameters:
+      - in: path
+        name: id
+        description: 工作计划ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "0":
+          description: '{json} JSONStruct'
+        "1002":
+          description: 工作计划不存在
+        "1004":
+          description: 删除失败
   /task/work_tasks/:
     get:
       tags:
@@ -5403,6 +6496,140 @@ paths:
           description: '{string} delete success!'
         "403":
           description: teacher_id is empty
+  /teachers_show/:
+    get:
+      tags:
+      - teachers_show
+      description: 教师展示列表
+      operationId: TeachersShowController.教师展示列表
+      parameters:
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.TeachersShow'
+        "403":
+          description: ""
+    post:
+      tags:
+      - teachers_show
+      description: 保存教师展示
+      operationId: TeachersShowController.保存教师展示
+      parameters:
+      - in: query
+        name: teacher_id
+        description: 教师id
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: introduction
+        description: 介绍
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "201":
+          description: '{int} models.TeachersShow'
+        "403":
+          description: body is empty
+  /teachers_show/{id}:
+    get:
+      tags:
+      - teachers_show
+      description: Web-公告详情
+      operationId: TeachersShowController.公告详情
+      parameters:
+      - in: query
+        name: id
+        description: 主键ID
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: page
+        description: 页数
+        type: integer
+        format: int64
+      - in: query
+        name: per_page
+        description: 每页显示条数
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.TeachersShow'
+        "403":
+          description: :编号为空
+    put:
+      tags:
+      - teachers_show
+      description: 编辑教师展示
+      operationId: TeachersShowController.编辑教师展示
+      parameters:
+      - in: path
+        name: id
+        description: 教师编号
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: teacher_id
+        description: 教师id
+        required: true
+        type: integer
+        format: int64
+      - in: query
+        name: introduction
+        description: 介绍
+        required: true
+        type: string
+      - in: query
+        name: kindergarten_id
+        description: 幼儿园ID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/models.Teacher'
+        "403":
+          description: :id is not int
+    delete:
+      tags:
+      - teachers_show
+      description: 删除教师展示
+      operationId: TeachersShowController.删除教师展示
+      parameters:
+      - in: path
+        name: id
+        description: 用户编号
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} delete success!'
+        "403":
+          description: id is empty
   /user_permission/:
     post:
       tags:
@@ -5569,6 +6796,8 @@ paths:
         "403":
           description: :id is empty
 definitions:
+  .SideShow:
+    type: object
   healthy.Body:
     title: Body
     type: object
@@ -5598,6 +6827,9 @@ definitions:
         type: string
       rate:
         description: 合格率
+        type: integer
+        format: int64
+      status:
         type: integer
         format: int64
       test_time:
@@ -5843,6 +7075,28 @@ definitions:
         format: int64
       updated_at:
         type: string
+  models.FacilitiesDisplay:
+    title: FacilitiesDisplay
+    type: object
+    properties:
+      created_at:
+        type: string
+        format: string
+      id:
+        type: integer
+        format: int64
+      kindergarten_id:
+        type: integer
+        format: int64
+      order:
+        description: 排序
+        type: integer
+        format: int64
+      picture:
+        type: string
+      updated_at:
+        type: string
+        format: string
   models.Kindergarten:
     title: Kindergarten
     type: object
@@ -5910,7 +7164,7 @@ definitions:
       template:
         description: 模板
         type: integer
-        format: int32
+        format: int64
       update_at:
         type: string
         format: string
@@ -6247,6 +7501,30 @@ definitions:
         description: 用户id
         type: integer
         format: int64
+  models.TeachersShow:
+    title: TeachersShow
+    type: object
+    properties:
+      CreatedAt:
+        type: string
+        format: string
+      Id:
+        type: integer
+        format: int64
+      Introduction:
+        description: 介绍
+        type: string
+      KindergartenId:
+        description: 幼儿园ID
+        type: integer
+        format: int64
+      TeacherId:
+        description: 教师ID
+        type: integer
+        format: int64
+      UpdatedAt:
+        type: string
+        format: string
   models.UserPermission:
     title: UserPermission
     type: object
@@ -6303,7 +7581,19 @@ tags:
 - name: admin/kindergarten_life
   description: |
     园内生活
+- name: kindergarten_life
+  description: |
+    园内生活
+- name: facilities_display
+  description: |
+    发布公告
+- name: slide_show
+  description: |
+    轮播图
 - name: admin/notice
+  description: |
+    发布公告
+- name: notice
   description: |
     发布公告
 - name: organizational
@@ -6336,6 +7626,9 @@ tags:
 - name: student
   description: |
     学生
+- name: teachers_show
+  description: |
+    组织架构
 - name: teacher
   description: |
     教师

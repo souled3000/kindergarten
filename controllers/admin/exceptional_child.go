@@ -38,14 +38,16 @@ func (c *ExceptionalChildController) GetAll() {
 	keyword := c.GetString("keyword")
 	// page_num
 	page, _ := c.GetInt64("page")
+	// 幼儿园ID
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 
 	// limit
 	limit, _ := c.GetInt64("per_page")
-	if info, err := models.GetAllExceptionalChild(child_name, somatotype, page, limit, keyword); err == nil {
+	if info, err := models.GetAllExceptionalChild(child_name, somatotype, page, limit, keyword, kindergarten_id); err == nil {
 		c.Data["json"] = JSONStruct{"success", 0, info, "获取成功"}
 
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
 	c.ServeJSON()
 }
@@ -56,7 +58,7 @@ func (c *ExceptionalChildController) GetAll() {
 // @Param	child_name			formData  string	true		"特殊儿童姓名"
 // @Param	class				formData  int 		true		"特殊儿童班级"
 // @Param	somatotype			formData  int		true		"体质类型"
-// @Param	allergen			formData  string	true		"过敏源"
+// @Param	allergen			formData  string	false		"过敏源"
 // @Param	source				formData  int		true		"信息来源"
 // @Param	kindergarten_id		formData  int		true		"幼儿园ID"
 // @Param	creator				formData  int		true		"创建人"
@@ -87,7 +89,6 @@ func (c *ExceptionalChildController) Post() {
 	valid.Required(child_name, "child_name").Message("儿童姓名不能为空")
 	valid.Required(class, "class").Message("所在班级不能为空")
 	valid.Required(somatotype, "somatotype").Message("体质类型不能为空")
-	valid.Required(allergen, "allergen").Message("过敏源不能为空")
 	valid.Required(source, "source").Message("信息来源不能为空")
 	valid.Required(kindergarten_id, "kindergarten_id").Message("幼儿园ID不能为空")
 	valid.Required(creator, "creator").Message("创建人不能为空")
@@ -100,10 +101,10 @@ func (c *ExceptionalChildController) Post() {
 			if id == 0 {
 				c.Data["json"] = JSONStruct{"error", 1007, err, "已有此数据"}
 			} else {
-				c.Data["json"] = JSONStruct{"success", 0, err, "新增成功"}
+				c.Data["json"] = JSONStruct{"success", 0, nil, "新增成功"}
 			}
 		} else {
-			c.Data["json"] = JSONStruct{"error", 1003, nil, "新增失败"}
+			c.Data["json"] = JSONStruct{"error", 1003, err, "新增失败"}
 		}
 	}
 	c.ServeJSON()
@@ -119,15 +120,17 @@ func (c *ExceptionalChildController) Post() {
 func (c *ExceptionalChildController) GetOne() {
 	// 主键ID
 	idStr := c.Ctx.Input.Param(":id")
-	v, err := models.GetExceptionalChildById(idStr)
+	// 幼儿园ID
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
+	v, err := models.GetExceptionalChildById(idStr, kindergarten_id)
 	if err == nil {
 		if v != nil {
 			c.Data["json"] = JSONStruct{"success", 0, v, "获取成功"}
 		} else {
-			c.Data["json"] = JSONStruct{"error", 1002, nil, "没有相关数据"}
+			c.Data["json"] = JSONStruct{"error", 1002, err, "没有相关数据"}
 		}
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1005, nil, "获取失败"}
+		c.Data["json"] = JSONStruct{"error", 1005, err, "获取失败"}
 	}
 	c.ServeJSON()
 }
@@ -139,7 +142,7 @@ func (c *ExceptionalChildController) GetOne() {
 // @Param	child_name		body 	string	false		"特殊儿童姓名"
 // @Param	class			body 	int		false		"特殊儿童班级"
 // @Param	somatotype		body 	int		false		"体质类型"
-// @Param	allergen			body 	string	false		"过敏源"
+// @Param	allergen		body 	string	false		"过敏源"
 // @Param	student_id		body 	int		false		"学生ID"
 // @Success 0 				{string} 	success
 // @Failure 1003			更新失败
@@ -148,19 +151,27 @@ func (c *ExceptionalChildController) Put() {
 	// 主键ID
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
-
+	// 姓名
 	child_name := c.GetString("child_name")
+	// 班级ID
 	class, _ := c.GetInt("class")
-
+	// 体质类型
 	somatotype, _ := c.GetInt8("somatotype")
-
+	// 过敏源
 	allergen := c.GetString("allergen")
+	// 学生ID
 	student_id, _ := c.GetInt("student_id")
+	// 幼儿园ID
+	kindergarten_id, _ := c.GetInt("kindergarten_id")
 
-	if err := models.UpdateExceptionalChildById(id, child_name, class, somatotype, allergen, student_id); err == nil {
-		c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
+	if num, err := models.UpdateExceptionalChildById(id, child_name, class, somatotype, allergen, student_id, kindergarten_id); err == nil {
+		if num == 0 {
+			c.Data["json"] = JSONStruct{"error", 1007, err, "已有此数据"}
+		} else {
+			c.Data["json"] = JSONStruct{"success", 0, nil, "更新成功"}
+		}
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1003, nil, "更新失败"}
+		c.Data["json"] = JSONStruct{"error", 1003, err, "更新失败"}
 	}
 	c.ServeJSON()
 }
@@ -177,9 +188,9 @@ func (c *ExceptionalChildController) Delete() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	if err := models.DeleteExceptionalChild(id); err == nil {
-		c.Data["json"] = JSONStruct{"success", 0, err, "删除成功"}
+		c.Data["json"] = JSONStruct{"success", 0, nil, "删除成功"}
 	} else {
-		c.Data["json"] = JSONStruct{"error", 1004, nil, "删除失败"}
+		c.Data["json"] = JSONStruct{"error", 1004, err, "删除失败"}
 	}
 	c.ServeJSON()
 }

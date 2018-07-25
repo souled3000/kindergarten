@@ -208,7 +208,6 @@ func GetTeacherInfo(id int) (paginatorMap map[string]interface{}, err error) {
 		paginatorMap["data"] = v
 		return paginatorMap, nil
 	}
-
 	return nil, err
 }
 
@@ -363,4 +362,21 @@ func FilterTeacher(class_type int, kindergarten_id int) (ml map[string]interface
 	ml = make(map[string]interface{})
 	ml["data"] = data
 	return ml, nil
+}
+
+/*
+用户id获取教师id
+*/
+func GetUt(user_id int) (ml map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var teacher []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("t.teacher_id").From("teacher as t").Where("t.user_id = ?").And("isnull(t.deleted_at)").String()
+	_, err = o.Raw(sql, user_id).Values(&teacher)
+	if err == nil {
+		ml = make(map[string]interface{})
+		ml["data"] = teacher
+		return ml, nil
+	}
+	return nil, err
 }

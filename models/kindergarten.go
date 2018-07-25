@@ -174,9 +174,9 @@ func GetAll(page int, prepage int, search string) map[string]interface{} {
 		condition = append(condition, "%"+search+"%")
 	}
 	// 构建查询对象
-	sql := qb.Select("count(*)").From("kindergarten").Where(where).String()
+	sql := qb.Select("count(*)").From("kindergarten").Where(where).And("status = ?").String()
 	var total int64
-	err := o.Raw(sql, condition).QueryRow(&total)
+	err := o.Raw(sql, condition, 0).QueryRow(&total)
 	if err == nil {
 		var v []orm.Params
 		//根据nums总数，和prepage每页数量 生成分页总数
@@ -189,8 +189,8 @@ func GetAll(page int, prepage int, search string) map[string]interface{} {
 		}
 		limit := (page - 1) * prepage
 		qb, _ := orm.NewQueryBuilder("mysql")
-		sql := qb.Select("*").From("kindergarten").Where(where).Limit(prepage).Offset(limit).String()
-		num, err := o.Raw(sql, condition).Values(&v)
+		sql := qb.Select("*").From("kindergarten").Where(where).And("status = ?").Limit(prepage).Offset(limit).String()
+		num, err := o.Raw(sql, condition, 0).Values(&v)
 		if err == nil && num > 0 {
 			paginatorMap := make(map[string]interface{})
 			paginatorMap["total"] = total         //总条数
@@ -320,4 +320,230 @@ func AddKindergarten(name string, license_no int, kinder_grade string, kinder_ch
 		return nil
 	}
 	return err
+}
+
+/*
+删除幼儿园
+*/
+func DeleteKinder(kindergarten_id int) (err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable("kindergarten").Filter("kindergarten_id", kindergarten_id).Update(orm.Params{
+		"status": 1,
+	})
+	if err == nil {
+		return nil
+	}
+	return err
+}
+
+/*
+编辑幼儿园
+*/
+func UpdataKinder(kindergarten_id int, name string, license_no int, kinder_grade string, kinder_child_no int, address string, tenant_id int) (err error) {
+	o := orm.NewOrm()
+	_, err = o.QueryTable("kindergarten").Filter("kindergarten_id", kindergarten_id).Update(orm.Params{
+		"name": name, "license_no": license_no, "kinder_grade": kinder_grade, "kinder_child_no": kinder_child_no, "address": address, "tenant_id": tenant_id,
+	})
+	if err == nil {
+		return nil
+	}
+	return err
+}
+
+/*
+登陆幼儿园信息
+*/
+func GetKg(user_id int, kindergarten_id int) (value map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var v []orm.Params
+	var kinder []orm.Params
+	var permission []orm.Params
+	//幼儿园信息
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("k.name").From("kindergarten as k").Where("kindergarten_id = ?").String()
+	_, err = o.Raw(sql, kindergarten_id).Values(&kinder)
+	//权限信息
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("p.identification").From("user_permission as up").LeftJoin("permission as p").
+		On("up.permission_id = p.id").Where("up.user_id = ?").String()
+	_, err = o.Raw(sql, user_id).Values(&permission)
+	//班级信息
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("o.id as class_id", "o.name as class_name", "o.class_type").From("teacher as t").LeftJoin("organizational_member as om").
+		On("t.teacher_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where("t.user_id = ?").And("o.type = 2").And("o.level = 3").String()
+	_, err = o.Raw(sql, user_id).Values(&v)
+	kg := make(map[string]interface{})
+	if err == nil {
+		if v == nil {
+			value := make(map[string]interface{})
+			value["kindergarten_name"] = kinder[0]["name"]
+			value["permission"] = permission
+			return value, nil
+		} else {
+			value := v[0]
+			value["kindergarten_name"] = kinder[0]["name"]
+			kg["kindergarten"] = value
+			kg["permission"] = permission
+			return kg, nil
+		}
+	}
+	return nil, err
+}
+
+/*
+oms-幼儿园所有成员
+*/
+func GetKinderMbmber(kindergarten_id int, page int, prepage int) (value map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var student []orm.Params
+	var teacher []orm.Params
+	var User *UserService
+	client := rpc.NewHTTPClient(beego.AppConfig.String("ONE_MORE_USER_SERVER"))
+	client.UseService(&User)
+	qb, _ := orm.NewQueryBuilder("mysql")
+	// 构建查询对象
+	sql := qb.Select("count(*)").From("teacher as t").Where("t.kindergarten_id = ?").And("isnull(t.deleted_at)").String()
+	var total int64
+	err = o.Raw(sql, kindergarten_id).QueryRow(&total)
+	var Stotal int64
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("count(*)").From("student as s").LeftJoin("baby_kindergarten as bk").
+		On("s.baby_id = bk.baby_id").Where("s.kindergarten_id = ?").And("isnull(s.deleted_at)").String()
+	err = o.Raw(sql, kindergarten_id).QueryRow(&Stotal)
+	total = total + Stotal
+	if err == nil {
+		//根据nums总数，和prepage每页数量 生成分页总数
+		totalpages := int(math.Ceil(float64(total) / float64(prepage))) //page总数
+		if page > totalpages {
+			page = totalpages
+		}
+		if page <= 0 {
+			page = 1
+		}
+		limit := (page - 1) * prepage
+		qb, _ := orm.NewQueryBuilder("mysql")
+		sql := qb.Select("s.*", "bk.actived").From("student as s").LeftJoin("baby_kindergarten as bk").
+			On("s.baby_id = bk.baby_id").Where("s.kindergarten_id = ?").And("isnull(s.deleted_at)").Limit(prepage).Offset(limit).String()
+		_, err = o.Raw(sql, kindergarten_id).Values(&student)
+		if student == nil {
+			err = errors.New("该幼儿园没有学生")
+			return nil, err
+		}
+		for _, v := range student {
+			role := 6
+			v["role"] = role
+		}
+		qb, _ = orm.NewQueryBuilder("mysql")
+		sql = qb.Select("t.*").From("teacher as t").Where("t.kindergarten_id = ?").And("isnull(t.deleted_at)").Limit(prepage).Offset(limit).String()
+		_, err = o.Raw(sql, kindergarten_id).Values(&teacher)
+		if teacher == nil {
+			err = errors.New("该幼儿园没有教师")
+			return nil, err
+		}
+		rol := make(map[string]interface{})
+		for _, v := range teacher {
+			user_id, _ := strconv.Atoi(v["user_id"].(string))
+			role, _ := User.GetUKByUserId(user_id)
+			ro, _ := json.Marshal(role)
+			json.Unmarshal([]byte(ro), &rol)
+			v["role"] = rol["role"]
+			v["actived"] = rol["actived"]
+			student = append(student, v)
+		}
+		value = make(map[string]interface{})
+		value["total"] = total //总条数
+		value["data"] = student
+		value["page_num"] = totalpages //总页数
+		return value, err
+	}
+	return nil, err
+}
+
+/*
+饮食班级
+*/
+func FoodClass(kindergarten_id int) (value map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var student []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("o.*").From("organizational as o").Where("o.kindergarten_id = ?").And("o.is_fixed = 1 and o.level = 2 and o.type = 2").String()
+	_, err = o.Raw(sql, kindergarten_id).Values(&student)
+	value = make(map[string]interface{})
+	value["data"] = student
+	return value, err
+}
+
+/*
+饮食班级
+*/
+func FoodScale(is_muslim int, kindergarten_id int, class_type string) (value map[string]interface{}, err error) {
+	o := orm.NewOrm()
+	var student []orm.Params
+	var girl []orm.Params
+	var boy []orm.Params
+	where := "1 "
+	where += " and o.class_type in (" + class_type + ") "
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("count(*) as num", "sum(s.age) as age").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where(where).And("s.is_muslim = ?").And("om.type = 1").And("s.status = 1 and o.level = 3 and o.kindergarten_id = ?").String()
+	_, err = o.Raw(sql, is_muslim, kindergarten_id).Values(&student)
+	if err != nil {
+		return nil, err
+	}
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("count(*) as num").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where(where).And("om.type = 1").And("s.is_muslim = ?").And("s.status = 1 and o.level = 3 and o.kindergarten_id = ? and s.sex = ?").String()
+	_, err = o.Raw(sql, is_muslim, kindergarten_id, 0).Values(&boy)
+	if err != nil {
+		return nil, err
+	}
+	qb, _ = orm.NewQueryBuilder("mysql")
+	sql = qb.Select("count(*) as num").From("student as s").LeftJoin("organizational_member as om").
+		On("s.student_id = om.member_id").LeftJoin("organizational as o").
+		On("om.organizational_id = o.id").Where(where).And("om.type = 1").And("s.is_muslim = ?").And("s.status = 1 and o.level = 3 and o.kindergarten_id = ? and s.sex = ?").String()
+	_, err = o.Raw(sql, is_muslim, kindergarten_id, 1).Values(&girl)
+	if err != nil {
+		return nil, err
+	}
+	var num string
+	var age string
+	if student[0]["age"] == nil {
+		age = "0"
+	} else {
+		age = student[0]["age"].(string)
+	}
+	if student[0]["num"] == nil {
+		num = "0"
+	} else {
+		num = student[0]["num"].(string)
+	}
+	ages, _ := strconv.Atoi(age)
+	nums, _ := strconv.Atoi(num)
+	NewAge := int(math.Ceil(float64(ages) / float64(nums)))
+	if NewAge < 1 {
+		NewAge = 0
+	}
+	value = make(map[string]interface{})
+	value["num"] = nums
+	value["age"] = NewAge
+	value["scale"] = "" + boy[0]["num"].(string) + ":" + girl[0]["num"].(string) + ""
+	return value, err
+}
+
+/*
+班级
+*/
+func Class(kindergarten_id int, class_type int) (value interface{}, err error) {
+	o := orm.NewOrm()
+	var class []orm.Params
+	qb, _ := orm.NewQueryBuilder("mysql")
+	sql := qb.Select("o.name as class_name").From("organizational as o").Where("o.class_type = ?").And("o.kindergarten_id = ? and o.level = 2").String()
+	_, err = o.Raw(sql, class_type, kindergarten_id).Values(&class)
+	if err != nil {
+		return nil, err
+	}
+	return class, err
 }

@@ -20,6 +20,7 @@ type Body struct {
 	Mechanism      int       `json:"mechanism" orm:"column(mechanism)" description:"体检机构"`
 	KindergartenId int       `json:"kindergarten_id" orm:"column(kindergarten_id)" description:"幼儿园ID"`
 	Types          int       `json:"types" orm:"column(types)"`
+	Status         int       `json:"status" orm:"column(status)"`
 	Project        string    `json:"project" orm:"column(project)" description:"体检项目"`
 	CreatedAt      time.Time `json:"created_at" orm:"auto_now_add" description:"创建时间"`
 }
@@ -134,10 +135,10 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 	list2["column"] = "weight"
 	list2["columnh"] = "height"
 	list2["name"] = "身高体重"
+	list2["number"] = num.Num
 	list = append(list, list2)
 	sql = "select count(a.id) as num from healthy_inspect a where a.class_id=" + strconv.Itoa(class_id) + " and a.body_id = " + strconv.Itoa(id) + " and height != '' "
 	o.Raw(sql).QueryRow(&num)
-	fmt.Println(num.Num)
 	//list3["bili"] = int(math.Ceil(float64(num.Num)/float64(c_num)*100.0))
 	//list3["name"] = "身高"
 	//list = append(list,list3)
@@ -158,6 +159,7 @@ func GetOneBodyClass(id int, class_id int) (ml map[string]interface{}, err error
 				list1["bili"] = 0
 			} else {
 				list1["bili"] = bili
+				list1["number"] = num.Num
 			}
 			list1["column"] = cloumn[0]
 			if strings.Contains(val, "眼") {
@@ -239,7 +241,7 @@ func GetAllBody(kindergarten_id, page int, per_page int, types int, theme string
 	var d []Body
 
 	ml = make(map[string]interface{})
-	if _, err = qs.Limit(per_page, (page-1)*per_page).OrderBy("-id").All(&d); err == nil {
+	if _, err = qs.Limit(per_page, (page-1)*per_page).OrderBy("-test_time").All(&d); err == nil {
 		num, _ := qs.Count()
 		var dd []map[string]interface{}
 		djson, _ := json.Marshal(d)
@@ -350,4 +352,23 @@ func GetOneBodyClasss(id int, class_id int) (ml map[string]interface{}, err erro
 		return ml, nil
 	}
 	return nil, err
+}
+
+//推送家长
+func (f *Body) Push() error {
+	o := orm.NewOrm()
+	if err := o.Read(f); err == nil {
+		status := 0
+		if f.Status == 0 {
+			status = 1
+		}
+		f.Status = status
+		if _, err := o.Update(f, "Status"); err != nil {
+			return err
+		}
+	} else {
+		return err
+	}
+
+	return nil
 }
