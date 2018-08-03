@@ -3420,11 +3420,6 @@ paths:
     delete:
       tags:
       - course
-<<<<<<< HEAD
-      description: 幼儿园添加时间安排(时间段)
-      operationId: CourseController.幼儿园添加时间安排(时间段添加)
-  /course/addtime:
-=======
       description: 删除
       operationId: CourseController.删除
       parameters:
@@ -3451,7 +3446,6 @@ paths:
       description: 专题时间安排
       operationId: CourseController.专题时间安排
   /course/adduse:
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
     post:
       tags:
       - course
@@ -3539,15 +3533,6 @@ paths:
       - in: query
         name: kindergarten_id
         description: 幼儿园id
-<<<<<<< HEAD
-        required: true
-        type: integer
-        format: int64
-      - in: query
-        name: class_id
-        description: 班级id
-=======
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
         required: true
         type: integer
         format: int64
@@ -3556,16 +3541,6 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
-<<<<<<< HEAD
-  /course_class/plan:
-    get:
-      tags:
-      - course_class
-      description: 计划列表
-      operationId: CourseClassController.计划列表
-      parameters:
-      - in: query
-=======
   /course_class/classday:
     get:
       tags:
@@ -3598,7 +3573,6 @@ paths:
       operationId: CourseClassController.计划列表
       parameters:
       - in: query
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
         name: kindergarten_id
         description: 幼儿园id
         required: true
@@ -3607,8 +3581,6 @@ paths:
       - in: query
         name: class_id
         description: 班级id
-<<<<<<< HEAD
-=======
         required: true
         type: integer
         format: int64
@@ -3627,7 +3599,6 @@ paths:
       - in: query
         name: id
         description: 计划列表id
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
         required: true
         type: integer
         format: int64
@@ -3636,11 +3607,7 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
-<<<<<<< HEAD
-  /course_class/plan_info:
-=======
   /course_class/planinfo:
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
     get:
       tags:
       - course_class
@@ -3687,8 +3654,6 @@ paths:
           description: "{json} \tJSONStruct"
         "1005":
           description: 获取失败
-<<<<<<< HEAD
-=======
   /course_info/{id}:
     get:
       tags:
@@ -3722,15 +3687,12 @@ paths:
           description: "{string} \tsuccess"
         "1004":
           description: 删除失败
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
   /course_info/addinfo:
     post:
       tags:
       - course_info
       description: 添加园本课程，专题，课程
       operationId: CourseInfoController.添加园本课程，专题，课程
-<<<<<<< HEAD
-=======
   /facilities_display/:
     get:
       tags:
@@ -3860,7 +3822,6 @@ paths:
           description: '{string} delete success!'
         "403":
           description: id is empty
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
   /healthy/body/:
     get:
       tags:
@@ -7586,7 +7547,7 @@ tags:
     园内生活
 - name: facilities_display
   description: |
-    发布公告
+    设施展示
 - name: slide_show
   description: |
     轮播图
@@ -7628,7 +7589,7 @@ tags:
     学生
 - name: teachers_show
   description: |
-    组织架构
+    教师展示
 - name: teacher
   description: |
     教师

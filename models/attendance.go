@@ -136,6 +136,26 @@ func Att(sid, status int) (err error) {
 	return
 }
 
+const (
+	sql_toall = "select t.member_id from organizational_member t where t.organizational_id = ? and not exists( select t2.sid from aleave t2 where t2.beg <? and t2.end> ? and t.member_id = t2.sid) and not exists ( select sid from attendance t3 where t.member_id = t3.sid and t3.today=?)"
+
+	sql_stds1 = "select name,sid,cls,morning,afternoon,z.avatar from (select name,w.sid,cls,date_format(morning,'%H:%i') morning ,date_format(afternoon,'%H:%i') afternoon,w.avatar from (select t.name,t.sid,t.cls,a.morning,a.afternoon,t.avatar from (select distinct s.name,s.student_id sid ,s.class_info cls, s.avatar from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id = ? and s.status=1 ) t left join attendance a on t.sid=a.sid and a.today=?) w left join aleave l on w.sid = l.sid and l.beg < ? and l.end > ? where l.sid is null) z"
+	sql_stds2 = "select t.name,t.sid,t.cls,date_format(a.morning,'%H:%i') morning,date_format(a.afternoon,'%H:%i') afternoon,t.avatar from (select distinct s.name,s.student_id sid ,s.class_info cls,s.avatar from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t inner join attendance a on t.sid=a.sid and a.today=?"
+
+	sql_abn1 = "select t.name,t.sid,t.cls,a.reason,a.avatar from (select distinct s.name,s.student_id sid ,s.avatar,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t left join aleave a on t.sid=a.sid and a.beg <? and a.end>?"
+	sql_abn2 = "select a.id,t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 and not exists (select l.sid from aleave l where l.sid=s.student_id and l.beg<? and l.end>?)) t  left join attendance a on t.sid=a.sid and (a.morning is null || a.morning >?) union all select a.id,t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
+	sql_abn3 = "select a.id,t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 and not exists (select l.sid from aleave l where l.sid=s.student_id and l.beg<? and l.end>?)) t  left join attendance a on t.sid=a.sid and (a.afternoon is null || a.afternoon <? || a.afternoon >?)  union all select a.id,t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
+
+	sql_cbg = "select name,id,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ( select name,id,type,sum(amount) amount from ( select t1.name,t1.id,-1 type,count(*) amount from organizational t1 , organizational_member t2 , attendance t3 where t1.parent_id= ? and t1.id = t2.organizational_id and t2.member_id = t3.sid and t3.today = ? and t3.morning < ? and  t3.afternoon between ? and ?  group by t1.id union all select name,id,-1 type,0 amount from organizational t where t.parent_id = ?)z group by id union all select name,id,type,sum(amount) amount from ( select t4.name,t4.id,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid and t6.beg <= now() and t6.end >= now() group by t4.id ,type union all select name,id,1 type,0 amount from organizational t where t.parent_id = ?  union all select name,id,0 type,0 amount from organizational t where t.parent_id = ?)z group by id,type)v group by id order by name "
+
+	sql_atts1 = "select t1.sid,t1.name,t1.cls,date_format(t1.morning, '%H:%i') morning,date_format(t1.afternoon, '%H:%i') afternoon,t4.avatar from attendance t1, organizational t2,organizational_member t3 , student t4 where t2.id=? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.today = ? and t1.sid=t4.student_id and t1.morning < ? and t1.afternoon between ? and ? "
+	sql_atts2 = "select t1.id,t1.sid,t1.name,-1 type,'' reason,date_format(t1.morning, '%H:%i') morning,date_format(t1.afternoon, '%H:%i') afternoon,t4.avatar from attendance t1, organizational t2,organizational_member t3 , student t4 where t2.id=? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.today = ? and t1.sid=t4.student_id and ( t1.morning > ? or t1.morning is null ) and ( t1.afternoon < ? or t1.afternoon > ? or t1.afternoon is null) union all select t1.id,t1.sid,t4.name ,t1.type,t1.reason,null morning,null afternoon,t4.avatar from aleave t1,organizational t2,organizational_member t3, student t4 where t4.student_id=t1.sid and t2.id = ? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.beg < ? and t1.end >?"
+
+	sql_count = "select max(case name when 'denominator' then n else 0 end) 'denominator', max(case name when 'numerator' then n else 0 end) 'numerator' from (  select 'denominator' name,count(*) n from student t1 where kindergarten_id = ? and status=1 union all select 'numerator' name,count(*) n from attendance t2,student t3 where t2.morning is not null and t2.afternoon is not null and t3.kindergarten_id =? and t3.student_id=t2.sid )z "
+
+	sql_gbk = "select t2.id,t2.name from organizational t ,organizational t2 where t.kindergarten_id = ? and t.level=1 and t.type =2 and t.id = t2.parent_id"
+)
+
 /*
 一键入园
 */
@@ -152,9 +172,8 @@ func ToAll(cid int) (err error) {
 			db.Commit()
 		}
 	}()
-	sql := "select t.member_id from organizational_member t where t.organizational_id = ? and not exists( select t2.sid from aleave t2 where t2.beg <? and t2.end> ? and t.member_id = t2.sid) and not exists ( select sid from attendance t3 where t.member_id = t3.sid and t3.today=?)"
 	var ids []int
-	db.Raw(sql, cid, now, now, today).QueryRows(&ids)
+	db.Raw(sql_toall, cid, now, now, today).QueryRows(&ids)
 	var atts []Attendance
 	for _, sid := range ids {
 		var a Attendance
@@ -261,16 +280,11 @@ func GotStds(cid int) (rt []orm.Params) {
 	beego.Debug(today+" "+r.Mend, today+" "+r.Abeg, today+" "+r.Aend)
 	beego.Debug(mend, abeg, aend)
 
-	var sql string
 	switch {
 	case (now.Unix() <= mend.Unix()) || (abeg.Unix() <= now.Unix() && now.Unix() <= aend.Unix()):
-		//		sql = "select name,sid,cls,morning,afternoon from (select name,w.sid,cls,morning,afternoon from (select t.name,t.sid,t.cls,a.morning,a.afternoon from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id=? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t left join attendance a on t.sid=a.sid and a.today=?) w left join aleave l on w.sid = l.sid and l.beg < ? and l.end > ? where l.sid is null) z"
-		sql = "select name,sid,cls,morning,afternoon,z.avatar from (select name,w.sid,cls,date_format(morning,'%H:%i') morning ,date_format(afternoon,'%H:%i') afternoon,w.avatar from (select t.name,t.sid,t.cls,a.morning,a.afternoon,t.avatar from (select distinct s.name,s.student_id sid ,s.class_info cls, s.avatar from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id = ? and s.status=1 ) t left join attendance a on t.sid=a.sid and a.today=?) w left join aleave l on w.sid = l.sid and l.beg < ? and l.end > ? where l.sid is null) z"
-		db.Raw(sql, cid, today, now, now).Values(&rt)
+		db.Raw(sql_stds1, cid, today, now, now).Values(&rt)
 	case (mend.Unix() < now.Unix() && now.Unix() < abeg.Unix()) || now.Unix() > aend.Unix():
-		//		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id=? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t inner join attendance a on t.sid=a.sid and a.today=?"
-		sql = "select t.name,t.sid,t.cls,date_format(a.morning,'%H:%i') morning,date_format(a.afternoon,'%H:%i') afternoon,t.avatar from (select distinct s.name,s.student_id sid ,s.class_info cls,s.avatar from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t inner join attendance a on t.sid=a.sid and a.today=?"
-		db.Raw(sql, cid, today).Values(&rt)
+		db.Raw(sql_stds2, cid, today).Values(&rt)
 	}
 	return
 }
@@ -298,29 +312,13 @@ func GotAbnDtl(tid int) (rt []orm.Params) {
 	abeg, _ := time.ParseInLocation("2006-01-02 15:04", today+" "+r.Abeg, time.Local)
 	aend, _ := time.ParseInLocation("2006-01-02 15:04", today+" "+r.Aend, time.Local)
 
-	var sql string
 	switch {
 	case (now.Unix() <= mend.Unix()) || (abeg.Unix() <= now.Unix() && now.Unix() <= aend.Unix()):
-		//		sql := "select t.name,t.sid,t.cls,a.reason from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t left join aleave a on t.sid=a.sid and a.beg <? and a.end>?"
-		sql := "select t.name,t.sid,t.cls,a.reason,a.avatar from (select distinct s.name,s.student_id sid ,s.avatar,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t left join aleave a on t.sid=a.sid and a.beg <? and a.end>?"
-		orm.NewOrm().Raw(sql, tid, now, now).Values(&rt)
+		orm.NewOrm().Raw(sql_abn1, tid, now, now).Values(&rt)
 	case (mend.Unix() < now.Unix() && now.Unix() < abeg.Unix()):
-		//		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t  left join attendance a on t.sid=a.sid and (a.morning is null || a.morning >?)" +
-		//			"union all" +
-		//			" select t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
-		sql = "select a.id,t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 and not exists (select l.sid from aleave l where l.sid=s.student_id and l.beg<? and l.end>?)) t  left join attendance a on t.sid=a.sid and (a.morning is null || a.morning >?)" +
-			" union all" +
-			" select a.id,t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
-		orm.NewOrm().Raw(sql, tid, now, now, now, tid, now, mend).Values(&rt)
+		orm.NewOrm().Raw(sql_abn2, tid, now, now, now, tid, now, mend).Values(&rt)
 	case now.Unix() > aend.Unix():
-		//afternoon<abeg 早退 ；afternoon >aend 补勤
-		//		sql = "select t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id=? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t  left join attendance a on t.sid=a.sid and (a.afternoon is null || a.afternoon <? || a.afternoon >?)" +
-		//			"union all" +
-		//			" select t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type from (select distinct s.name,s.student_id sid ,s.class_info cls from organizational_member om,organizational_member o2 ,student s where om.type=0 and om.member_id= ? and s.student_id = o2.member_id and o2.type=1 and s.status=1 and om.organizational_id=o2.organizational_id) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
-		sql = "select a.id,t.name,t.sid,t.cls,a.morning,a.afternoon ,'' reason,-1 type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 and not exists (select l.sid from aleave l where l.sid=s.student_id and l.beg<? and l.end>?)) t  left join attendance a on t.sid=a.sid and (a.afternoon is null || a.afternoon <? || a.afternoon >?)" +
-			" union all" +
-			" select a.id,t.name,t.sid,t.cls,null morning,null afternoon,a.reason,type,t.avatar from (select distinct s.avatar,s.name,s.student_id sid ,s.class_info cls from organizational_member o2 ,student s where s.student_id = o2.member_id and o2.organizational_id=? and s.status=1 ) t join aleave a on t.sid=a.sid and a.beg< ? and a.end >?"
-		orm.NewOrm().Raw(sql, tid, now, now, abeg, aend, tid, now, now).Values(&rt)
+		orm.NewOrm().Raw(sql_abn3, tid, now, now, abeg, aend, tid, now, now).Values(&rt)
 	}
 	return
 }
@@ -344,31 +342,8 @@ func CountByGrade(day string, grade int) (rt []orm.Params) {
 	mend, _ := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Mend, time.Local)
 	abeg, _ := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Abeg, time.Local)
 	aend, _ := time.ParseInLocation("2006-01-02 15:04", day+" "+r.Aend, time.Local)
-	var sql string
-	sql += "select name,id,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ("
-	sql += " select name,id,type,sum(amount) amount from ( "
-	sql += " select t1.name,t1.id,-1 type,count(*) amount "
-	sql += " from organizational t1 , organizational_member t2 , attendance t3 "
-	sql += " where t1.parent_id= ? and t1.id = t2.organizational_id "
-	sql += " and t2.member_id = t3.sid and t3.today = ? and t3.morning < ? and "
-	sql += " t3.afternoon between ? and ?  group by t1.id"
-	sql += " union all"
-	sql += " select name,id,-1 type,0 amount from organizational t where t.parent_id = ?)z group by id"
-	sql += " union all "
-	sql += " select name,id,type,sum(amount) amount from ("
-	sql += " select t4.name,t4.id,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 "
-	sql += " where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid and t6.beg <= now() and t6.end >= now() group by t4.id ,type "
-	sql += " union all "
-	sql += " select name,id,1 type,0 amount from organizational t where t.parent_id = ? "
-	sql += " union all "
-	sql += " select name,id,0 type,0 amount from organizational t where t.parent_id = ?)z group by id,type)v group by id order by name "
-	db.Raw(sql, grade, day, mend, abeg, aend, grade, grade, grade, grade).Values(&rt)
-	//	sql += "select name,max(case type when -1 then amount else 0 end) 'good', max(case type when 0 then amount else 0 end) 'casual', max(case type when 1 then amount else 0 end) 'sick' from ("
-	//	sql += " select t1.name,-1 type,count(*) amount from organizational t1 , organizational_member t2 , attendance t3 where t1.parent_id=? and t1.id = t2.organizational_id and t2.member_id = t3.sid and t3.today = ? group by t1.id"
-	//	sql += " union all"
-	//	sql += " select t4.name,t6.type,count(*) amount from organizational t4,organizational_member t5 , aleave t6 where t4.parent_id = ? and t4.id=t5.organizational_id and t5.member_id =t6.sid and t6.beg < ? and t6.end > ? group by t4.id "
-	//	sql += " ) z group by name"
-	//	db.Raw(sql, grade, day, grade, aday, aday).Values(&rt)
+
+	db.Raw(sql_cbg, grade, day, mend, abeg, aend, grade, grade, grade, grade).Values(&rt)
 
 	beego.Debug(rt)
 	return
@@ -399,16 +374,10 @@ func GotAttsByDayAndCls(day string, cid int) (rt map[string]interface{}) {
 
 	rt = make(map[string]interface{})
 
-	var sql string
 	var r1 []orm.Params
-	sql = "select t1.sid,t1.name,t1.cls,date_format(t1.morning, '%H:%i') morning,date_format(t1.afternoon, '%H:%i') afternoon,t4.avatar from attendance t1, organizational t2,organizational_member t3 , student t4 where t2.id=? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.today = ? and t1.sid=t4.student_id and t1.morning < ? and t1.afternoon between ? and ? "
-	db.Raw(sql, cid, day, mend, abeg, aend).Values(&r1)
-
-	sql = "select t1.id,t1.sid,t1.name,-1 type,'' reason,date_format(t1.morning, '%H:%i') morning,date_format(t1.afternoon, '%H:%i') afternoon,t4.avatar from attendance t1, organizational t2,organizational_member t3 , student t4 where t2.id=? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.today = ? and t1.sid=t4.student_id and ( t1.morning > ? or t1.morning is null ) and ( t1.afternoon < ? or t1.afternoon > ? or t1.afternoon is null) "
-	sql += " union all "
-	sql += " select t1.id,t1.sid,t4.name ,t1.type,t1.reason,null morning,null afternoon,t4.avatar from aleave t1,organizational t2,organizational_member t3, student t4 where t4.student_id=t1.sid and t2.id = ? and t1.sid=t3.member_id and t2.id=t3.organizational_id and t1.beg < ? and t1.end >?"
+	db.Raw(sql_atts1, cid, day, mend, abeg, aend).Values(&r1)
 	var r2 []orm.Params
-	db.Raw(sql, cid, day, mend, abeg, aend, cid, aday, aday).Values(&r2)
+	db.Raw(sql_atts2, cid, day, mend, abeg, aend, cid, aday, aday).Values(&r2)
 	rt["att"] = r1
 	rt["leave"] = r2
 	return
@@ -419,13 +388,7 @@ func GotAttsByDayAndCls(day string, cid int) (rt map[string]interface{}) {
  */
 func TotalCounting(day string, kid int) (rt []orm.Params) {
 	db := orm.NewOrm()
-	var sql string
-	sql = "select max(case name when 'denominator' then n else 0 end) 'denominator', max(case name when 'numerator' then n else 0 end) 'numerator' " +
-		" from (" +
-		" select 'denominator' name,count(*) n from student t1 where kindergarten_id = ? and status=1 " +
-		" union all" +
-		" select 'numerator' name,count(*) n from attendance t2,student t3 where t2.morning is not null and t2.afternoon is not null and t3.kindergarten_id =? and t3.student_id=t2.sid )z "
-	db.Raw(sql, kid, day).Values(&rt)
+	db.Raw(sql_count, kid, day).Values(&rt)
 	return
 }
 
@@ -434,9 +397,7 @@ func TotalCounting(day string, kid int) (rt []orm.Params) {
  */
 func GotGradeByKid(kid int) (rt []orm.Params) {
 	db := orm.NewOrm()
-	var sql string
-	sql = "select t2.id,t2.name from organizational t ,organizational t2 where t.kindergarten_id = ? and t.level=1 and t.type =2 and t.id = t2.parent_id"
-	db.Raw(sql, kid).Values(&rt)
+	db.Raw(sql_gbk, kid).Values(&rt)
 	return
 }
 

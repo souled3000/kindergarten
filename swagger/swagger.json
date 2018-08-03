@@ -5028,25 +5028,6 @@
                 "operationId": "CourseController.专题时间安排"
             }
         },
-<<<<<<< HEAD
-        "/course/courseinfo": {
-            "get": {
-                "tags": [
-                    "course"
-                ],
-                "description": "专题详情",
-                "operationId": "CourseController.专题详情",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "id",
-                        "description": "专题id",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-=======
         "/course/adduse": {
             "post": {
                 "tags": [
@@ -5073,7 +5054,6 @@
                         "format": "int64"
                     }
                 ],
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                 "responses": {
                     "0": {
                         "description": "{string} \tsuccess"
@@ -5119,27 +5099,11 @@
                 }
             }
         },
-<<<<<<< HEAD
-        "/course_class/": {
-            "post": {
-                "tags": [
-                    "course_class"
-                ],
-                "description": "班级课程安排",
-                "operationId": "CourseClassController.班级课程安排"
-            }
-        },
-        "/course_class/class_course": {
-            "get": {
-=======
         "/course/{id}": {
             "delete": {
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                 "tags": [
-                    "course_class"
+                    "course"
                 ],
-<<<<<<< HEAD
-=======
                 "description": "删除",
                 "operationId": "CourseController.删除",
                 "parameters": [
@@ -5175,7 +5139,6 @@
                 "tags": [
                     "course_class"
                 ],
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                 "description": "获取班级课程表",
                 "operationId": "CourseClassController.获取班级课程表",
                 "parameters": [
@@ -5218,17 +5181,6 @@
                         "in": "query",
                         "name": "kindergarten_id",
                         "description": "幼儿园id",
-<<<<<<< HEAD
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "class_id",
-                        "description": "班级id",
-=======
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -5244,29 +5196,18 @@
                 }
             }
         },
-<<<<<<< HEAD
-        "/course_class/plan": {
-=======
         "/course_class/classday": {
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
             "get": {
                 "tags": [
                     "course_class"
                 ],
-<<<<<<< HEAD
-                "description": "计划列表",
-                "operationId": "CourseClassController.计划列表",
-=======
                 "description": "获取班级某一天课程",
                 "operationId": "CourseClassController.获取班级某一天课程",
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                 "parameters": [
                     {
                         "in": "query",
                         "name": "kindergarten_id",
                         "description": "幼儿园id",
-<<<<<<< HEAD
-=======
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -5275,7 +5216,6 @@
                         "in": "query",
                         "name": "class_id",
                         "description": "班级id",
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -5301,8 +5241,6 @@
                 "parameters": [
                     {
                         "in": "query",
-<<<<<<< HEAD
-=======
                         "name": "kindergarten_id",
                         "description": "幼儿园id",
                         "required": true,
@@ -5311,7 +5249,6 @@
                     },
                     {
                         "in": "query",
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
                         "name": "class_id",
                         "description": "班级id",
                         "required": true,
@@ -5356,20 +5293,6 @@
                 }
             }
         },
-<<<<<<< HEAD
-        "/course_info/": {
-            "get": {
-                "tags": [
-                    "course_info"
-                ],
-                "description": "课程列表",
-                "operationId": "CourseInfoController.课程列表",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "kindergarten_id",
-                        "description": "幼儿园id",
-=======
         "/course_class/planinfo": {
             "get": {
                 "tags": [
@@ -5382,22 +5305,6 @@
                         "in": "query",
                         "name": "id",
                         "description": "计划列表id",
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "query",
-                        "name": "date",
-                        "description": "日期",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "query",
-                        "name": "class_type",
-                        "description": "班级类型",
                         "required": true,
                         "type": "integer",
                         "format": "int64"
@@ -5413,20 +5320,7 @@
                 }
             }
         },
-<<<<<<< HEAD
-        "/course_info/addinfo": {
-            "post": {
-                "tags": [
-                    "course_info"
-                ],
-                "description": "添加园本课程，专题，课程",
-                "operationId": "CourseInfoController.添加园本课程，专题，课程"
-            }
-        },
-        "/healthy/body/": {
-=======
         "/course_info/": {
->>>>>>> e0307d02b035df54389362af210fb3182b781e4d
             "get": {
                 "tags": [
                     "course_info"
@@ -8951,36 +8845,6 @@
                 }
             }
         },
-        "/task/work_plan/{id}": {
-            "delete": {
-                "tags": [
-                    "task/work_plan"
-                ],
-                "description": "删除工作计划",
-                "operationId": "WorkPlanController.删除工作计划",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "description": "工作计划ID",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "0": {
-                        "description": "{json} JSONStruct"
-                    },
-                    "1002": {
-                        "description": "工作计划不存在"
-                    },
-                    "1004": {
-                        "description": "删除失败"
-                    }
-                }
-            }
-        },
         "/task/work_tasks/": {
             "get": {
                 "tags": [
@@ -11091,7 +10955,7 @@
         },
         {
             "name": "facilities_display",
-            "description": "发布公告\n"
+            "description": "设施展示\n"
         },
         {
             "name": "slide_show",
@@ -11147,7 +11011,7 @@
         },
         {
             "name": "teachers_show",
-            "description": "组织架构\n"
+            "description": "教师展示\n"
         },
         {
             "name": "teacher",
